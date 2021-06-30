@@ -1,0 +1,23 @@
+//git ftp文檔
+https://github.com/git-ftp/git-ftp/blob/master/INSTALL.md
+
+//安裝git ftp
+//管理員開啟 Git Bash 輸入已下指令
+curl https://raw.githubusercontent.com/git-ftp/git-ftp/master/git-ftp > /bin/git-ftp
+chmod 755 /bin/git-ftp
+
+//推正式機
+git ftp init -u icarepo1 -p 'hcRY2g4PG5' ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
+git ftp push -u icarepo1 -p 'hcRY2g4PG5' ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
+//設定主機
+git config git-ftp.url ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
+git config git-ftp.user icarepo1
+git config git-ftp.password 'hcRY2g4PG5'
+//設定本機路徑
+git config git-ftp.syncroot C:\xampp\htdocs\idm
+
+
+//初始化
+git ftp init
+//推測試機
+git ftp push 

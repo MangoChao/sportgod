@@ -1,0 +1,1 @@
+php think min -m all -r all -vvv
