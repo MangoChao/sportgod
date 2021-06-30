@@ -105,7 +105,7 @@ class Attachment extends Backend
         if ($ids) {
             \think\Hook::add('upload_delete', function ($params) {
                 if ($params['storage'] == 'local') {
-                    $attachmentFile = ROOT_PATH . '/public' . $params['url'];
+                    $attachmentFile = ROOT_PATH . '/public_html' . $params['url'];
                     if (is_file($attachmentFile)) {
                         @unlink($attachmentFile);
                     }

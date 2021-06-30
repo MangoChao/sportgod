@@ -257,7 +257,7 @@ class Addon extends Command
                 $movePath = [
                     'adminOnlySelfDir' => ['admin/behavior', 'admin/controller', 'admin/library', 'admin/model', 'admin/validate', 'admin/view'],
                     'adminAllSubDir' => ['admin/lang'],
-                    'publicDir' => ['public/assets/addons', 'public/assets/js/backend']
+                    'publicDir' => ['public_html/assets/addons', 'public_html/assets/js/backend']
                 ];
                 $paths = [];
                 $appPath = str_replace('/', DS, APP_PATH);

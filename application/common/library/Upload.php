@@ -298,7 +298,7 @@ class Upload
         $uploadDir = substr($savekey, 0, strripos($savekey, '/') + 1);
         $fileName = substr($savekey, strripos($savekey, '/') + 1);
 
-        $destDir = ROOT_PATH . 'public' . str_replace('/', DS, $uploadDir);
+        $destDir = ROOT_PATH . 'public_html' . str_replace('/', DS, $uploadDir);
 
         $sha1 = $this->file->hash();
 

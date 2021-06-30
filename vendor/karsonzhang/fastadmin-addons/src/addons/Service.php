@@ -360,7 +360,7 @@ class Service
                 $bootstrapArr[] = file_get_contents($bootstrapFile);
             }
         }
-        $addonsFile = ROOT_PATH . str_replace("/", DS, "public/assets/js/addons.js");
+        $addonsFile = ROOT_PATH . str_replace("/", DS, "public_html/assets/js/addons.js");
         if ($handle = fopen($addonsFile, 'w')) {
             $tpl = <<<EOD
 define([], function () {
@@ -939,7 +939,7 @@ EOD;
      */
     protected static function getDestAssetsDir($name)
     {
-        $assetsDir = ROOT_PATH . str_replace("/", DS, "public/assets/addons/{$name}/");
+        $assetsDir = ROOT_PATH . str_replace("/", DS, "public_html/assets/addons/{$name}/");
         return $assetsDir;
     }
 

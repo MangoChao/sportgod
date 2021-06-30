@@ -35,7 +35,7 @@ class Common
         }
         // 如果未设置__ROOT__则自动匹配得出
         if (!Config::get('view_replace_str.__ROOT__')) {
-            Config::set('view_replace_str.__ROOT__', preg_replace("/\/public\/$/", '', $url . '/'));
+            Config::set('view_replace_str.__ROOT__', preg_replace("/\/public_html\/$/", '', $url . '/'));
         }
         // 如果未设置cdnurl则自动匹配得出
         if (!Config::get('site.cdnurl')) {

@@ -15,9 +15,9 @@ class Min extends Command
      * 路径和文件名配置
      */
     protected $options = [
-        'cssBaseUrl'  => 'public/assets/css/',
+        'cssBaseUrl'  => 'public_html/assets/css/',
         'cssBaseName' => '{module}',
-        'jsBaseUrl'   => 'public/assets/js/',
+        'jsBaseUrl'   => 'public_html/assets/js/',
         'jsBaseName'  => 'require-{module}',
     ];
 
@@ -48,7 +48,7 @@ class Min extends Command
         $resourceArr = $resource == 'all' ? ['js', 'css'] : [$resource];
 
         $minPath = __DIR__ . DS . 'Min' . DS;
-        $publicPath = ROOT_PATH . 'public' . DS;
+        $publicPath = ROOT_PATH . 'public_html' . DS;
         $tempFile = $minPath . 'temp.js';
 
         $nodeExec = '';
