@@ -7,7 +7,6 @@ use app\common\controller\Backend;
 use think\Config;
 use think\Hook;
 use think\Validate;
-use think\Log;
 
 /**
  * 后台首页
