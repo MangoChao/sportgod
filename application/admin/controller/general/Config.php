@@ -9,6 +9,7 @@ use think\Cache;
 use think\Db;
 use think\Exception;
 use think\Validate;
+use think\Log;
 
 /**
  * 系统配置
@@ -48,6 +49,7 @@ class Config extends Backend
             $siteList[$k]['title'] = $v;
             $siteList[$k]['list'] = [];
         }
+        Log::notice($this->model->all());
 
         foreach ($this->model->all() as $k => $v) {
             if (!isset($siteList[$v['group']])) {
