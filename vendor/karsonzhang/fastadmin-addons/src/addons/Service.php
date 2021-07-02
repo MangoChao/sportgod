@@ -960,7 +960,7 @@ EOD;
     {
         return [
             'application',
-            'public'
+            'public_html'
         ];
     }
 
