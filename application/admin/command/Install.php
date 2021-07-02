@@ -197,7 +197,7 @@ class Install extends Command
             throw new Exception($e->getMessage());
         }
         // 后台入口文件
-        $adminFile = ROOT_PATH . 'public' . DS . 'admin.php';
+        $adminFile = ROOT_PATH . 'public_html' . DS . 'admin.php';
 
         // 数据库配置文件
         $dbConfigFile = APP_PATH . 'database.php';
@@ -235,7 +235,7 @@ class Install extends Command
         $adminName = '';
         if (is_file($adminFile)) {
             $adminName = Random::alpha(10) . '.php';
-            rename($adminFile, ROOT_PATH . 'public' . DS . $adminName);
+            rename($adminFile, ROOT_PATH . 'public_html' . DS . $adminName);
         }
 
         //修改站点名称
@@ -276,7 +276,7 @@ class Install extends Command
         $checkDirs = [
             'thinkphp',
             'vendor',
-            'public' . DS . 'assets' . DS . 'libs'
+            'public_html' . DS . 'assets' . DS . 'libs'
         ];
 
         //数据库配置文件
