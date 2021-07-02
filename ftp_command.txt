@@ -7,14 +7,14 @@ curl https://raw.githubusercontent.com/git-ftp/git-ftp/master/git-ftp > /bin/git
 chmod 755 /bin/git-ftp
 
 //推正式機
-git ftp init -u icarepo1 -p 'hcRY2g4PG5' ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
-git ftp push -u icarepo1 -p 'hcRY2g4PG5' ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
+git ftp init -u admin@sportgod.cc -p 'mi2Lo(?qP,W,' ftp://184.168.96.165
+git ftp push -u admin@sportgod.cc -p 'mi2Lo(?qP,W,' ftp://184.168.96.165
 //設定主機
-git config git-ftp.url ftp://ftp.icare-portal.com/public_html/idm.icare-portal.com
-git config git-ftp.user icarepo1
-git config git-ftp.password 'hcRY2g4PG5'
+git config git-ftp.url ftp://184.168.96.165
+git config git-ftp.user admin@sportgod.cc
+git config git-ftp.password 'mi2Lo(?qP,W,'
 //設定本機路徑
-git config git-ftp.syncroot C:\xampp\htdocs\idm
+git config git-ftp.syncroot C:\xampp\htdocs\sportgod
 
 
 //初始化
