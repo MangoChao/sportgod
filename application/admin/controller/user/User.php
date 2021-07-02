@@ -46,7 +46,7 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $list = $this->model
-                ->with(['admin','merchant'])
+                ->with(['admin'])
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
@@ -111,17 +111,6 @@ class User extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $where_admin = "";
-        if(!$this->auth->isSuperAdmin()){
-            $adminIds = $this->auth->getChildrenAdminIds(true);
-            $where_admin = " AND admin_id IN (".implode(',',$adminIds).")";
-        }
-
-        $mMerchant = model('Merchant')->where('1=1'.$where_admin)->select();
-        foreach ($mMerchant as $k => $v) {
-            $merchantdata[$v['id']] = $v->merchant_name;
-        }
-        $this->view->assign("merchantdata", $merchantdata);
         return $this->view->fetch();
     }
 
@@ -175,17 +164,6 @@ class User extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $where_admin = "";
-        if(!$this->auth->isSuperAdmin()){
-            $adminIds = $this->auth->getChildrenAdminIds(true);
-            $where_admin = " AND admin_id IN (".implode(',',$adminIds).")";
-        }
-
-        $mMerchant = model('Merchant')->where('1=1'.$where_admin)->select();
-        foreach ($mMerchant as $k => $v) {
-            $merchantdata[$v['id']] = $v->merchant_name;
-        }
-        $this->view->assign("merchantdata", $merchantdata);
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }

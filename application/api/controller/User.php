@@ -327,20 +327,20 @@ class User extends Api
     public function changeStatus()
     {
         $id = $this->request->request('id');
-        $mUserAdmin = \app\common\model\User::get(['id'=> $this->auth->id, 'status'=> 1, 'level'=> 1]);
-        if(!$mUserAdmin){
-            $this->error('無權操作');
-        }
-        $mUser = \app\common\model\User::get(['id'=> $id, 'merchant_id' =>$mUserAdmin->merchant_id]);
-        if(!$mUser){
-            $this->error('查無帳號');
-        }
-        if($mUser->status == 0){
-            $mUser->status = 1;
-        }else{
-            $mUser->status = 0;
-        }
-        $mUser->save();
+        // $mUserAdmin = \app\common\model\User::get(['id'=> $this->auth->id, 'status'=> 1, 'level'=> 1]);
+        // if(!$mUserAdmin){
+        //     $this->error('無權操作');
+        // }
+        // $mUser = \app\common\model\User::get(['id'=> $id, 'merchant_id' =>$mUserAdmin->merchant_id]);
+        // if(!$mUser){
+        //     $this->error('查無帳號');
+        // }
+        // if($mUser->status == 0){
+        //     $mUser->status = 1;
+        // }else{
+        //     $mUser->status = 0;
+        // }
+        // $mUser->save();
         $this->success();
     }
 }

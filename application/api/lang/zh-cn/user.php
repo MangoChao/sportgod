@@ -13,7 +13,6 @@ return [
     'Password must be 6 to 30 characters'   => '密碼必須6-30個字',
     'Mobile is incorrect'                   => '手機格式不正確',
     'Username already exist'                => '名稱已經存在',
-    'Merchant not found'                        => '查無藥局',
     'Nickname already exist'                => '暱稱已經存在',
     'Email already exist'                   => '信箱已經存在',
     'Mobile already exist'                  => '手機已經存在',

@@ -58,7 +58,6 @@ class User extends Frontend
      */
     public function index()
     {
-        $this->redirect(url('merchant/index')); 
         // $this->view->assign('title', __('User center'));
         // return $this->view->fetch();
     }
@@ -122,7 +121,7 @@ class User extends Frontend
                 $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
             }
             
-            if ($this->auth->register($username, $password, $email, $mobile, $this->merchant_id)) {
+            if ($this->auth->register($username, $password, $email, $mobile)) {
                 $this->success(__('Sign up successful'), $url ? $url : url('user/index'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);

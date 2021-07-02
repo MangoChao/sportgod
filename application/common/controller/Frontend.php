@@ -44,7 +44,6 @@ class Frontend extends Controller
      */
     protected $auth = null;
 
-    protected $merchant_id = null;
     protected $site_url = null;
 
     public function _initialize()

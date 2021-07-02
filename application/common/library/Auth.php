@@ -3,7 +3,6 @@
 namespace app\common\library;
 
 use app\common\model\User;
-use app\common\model\Merchant;
 use app\common\model\UserRule;
 use fast\Random;
 use think\Config;
@@ -125,13 +124,9 @@ class Auth
      * @param array  $extend   扩展参数
      * @return boolean
      */
-    public function register($username, $password, $email = '', $mobile = '', $merchant_id = '0', $extend = [])
+    public function register($username, $password, $email = '', $mobile = '',  $extend = [])
     {
-        if (!Merchant::get($merchant_id)) {
-            $this->setError('Merchant not found');
-            return false;
-        }
-        if (User::get(['username' => $username, 'merchant_id' => $merchant_id])) {
+        if (User::get(['username' => $username])) {
             $this->setError('Username already exist');
             return false;
         }

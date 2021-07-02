@@ -11,7 +11,7 @@ return [
         'backend' => 'zh-cn',
         'frontend' => 'zh-cn',
     ],
-    'fixedpage' => 'user/merchant',
+    'fixedpage' => 'user/user',
     'categorytype' => [
         'default' => 'Default',
         'page' => 'Page',
