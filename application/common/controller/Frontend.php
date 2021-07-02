@@ -126,7 +126,7 @@ class Frontend extends Controller
         $this->assign('site', $site);
         $this->assign('site_url', $this->site_url);
         $this->assign('config', $config);
-        $this->assign('title', 'i-CARE');
+        $this->assign('title', $site['name']);
     }
 
     /**

@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'name' => 'TEST',
+    'name' => '運動神人',
     'beian' => '',
     'cdnurl' => '',
-    'version' => '1.0.1',
+    'version' => '1.0.0',
     'timezone' => 'Asia/Shanghai',
     'forbiddenip' => '',
     'languages' => [
@@ -33,7 +33,8 @@ return [
     'mail_verify_type' => '2',
     'mail_from' => '10000@qq.com',
     'url' => [
-        'furl' => 'https://test.com',
-        'api' => 'https://test.com/api',
+        'furl' => 'https://sportgod.cc',
+        'api' => 'https://sportgod.cc/api',
+        'burl' => 'https://sportgod.cc/backend.php',
     ],
 ];
