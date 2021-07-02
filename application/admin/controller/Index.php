@@ -7,6 +7,7 @@ use app\common\controller\Backend;
 use think\Config;
 use think\Hook;
 use think\Validate;
+use think\Log;
 
 /**
  * 后台首页
@@ -54,6 +55,7 @@ class Index extends Backend
     public function login()
     {
         $url = $this->request->get('url', 'index/index');
+        Log::notice($url);
         if ($this->auth->isLogin()) {
             $this->success(__("You've logged in, do not login again"), $url);
         }
