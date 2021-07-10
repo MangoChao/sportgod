@@ -25,13 +25,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true},
-                        {field: 'level', title: __('Level'), formatter: Controller.api.formatter.level, searchList: {0: __('level 0'), 1: __('level 1')}},
                         {field: 'username', title: __('Username'), operate: 'LIKE'},
                         {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
-                        {field: 'logintime', title: __('Logintime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
-                        {field: 'loginip', title: __('Loginip'), formatter: Table.api.formatter.search},
-                        {field: 'admin_id', title: __('admin_id'), visible: false},
-                        {field: 'admin.nickname', title: __('admin_name'), visible: false},
+                        {field: 'gender', title: __('Gender'), formatter: Controller.api.formatter.gender, searchList: {0: __('Male'), 1: __('FeMale')}},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
@@ -63,9 +59,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
                     return '<span class="text-' + color + '"><i class="fa fa-circle"></i> ' + valueArr[value] + '</span>';
                 },
-                level: function (value, row, index, custom) {
-                    var colorArr = {'0':'black','1':'orange'};
-                    var valueArr = {'0':__('level 0'),'1':__('level 1')};
+                gender: function (value, row, index, custom) {
+                    var colorArr = {'0':'black','1':'black'};
+                    var valueArr = {'0':__('Male'),'1':__('FeMale')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }
