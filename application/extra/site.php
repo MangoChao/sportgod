@@ -4,14 +4,14 @@ return [
     'name' => '運動神人',
     'beian' => '',
     'cdnurl' => '',
-    'version' => '1.0.0',
+    'version' => '1.0.1',
     'timezone' => 'Asia/Shanghai',
     'forbiddenip' => '',
     'languages' => [
         'backend' => 'zh-cn',
         'frontend' => 'zh-cn',
     ],
-    'fixedpage' => 'user/user',
+    'fixedpage' => 'user/merchant',
     'categorytype' => [
         'default' => 'Default',
         'page' => 'Page',
@@ -33,8 +33,8 @@ return [
     'mail_verify_type' => '2',
     'mail_from' => '10000@qq.com',
     'url' => [
-        'furl' => 'https://sportgod.cc',
-        'api' => 'https://sportgod.cc/api',
-        'burl' => 'https://sportgod.cc/backend.php',
+        'furl' => 'https://sportgod.com',
+        'api' => 'https://sportgod.com/api',
+        'burl' => 'https://sportgod.com/backend.php',
     ],
 ];
