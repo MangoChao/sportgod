@@ -146,9 +146,5 @@ class User extends Model
         return $level;
     }
 
-    public function admin()
-    {
-        return $this->belongsTo('Admin', 'admin_id', 'id', [], 'LEFT')->setEagerlyType(0);
-    }
 
 }

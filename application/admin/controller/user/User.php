@@ -14,7 +14,6 @@ use fast\Random;
 class User extends Backend
 {
 
-    protected $dataLimit = true;
     protected $relationSearch = true;
     protected $searchFields = '';
 
@@ -46,7 +45,6 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $list = $this->model
-                ->with(['admin'])
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
