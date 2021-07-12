@@ -189,10 +189,10 @@ class Auth
      * @param string $password 密码
      * @return boolean
      */
-    public function login($account, $password, $merchant_id)
+    public function login($account, $password)
     {
         $field = 'username';
-        $user = User::get([$field => $account,'merchant_id' => $merchant_id]);
+        $user = User::get([$field => $account]);
         if (!$user) {
             $this->setError('Account is incorrect');
             return false;

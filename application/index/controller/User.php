@@ -58,8 +58,8 @@ class User extends Frontend
      */
     public function index()
     {
-        // $this->view->assign('title', __('User center'));
-        // return $this->view->fetch();
+        $this->view->assign('title', __('User center'));
+        return $this->view->fetch();
     }
 
     /**
