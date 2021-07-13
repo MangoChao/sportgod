@@ -7,6 +7,18 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         }
     };
     var Controller = {
+        myhome: function () {
+
+        },
+        notify: function () {
+
+        },
+        favorites: function () {
+
+        },
+        article: function () {
+
+        },
         login: function () {
             //本地验证未通过时提示
             $("#login-form").data("validator-options", validatoroptions);

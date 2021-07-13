@@ -9,6 +9,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
     var Controller = {
         index: function () {
 
+        },
+        detail: function () {
+
         }
     };
     return Controller;

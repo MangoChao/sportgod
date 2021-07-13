@@ -61,6 +61,30 @@ class User extends Frontend
         $this->view->assign('title', __('User center'));
         return $this->view->fetch();
     }
+    
+    public function myhome()
+    {
+        $this->view->assign('title', '個人首頁');
+        return $this->view->fetch();
+    }
+    
+    public function notify()
+    {
+        $this->view->assign('title', '通知');
+        return $this->view->fetch();
+    }
+    
+    public function favorites()
+    {
+        $this->view->assign('title', '收藏');
+        return $this->view->fetch();
+    }
+    
+    public function article()
+    {
+        $this->view->assign('title', '文章');
+        return $this->view->fetch();
+    }
 
     /**
      * 注册会员
@@ -122,7 +146,7 @@ class User extends Frontend
             }
             
             if ($this->auth->register($username, $password, $email, $mobile)) {
-                $this->success(__('Sign up successful'), $url ? $url : url('user/index'));
+                $this->success(__('Sign up successful'), $url ? $url : url('/index/user/profile'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
@@ -146,7 +170,7 @@ class User extends Frontend
     {
         $url = $this->request->request('url', '');
         if ($this->auth->id) {
-            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/index'));
+            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('/index/user/profile'));
         }
         if ($this->request->isPost()) {
             $account = $this->request->post('account');
@@ -177,7 +201,7 @@ class User extends Frontend
                 return false;
             }
             if ($this->auth->login($account, $password)) {
-                $this->success(__('Logged in successful'), $url ? $url : url('index/index'));
+                $this->success(__('Logged in successful'), $url ? $url : url('/index/user/profile'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
