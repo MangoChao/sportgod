@@ -206,5 +206,8 @@ return [
     'updatetime' => '更新時間', 
     'Status 0' => '停用',
     'Status 1' => '啟用',
-    'admin_name' => '管理員名稱'
+    'admin_name' => '管理員名稱',
+    'user_name' => '用戶名稱',
+    'title' => '標題',
+    'content' => '內容',
 ];
