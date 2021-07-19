@@ -4,7 +4,7 @@ return [
     'name' => '運動神人',
     'beian' => '',
     'cdnurl' => '',
-    'version' => '1.0.1',
+    'version' => '1.0.0',
     'timezone' => 'Asia/Shanghai',
     'forbiddenip' => '',
     'languages' => [
