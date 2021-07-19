@@ -210,4 +210,6 @@ return [
     'user_name' => '用戶名稱',
     'title' => '標題',
     'content' => '內容',
+    'cat_name' => '分類',
+    'type' => '類型'
 ];

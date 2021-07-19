@@ -30,6 +30,18 @@ class Article extends Backend
         $mFields = $this->model->getQuery()->getTableInfo('', 'fields');
         $this->searchFields = implode(',',$mFields);
     }
+    
+    public function getArticlecat()
+    {
+        $cat_list = [];
+        $cat_list[0] = '請選擇分類';
+        $mArticlecat = model('Articlecat')->where('status = 1')->select();
+        foreach ($mArticlecat as $k => $v) {
+            $cat_list[$v['id']] = $v['cat_name'];
+        }
+
+        $this->view->assign('cat_list', $cat_list);
+    }
 
     /**
      * 查看
@@ -45,10 +57,12 @@ class Article extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
+                ->with(['user','cat'])
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
             $list = $this->model
+                ->with(['user','cat'])
                 ->where($where)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
@@ -65,7 +79,7 @@ class Article extends Backend
      */
     public function add()
     {
-        if ($this->request->isPost()) {
+        if($this->request->isPost()) {
             $this->token();
             $params = $this->request->post("row/a");
             if ($params) {
@@ -80,6 +94,8 @@ class Article extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
                         $this->model->validateFailException(true)->validate($validate);
                     }
+
+                    $params['user_id'] = 0;
 
                     $result = $this->model->allowField(true)->save($params);
                     Db::commit();
@@ -101,7 +117,7 @@ class Article extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        
+        $this->getArticlecat();
         return $this->view->fetch();
     }
 
@@ -125,7 +141,6 @@ class Article extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
-                
                 $result = false;
                 Db::startTrans();
                 try {
@@ -156,6 +171,7 @@ class Article extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         
+        $this->getArticlecat();
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }

@@ -22,4 +22,10 @@ class Article extends Model
     {
         return $this->belongsTo('User', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
+
+    public function cat()
+    {
+        return $this->belongsTo('Articlecat', 'cat_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+    
 }

@@ -31,6 +31,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'cat_name', title: __('cat_name'), operate: 'LIKE'},
+                        {field: 'weigh', title: __('weigh'), operate: 'LIKE', visible: false},
+                        {field: 'type', title: __('type'), formatter: Controller.api.formatter.type, searchList: {0: __('type 0'), 1: __('type 1')}},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
@@ -61,6 +63,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     }
                     var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
                     return '<span class="text-' + color + '"><i class="fa fa-circle"></i> ' + valueArr[value] + '</span>';
+                },
+                type: function (value, row, index, custom) {
+                    var colorArr = {'0':'orange','1':'success'};
+                    var valueArr = {'0':__('type 0'),'1':__('type 1')};
+                    if (typeof custom !== 'undefined') {
+                        colorArr = $.extend(colorArr, custom);
+                    }
+                    var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
+                    return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
                 },
             }
         }
