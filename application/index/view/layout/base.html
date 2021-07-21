@@ -13,7 +13,7 @@
                 <div class="collapse navbar-collapse" id="navbar-collapse-menu">
                     <ul class="nav navbar-nav navbar-right">
                         {if $user}
-                        <li><a href="{:url('index/user/index')}">{:__('Member center')}</a></li>
+                        <li><a href="{:url('index/user/profile')}">{:__('Member center')}</a></li>
                         {else /}
                         <li><a href="{:url('user/login')}">{:__('Sign in')}</a></li>
                         {/if}
@@ -23,10 +23,11 @@
             <!-- 分類選單 -->
             <div>
                 <a href="{:url('/index/article')}">全部</a>
-                <a href="{:url('/index/article')}">分類1</a>
-                <a href="{:url('/index/article')}">分類2</a>
-                <a href="{:url('/index/article')}">分類3</a>
-                <a href="{:url('/index/article')}">分類4</a>
+                {if $mArticlecat}
+                {foreach $mArticlecat as $cat}
+                <a href="{:url('/index/article/cat/'.$cat->id)}">{$cat->cat_name}</a>
+                {/foreach}
+                {/if}
             </div>
         </nav>
         

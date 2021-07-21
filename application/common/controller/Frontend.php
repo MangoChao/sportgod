@@ -118,6 +118,7 @@ class Frontend extends Controller
 
         Config::set('upload', array_merge(Config::get('upload'), $upload));
 
+        $this->assignArticlecat();
         // 配置信息后
         Hook::listen("config_init", $config);
         // 加载当前控制器语言包
@@ -162,6 +163,13 @@ class Frontend extends Controller
 
         //刷新Token
         $this->request->token();
+    }
+
+    
+    protected function assignArticlecat()
+    {
+        $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
+        $this->assign('mArticlecat', $mArticlecat);
     }
     
 }

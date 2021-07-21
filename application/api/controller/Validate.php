@@ -31,7 +31,7 @@ class Validate extends Api
         $id = (int)$this->request->request('id');
         $count = User::where('email', '=', $email)->where('id', '<>', $id)->count();
         if ($count > 0) {
-            $this->error(__('邮箱已经被占用'));
+            $this->error(__('信箱已被用過'));
         }
         $this->success();
     }
@@ -48,7 +48,7 @@ class Validate extends Api
         $id = (int)$this->request->request('id');
         $count = User::where('username', '=', $email)->where('id', '<>', $id)->count();
         if ($count > 0) {
-            $this->error(__('用户名已经被占用'));
+            $this->error(__('帳號已被用過'));
         }
         $this->success();
     }
@@ -65,7 +65,7 @@ class Validate extends Api
         $id = (int)$this->request->request('id');
         $count = User::where('nickname', '=', $email)->where('id', '<>', $id)->count();
         if ($count > 0) {
-            $this->error(__('昵称已经被占用'));
+            $this->error(__('暱稱已被用過'));
         }
         $this->success();
     }
@@ -82,7 +82,7 @@ class Validate extends Api
         $id = (int)$this->request->request('id');
         $count = User::where('mobile', '=', $mobile)->where('id', '<>', $id)->count();
         if ($count > 0) {
-            $this->error(__('该手机号已经占用'));
+            $this->error(__('手機已被用過'));
         }
         $this->success();
     }
@@ -97,7 +97,7 @@ class Validate extends Api
         $mobile = $this->request->request('mobile');
         $count = User::where('mobile', '=', $mobile)->count();
         if (!$count) {
-            $this->error(__('手机号不存在'));
+            $this->error(__('手機不存在'));
         }
         $this->success();
     }
@@ -112,7 +112,7 @@ class Validate extends Api
         $email = $this->request->request('email');
         $count = User::where('email', '=', $email)->count();
         if (!$count) {
-            $this->error(__('邮箱不存在'));
+            $this->error(__('信箱不存在'));
         }
         $this->success();
     }
@@ -130,7 +130,7 @@ class Validate extends Api
         $captcha = $this->request->request('captcha');
         $event = $this->request->request('event');
         if (!\app\common\library\Sms::check($mobile, $captcha, $event)) {
-            $this->error(__('验证码不正确'));
+            $this->error(__('驗證碼錯誤'));
         }
         $this->success();
     }
@@ -148,7 +148,7 @@ class Validate extends Api
         $captcha = $this->request->request('captcha');
         $event = $this->request->request('event');
         if (!\app\common\library\Ems::check($email, $captcha, $event)) {
-            $this->error(__('验证码不正确'));
+            $this->error(__('驗證碼錯誤'));
         }
         $this->success();
     }

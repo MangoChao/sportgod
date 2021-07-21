@@ -131,6 +131,6 @@ return [
     ':attribute has exists'                                     => ':attribute已存在',
     ':attribute not conform to the rules'                       => ':attribute不符合指定规则',
     'invalid Request method'                                    => '无效的请求类型',
-    'invalid token'                                             => '令牌數據無效',
+    'invalid token'                                             => '頁面過期, 請重試',
     'not conform to the rules'                                  => '規則錯誤',
 ];

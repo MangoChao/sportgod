@@ -15,8 +15,9 @@ class Article extends Frontend
     protected $layout = 'base';
 
     //文章列表
-    public function index()
+    public function index($cat = null)
     {
+        
         return $this->view->fetch();
     }
     

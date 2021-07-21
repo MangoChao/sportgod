@@ -53,13 +53,9 @@ class User extends Frontend
         });
     }
 
-    /**
-     * 会员中心
-     */
     public function index()
     {
-        $this->view->assign('title', __('User center'));
-        return $this->view->fetch();
+        $this->redirect(url('/index/user/profile')); 
     }
     
     public function myhome()
@@ -93,33 +89,43 @@ class User extends Frontend
     {
         $url = $this->request->request('url', '');
         if ($this->auth->id) {
-            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/index'));
+            $this->success('你已經登入', $url ? $url : url('user/profile'));
         }
         if ($this->request->isPost()) {
-            $username = $this->request->post('username');
-            $password = $this->request->post('password');
+            $username = $this->request->post('username','');
+            $nickname = $this->request->post('nickname','');
+            $password = $this->request->post('password','');
+            $email = $this->request->post('email', '');
             $mobile = $this->request->post('mobile', '');
             $captcha = $this->request->post('captcha');
             $token = $this->request->post('__token__');
-            $email = '';
             $rule = [
                 'username'  => 'require|length:2,10',
-                'password'  => 'require|length:6,30',
-                'mobile'    => 'regex:/^09\d{2}-?\d{3}-?\d{3}$/',
+                'nickname'  => 'require|length:2,10',
+                'password'  => 'require|length:6,16',
+                'mobile'    => 'require|regex:/^09\d{2}-?\d{3}-?\d{3}$/',
+                'email'  => 'require|email',
                 '__token__' => 'require|token',
             ];
 
             $msg = [
-                'username.require' => 'Username can not be empty',
-                'username.length'  => 'Username must be 2 to 10 characters',
-                'password.require' => 'Password can not be empty',
-                'password.length'  => 'Password must be 6 to 30 characters',
-                'mobile'           => 'Mobile is incorrect',
+                'username.require' => '帳號為必填選項',
+                'username.length'  => '帳號必須是2~10個字元',
+                'nickname.require' => '暱稱為必填選項',
+                'nickname.length'  => '暱稱必須是2~10個字元',
+                'password.require' => '密碼為必填選項',
+                'password.length'  => '密碼必須是6~16個字元',
+                'mobile.require' => '手機為必填選項',
+                'mobile.regex'  => '手機格式無效',
+                'email.require' => '信箱為必填選項',
+                'email.email'  => '信箱格式無效',
             ];
             $data = [
                 'username'  => $username,
+                'nickname'  => $nickname,
                 'password'  => $password,
                 'mobile'    => $mobile,
+                'email'    => $email,
                 '__token__' => $token,
             ];
             //验证码
@@ -144,8 +150,7 @@ class User extends Frontend
             if (!$result) {
                 $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
             }
-            
-            if ($this->auth->register($username, $password, $email, $mobile)) {
+            if ($this->auth->register($username, $nickname, $password, $email, $mobile)) {
                 $this->success(__('Sign up successful'), $url ? $url : url('/index/user/profile'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
@@ -170,24 +175,22 @@ class User extends Frontend
     {
         $url = $this->request->request('url', '');
         if ($this->auth->id) {
-            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('/index/user/profile'));
+            $this->success('你已經登入', $url ? $url : url('user/profile'));
         }
         if ($this->request->isPost()) {
-            $account = $this->request->post('account');
-            $password = $this->request->post('password');
+            $account = $this->request->post('account', '');
+            $password = $this->request->post('password', '');
             $keeplogin = (int)$this->request->post('keeplogin');
             $token = $this->request->post('__token__');
             $rule = [
-                'account'   => 'require|length:3,50',
-                'password'  => 'require|length:6,30',
+                'account'   => 'require',
+                'password'  => 'require',
                 '__token__' => 'require|token',
             ];
 
             $msg = [
-                'account.require'  => 'Account can not be empty',
-                'account.length'   => 'Account must be 3 to 50 characters',
-                'password.require' => 'Password can not be empty',
-                'password.length'  => 'Password must be 6 to 30 characters',
+                'account.require'  => '帳號不能為空',
+                'password.require' => '密碼不能為空',
             ];
             $data = [
                 'account'   => $account,

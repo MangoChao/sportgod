@@ -325,4 +325,9 @@ class Api
         //刷新Token
         $this->request->token();
     }
+    
+    public function getEncryptPassword($password, $salt = '')
+    {
+        return md5(md5($password) . $salt);
+    }
 }

@@ -124,10 +124,22 @@ class Auth
      * @param array  $extend   扩展参数
      * @return boolean
      */
-    public function register($username, $password, $email = '', $mobile = '',  $extend = [])
+    public function register($username, $nickname, $password, $email, $mobile,  $extend = [])
     {
         if (User::get(['username' => $username])) {
             $this->setError('Username already exist');
+            return false;
+        }
+        if (User::get(['nickname' => $nickname])) {
+            $this->setError('Nickname already exist');
+            return false;
+        }
+        if (User::get(['email' => $email])) {
+            $this->setError('Email already exist');
+            return false;
+        }
+        if (User::get(['mobile' => $mobile])) {
+            $this->setError('Mobile already exist');
             return false;
         }
 
@@ -135,8 +147,8 @@ class Auth
         $time = time();
 
         $data = [
-            'merchant_id' => $merchant_id,
             'username' => $username,
+            'nickname' => $nickname,
             'password' => $password,
             'email'    => $email,
             'mobile'   => $mobile,
@@ -145,14 +157,13 @@ class Auth
             'avatar'   => '',
         ];
         $params = array_merge($data, [
-            'nickname'  => $username,
             'salt'      => Random::alnum(),
             'jointime'  => $time,
             'joinip'    => $ip,
             'logintime' => $time,
             'loginip'   => $ip,
             'prevtime'  => $time,
-            'status'    => 0
+            'status'    => 1
         ]);
         $params['password'] = $this->getEncryptPassword($password, $params['salt']);
         $params = array_merge($params, $extend);
@@ -194,16 +205,17 @@ class Auth
         $field = 'username';
         $user = User::get([$field => $account]);
         if (!$user) {
-            $this->setError('Account is incorrect');
+            $this->setError('帳號或密碼錯誤');
             return false;
         }
 
-        // if ($user->status != '1') {
-        //     $this->setError('Account is locked');
-        //     return false;
-        // }
         if ($user->password != $this->getEncryptPassword($password, $user->salt)) {
-            $this->setError('Password is incorrect');
+            $this->setError('帳號或密碼錯誤');
+            return false;
+        }
+        
+        if ($user->status != 1) {
+            $this->setError('此帳號已被停用');
             return false;
         }
 

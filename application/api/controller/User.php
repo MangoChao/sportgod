@@ -147,25 +147,70 @@ class User extends Api
     public function profile()
     {
         $user = $this->auth->getUser();
-        $username = $this->request->request('username');
-        $nickname = $this->request->request('nickname');
-        $bio = $this->request->request('bio');
+        $nickname = $this->request->request('nickname','');
+        $email = $this->request->request('email','');
+        $mobile = $this->request->request('mobile','');
+        $password = $this->request->request('password','');
         $avatar = $this->request->request('avatar', '', 'trim,strip_tags,htmlspecialchars');
-        if ($username) {
-            $exists = \app\common\model\User::where('username', $username)->where('id', '<>', $this->auth->id)->find();
-            if ($exists) {
-                $this->error(__('Username already exists'));
-            }
-            $user->username = $username;
+
+        
+        $rule = [
+            'nickname'  => 'require|length:2,10',
+            'email'  => 'require|email',
+            'mobile'    => 'require|regex:/^09\d{2}-?\d{3}-?\d{3}$/',
+            'password'  => $password != ''?'require|length:6,16':'',
+        ];
+
+        $msg = [
+            'nickname.require' => '暱稱為必填選項',
+            'nickname.length'  => '暱稱必須是2~10個字元',
+            'password.require' => '密碼為必填選項',
+            'password.length'  => '密碼必須是6~16個字元',
+            'mobile.require' => '手機為必填選項',
+            'mobile.regex'  => '手機格式無效',
+            'email.require' => '信箱為必填選項',
+            'email.email'  => '信箱格式無效',
+        ];
+        $data = [
+            'nickname'  => $nickname,
+            'email'    => $email,
+            'mobile'    => $mobile,
+            'password'  => $password,
+        ];
+
+        $validate = new Validate($rule, $msg);
+        $result = $validate->check($data);
+        if (!$result) {
+            $this->error(__($validate->getError()));
         }
+
+
         if ($nickname) {
-            $exists = \app\common\model\User::where('nickname', $nickname)->where('id', '<>', $this->auth->id)->find();
+            $exists = model('User')->where('nickname', $nickname)->where('id', '<>', $this->auth->id)->find();
             if ($exists) {
-                $this->error(__('Nickname already exists'));
+                $this->error('暱稱已用過');
             }
             $user->nickname = $nickname;
         }
-        $user->bio = $bio;
+        if ($email) {
+            $exists = model('User')->where('email', $email)->where('id', '<>', $this->auth->id)->find();
+            if ($exists) {
+                $this->error('信箱已用過');
+            }
+            $user->email = $email;
+        }
+        if ($mobile) {
+            $exists = model('User')->where('mobile', $mobile)->where('id', '<>', $this->auth->id)->find();
+            if ($exists) {
+                $this->error('手機已用過');
+            }
+            $user->mobile = $mobile;
+        }
+        if($password != ''){
+            $user->salt = Random::alnum();
+            $user->password = $this->getEncryptPassword($password, $user->salt);
+        }
+
         $user->avatar = $avatar;
         $user->save();
         $this->success();

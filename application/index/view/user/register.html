@@ -7,23 +7,37 @@
                 <input type="hidden" name="url" value="{$url}" />
                 {:token()}
                 <div class="form-group">
-                    <label class="control-label">{:__('Username')}</label>
+                    <label class="control-label">帳號</label>
                     <div class="controls">
-                        <input type="text" id="username" name="username" data-rule="required;username" class="form-control input-lg" placeholder="{:__('Username must be 2 to 10 characters')}">
+                        <input type="text" id="username" name="username" data-rule="required;username;remote({:url('api/validate/check_username_available')})" class="form-control input-lg" placeholder="2~10個字元" autocomplete="off">
                         <p class="help-block"></p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">{:__('Password')}</label>
+                    <label class="control-label">暱稱</label>
                     <div class="controls">
-                        <input type="password" id="password" name="password" data-rule="required;password" class="form-control input-lg" placeholder="{:__('Password must be 6 to 30 characters')}">
+                        <input type="text" id="nickname" name="nickname" data-rule="required;nickname;remote({:url('api/validate/check_nickname_available')})" class="form-control input-lg" placeholder="2~10個字元" autocomplete="off">
                         <p class="help-block"></p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">{:__('Mobile')}</label>
+                    <label class="control-label">密碼</label>
                     <div class="controls">
-                        <input type="text" id="mobile" name="mobile" data-rule="mobile" class="form-control input-lg" placeholder="{:__('Mobile')}">
+                        <input type="password" id="password" name="password" data-rule="required;password" class="form-control input-lg" placeholder="6~16個字元" autocomplete="off">
+                        <p class="help-block"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">手機</label>
+                    <div class="controls">
+                        <input type="text" id="mobile" name="mobile" data-rule="required;mobile;remote({:url('api/validate/check_mobile_available')})" class="form-control input-lg" placeholder="手機" autocomplete="off">
+                        <p class="help-block"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">信箱</label>
+                    <div class="controls">
+                        <input type="text" id="email" name="email" data-rule="required;email;remote({:url('api/validate/check_email_available')})" class="form-control input-lg" placeholder="信箱" autocomplete="off">
                         <p class="help-block"></p>
                     </div>
                 </div>
