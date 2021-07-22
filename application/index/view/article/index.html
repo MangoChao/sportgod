@@ -1,7 +1,17 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-5">
-            <a href="{:url('/index/article/detail/id/1')}">文章連結</a>
+            <h2>{$ptitle}</h2>
+            {foreach $mArticle as $v}
+            <a href="{:url('/index/article/detail/id/'.$v->id)}">
+                <span>{$v->cat_name}</span>
+                <h3>{$v->title}</h3>
+            </a>
+            {/foreach}
+            <div class="page">
+                {$pagelist}
+                <div>共 {$count} 則文章{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+            </div>
         </div>
         <div class="col-sm-7">
         </div>
