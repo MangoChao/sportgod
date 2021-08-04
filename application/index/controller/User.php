@@ -86,7 +86,6 @@ class User extends Frontend
     //發表文章
     public function addarticle($cat = 0)
     {
-
         $catlist = [
             '0' => '請選擇分類'
         ];

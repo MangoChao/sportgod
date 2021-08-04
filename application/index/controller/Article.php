@@ -15,11 +15,11 @@ class Article extends Frontend
     protected $layout = 'base';
 
     //文章列表
-    public function index($cat = null, $page = 1)
+    public function index($cat = 0, $page = 1)
     {
         $catWhere = "";
         $ptitle = "所有文章";
-        if($cat){
+        if($cat != 0){
             $catWhere = " AND cat_id = ".$cat;
             $mArticlecat = model('Articlecat')->get($cat);
             $ptitle = $mArticlecat->cat_name;
