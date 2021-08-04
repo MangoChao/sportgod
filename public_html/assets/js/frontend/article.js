@@ -17,10 +17,11 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 let options = {url: Config.url.api+'/article/addmsg', data: {id:article_id,msg:msg_content}};
                 if(msg_content == ""){
                     Toastr.error('留言不可為空');
+                }else{
+                    Fast.api.ajax(options, function (mthis, data, ret) {
+                        location.reload();
+                    });
                 }
-                Fast.api.ajax(options, function (mthis, data, ret) {
-                    location.reload();
-                });
             });
         }
     };
