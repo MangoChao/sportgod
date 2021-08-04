@@ -84,7 +84,7 @@ class User extends Frontend
 
     
     //發表文章
-    public function addarticle($cat = 0)
+    public function addarticle($cid = 0)
     {
         $catlist = [
             '0' => '請選擇分類'
@@ -97,7 +97,7 @@ class User extends Frontend
         }
 
         $this->view->assign('catlist', $catlist);
-        $this->view->assign('cat', $cat);
+        $this->view->assign('cid', $cid);
         return $this->view->fetch();
     }
 
