@@ -11,6 +11,8 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
 
         },
         detail: function () {
+            Form.api.bindevent($("#add_msg_form"));
+
             $(document).on("click", "#btn_add_msg", function () {
                 let article_id = $('#article_id').val();
                 let msg_content = $('#msg_content').val();
