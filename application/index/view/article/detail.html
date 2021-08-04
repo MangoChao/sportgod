@@ -4,8 +4,21 @@
             <h2>{$mArticle->title}</h2>
             <span>{$mArticle->cat_name}</span>
             <span>{$mArticle->nickname}</span>
-            <div class="article_content">
+            <div class="article_content_box">
                 {$mArticle->content}
+            </div>
+            <div class="article_msg_box">
+                {foreach $mArticlemsg as $v}
+                    <div>
+                        <span>{$v->msg}</span>
+                        <span>{$v->nickname}</span>
+                        <span>{$v->createtime}</span>
+                    </div>
+                {/foreach}
+            </div>
+            <div class="add_article_msg_box">
+                <textarea name="msg"></textarea>
+                <a href="javascript:;">留言</a>
             </div>
         </div>
         <div class="col-sm-7">
