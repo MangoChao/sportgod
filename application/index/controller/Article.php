@@ -55,7 +55,14 @@ class Article extends Frontend
         if($mArticle->user_id == 0){
             $mArticle->nickname = "管理員";
         }
+        
+        $mArticlemsg = model('Articlemsg')->alias('am')
+        ->join("user u","u.id = am.user_id AND u.status = 1")
+        ->field('am.*, u.nickname')
+        ->where("am.status = 1 AND am.article_id = ".$id)->select();
+
         $this->view->assign('mArticle', $mArticle);
+        $this->view->assign('mArticlemsg', $mArticlemsg);
         return $this->view->fetch();
     }
     
