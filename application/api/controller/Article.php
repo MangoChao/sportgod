@@ -41,6 +41,7 @@ class Article extends Api
         ];
 
         model('Articlemsg')::create($params);
+        $this->success('留言成功');
     }
 
 }

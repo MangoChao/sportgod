@@ -12,7 +12,7 @@
                     <div>
                         <span>{$v->msg}</span>
                         <span>{$v->nickname}</span>
-                        <span>{$v->createtime}</span>
+                        <span>{$v->createtime|date='Y/m/d H:i:s',###}</span>
                     </div>
                 {/foreach}
             </div>
