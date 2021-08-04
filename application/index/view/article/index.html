@@ -2,6 +2,15 @@
     <div class="row">
         <div class="col-sm-5">
             <h2>{$ptitle}</h2>
+            {if $cat}
+                <a href="{:url('/index/user/addarticle/cat/'.$cat)}">發表文章</a>
+            {else/}
+                <a href="{:url('/index/user/addarticle')}">發表文章</a>
+            {/if}
+            <div class="page">
+                {$pagelist}
+                <div>共 {$count} 則文章{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+            </div>
             {foreach $mArticle as $v}
             <a href="{:url('/index/article/detail/id/'.$v->id)}">
                 <span>{$v->cat_name}</span>

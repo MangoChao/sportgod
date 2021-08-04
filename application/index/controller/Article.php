@@ -36,6 +36,7 @@ class Article extends Frontend
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
         $this->view->assign('mArticle', $mArticle);
+        $this->view->assign('cat', $cat);
         $this->view->assign('ptitle', $ptitle);
         return $this->view->fetch();
     }
@@ -65,6 +66,5 @@ class Article extends Frontend
         $this->view->assign('mArticlemsg', $mArticlemsg);
         return $this->view->fetch();
     }
-    
 
 }

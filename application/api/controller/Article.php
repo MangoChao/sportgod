@@ -18,6 +18,46 @@ class Article extends Api
         parent::_initialize();
     }
     
+    //發布文章
+    public function addarticle()
+    {
+        $id = $this->request->request('id', 0);
+        $cat = $this->request->request('cat', 0);
+        $cat_id = $this->request->request('cat_id', 0);
+        $title = $this->request->request('title', '', 'trim');
+        $content = $this->request->request('content', '', 'trim');
+        
+        $mUser = model('User')->get($this->auth->id);
+        if(!$mUser){
+            $this->error('查無用戶, 請重新登入');
+        }
+        if($mUser->status == 0){
+            $this->error('你已被停用');
+        }
+
+        if($cat_id == 0){
+            $this->error('必須選擇分類');
+        }
+        if($title == ''){
+            $this->error('標題不能為空');
+        }
+        if($content == ''){
+            $this->error('內容不能為空');
+        }
+
+        $params = [
+            'cat_id' => $cat_id,
+            'title' => $title,
+            'content' => $content,
+            'user_id' => $this->auth->id,
+        ];
+
+        model('Article')::create($params);
+
+        $this->success('發佈成功',['cat'=>$cat]);
+    }
+
+    //留言
     public function addmsg()
     {
         $id = $this->request->request('id', 0);

@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="addarticle_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/article/addarticle')}">
+                <input type="hidden" name="id" value=""/>
+                <input type="hidden" name="cat" value="{$cat}"/>
+                <div class="form-group">
+                    <label for="title" class="control-label col-xs-12 col-sm-2">分類:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        {:build_select('cat_id', $catlist, $cat, ['class'=>'form-control', 'data-rule'=>'required'])}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="title" class="control-label col-xs-12 col-sm-2">標題:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <input type="text" class="form-control" id="title" name="title" value="" data-rule="required" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content" class="control-label col-xs-12 col-sm-2">內容:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <textarea  class="form-control" data-rule="required" name="content"></textarea>
+                    </div>
+                </div>
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <button type="submit" class="btn btn-success btn-embossed disabled">發表</button>
+                        <button type="reset" class="btn btn-default btn-embossed">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

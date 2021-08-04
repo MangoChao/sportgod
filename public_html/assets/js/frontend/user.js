@@ -19,6 +19,16 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         article: function () {
 
         },
+        addarticle: function () {
+            Form.api.bindevent($("#addarticle_form"), function (data) {
+                let cat = data.cat;
+                if(cat != 0){
+                    location.href = Config.url.furl+"/index/article/cat/"+cat;
+                }else{
+                    location.href = Config.url.furl+"/index/article";
+                }
+            });
+        },
         login: function () {
             //本地验证未通过时提示
             $("#login-form").data("validator-options", validatoroptions);

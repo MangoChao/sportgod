@@ -15,7 +15,7 @@ use think\Validate;
 use think\Log;
 
 /**
- * 会员中心
+ * 會員 需要登入的頁面
  */
 class User extends Frontend
 {
@@ -79,6 +79,26 @@ class User extends Frontend
     public function article()
     {
         $this->view->assign('title', '文章');
+        return $this->view->fetch();
+    }
+
+    
+    //發表文章
+    public function addarticle($cat = 0)
+    {
+
+        $catlist = [
+            '0' => '請選擇分類'
+        ];
+        $mArticlecat = model('Articlecat')->where("type = 1 AND status = 1")->order("weigh")->select();
+        if($Articlecat){
+            foreach($Articlecat as $v){
+                $catlist[$v->id] = $v->cat_name;
+            }
+        }
+
+        $this->view->assign('catlist', $catlist);
+        $this->view->assign('cat', $cat);
         return $this->view->fetch();
     }
 
