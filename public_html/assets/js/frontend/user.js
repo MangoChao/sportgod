@@ -21,9 +21,10 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         },
         addarticle: function () {
             Form.api.bindevent($("#addarticle_form"), function (data) {
-                let cat = data.cat;
-                if(cat != 0){
-                    location.href = Config.url.furl+"/index/article/cat/"+cat;
+                console.log(data);
+                let cid = data.cid;
+                if(cid != 0){
+                    location.href = Config.url.furl+"/index/article/cid/"+cid;
                 }else{
                     location.href = Config.url.furl+"/index/article";
                 }

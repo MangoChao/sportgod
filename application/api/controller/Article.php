@@ -22,7 +22,7 @@ class Article extends Api
     public function addarticle()
     {
         $id = $this->request->request('id', 0);
-        $cat = $this->request->request('cat', 0);
+        $cid = $this->request->request('cid', 0);
         $cat_id = $this->request->request('cat_id', 0);
         $title = $this->request->request('title', '', 'trim');
         $content = $this->request->request('content', '', 'trim');
@@ -54,7 +54,7 @@ class Article extends Api
 
         model('Article')::create($params);
 
-        $this->success('發佈成功',['cat'=>$cat]);
+        $this->success('發佈成功',['cid' => $cid]);
     }
 
     //留言
