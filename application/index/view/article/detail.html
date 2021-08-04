@@ -17,8 +17,9 @@
                 {/foreach}
             </div>
             <div class="add_article_msg_box">
-                <textarea name="msg"></textarea>
-                <a href="javascript:;">留言</a>
+                <input type="hidden" id="article_id" value="{$mArticle->id}"/>
+                <textarea id="msg_content"></textarea>
+                <a id="btn_add_msg" href="javascript:;">留言</a>
             </div>
         </div>
         <div class="col-sm-7">
