@@ -24,7 +24,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 console.log(data);
                 let cid = data.cid;
                 if(cid != 0){
-                    location.href = Config.url.furl+"/index/article/cid/"+cid;
+                    location.href = Config.url.furl+"/index/article/index/cid/"+cid;
                 }else{
                     location.href = Config.url.furl+"/index/article";
                 }
