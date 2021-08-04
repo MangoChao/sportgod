@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\controller\user;
+namespace app\admin\controller\frontend;
 
 use app\common\controller\Backend;
 use app\common\library\Auth;
