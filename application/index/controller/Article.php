@@ -31,7 +31,7 @@ class Article extends Frontend
         
         $count = $mArticle->total();
         $pagelist = $mArticle->render();
-
+        Log::notice($cat);
         $this->view->assign('count', $count);
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
