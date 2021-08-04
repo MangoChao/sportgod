@@ -91,8 +91,8 @@ class User extends Frontend
             '0' => '請選擇分類'
         ];
         $mArticlecat = model('Articlecat')->where("type = 1 AND status = 1")->order("weigh")->select();
-        if($Articlecat){
-            foreach($Articlecat as $v){
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
                 $catlist[$v->id] = $v->cat_name;
             }
         }
