@@ -23,6 +23,8 @@ class Article extends Frontend
             $catWhere = " AND cat_id = ".$cid;
             $mArticlecat = model('Articlecat')->get($cid);
             $ptitle = $mArticlecat->cat_name;
+        }else{
+            $mArticlecat = false;
         }
         $mArticle = model('Article')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
@@ -36,6 +38,7 @@ class Article extends Frontend
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
         $this->view->assign('mArticle', $mArticle);
+        $this->view->assign('mArticlecat', $mArticlecat);
         $this->view->assign('cid', $cid);
         $this->view->assign('ptitle', $ptitle);
         return $this->view->fetch();
