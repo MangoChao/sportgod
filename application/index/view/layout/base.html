@@ -25,7 +25,7 @@
                 <a href="{:url('/index/article')}">全部</a>
                 {if $mArticlecat}
                 {foreach $mArticlecat as $cat}
-                <a href="{:url('/index/article/index/cat/'.$cat->id)}">{$cat->cat_name}</a>
+                <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>
                 {/foreach}
                 {/if}
             </div>

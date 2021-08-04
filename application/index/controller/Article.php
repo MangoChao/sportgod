@@ -15,13 +15,13 @@ class Article extends Frontend
     protected $layout = 'base';
 
     //文章列表
-    public function index($cat = 0, $page = 1)
+    public function index($cid = 0, $page = 1)
     {
         $catWhere = "";
         $ptitle = "所有文章";
-        if($cat != 0){
-            $catWhere = " AND cat_id = ".$cat;
-            $mArticlecat = model('Articlecat')->get($cat);
+        if($cid != 0){
+            $catWhere = " AND cat_id = ".$cid;
+            $mArticlecat = model('Articlecat')->get($cid);
             $ptitle = $mArticlecat->cat_name;
         }
         $mArticle = model('Article')->alias('a')
@@ -31,12 +31,12 @@ class Article extends Frontend
         
         $count = $mArticle->total();
         $pagelist = $mArticle->render();
-        Log::notice($cat);
+        
         $this->view->assign('count', $count);
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
         $this->view->assign('mArticle', $mArticle);
-        $this->view->assign('cat', $cat);
+        $this->view->assign('cid', $cid);
         $this->view->assign('ptitle', $ptitle);
         return $this->view->fetch();
     }

@@ -2,8 +2,8 @@
     <div class="row">
         <div class="col-sm-5">
             <h2>{$ptitle}</h2>
-            {if $cat != 0}
-                <a href="{:url('/index/user/addarticle/cat/'.$cat)}">發表文章</a>
+            {if $cid != 0}
+                <a href="{:url('/index/user/addarticle/cid/'.$cid)}">發表文章</a>
             {else/}
                 <a href="{:url('/index/user/addarticle')}">發表文章</a>
             {/if}
