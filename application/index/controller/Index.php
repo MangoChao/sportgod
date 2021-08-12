@@ -18,5 +18,9 @@ class Index extends Frontend
         return $this->view->fetch();
     }
     
+    public function contact()
+    {
+        return $this->view->fetch();
+    }
 
 }
