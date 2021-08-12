@@ -4,6 +4,8 @@
         {include file="common/meta" /}
     </head>
     <body>
+        <div id="fb-root"></div>
+        <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v11.0&appId=535408187578330&autoLogAppEvents=1" nonce="RK5szCTA"></script>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container isrelative">
                 <div class="navbar-header">
@@ -37,6 +39,9 @@
         </main>
 
         <footer class="footer" style="clear:both">
+            <div class="fb-like" data-href="https://www.facebook.com/sportgod.cc/" data-width="" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
+            <a href="https://instagram.com/sportgod.cc">IG</a>
+            <a href="{:url('/index/contact')}">聯絡我們</a>
             <p class="copyright">Copyright&nbsp;©&nbsp;2017-{:date('Y',time())} {$site.name} All Rights Reserved</p>
         </footer>
 
