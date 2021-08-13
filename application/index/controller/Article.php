@@ -65,6 +65,13 @@ class Article extends Frontend
         ->field('am.*, u.nickname')
         ->where("am.status = 1 AND am.article_id = ".$id)->select();
 
+        $hasfav = false;
+        if($this->auth->isLogin()){
+            $afc = model('Articlefav')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->count();
+            if($afc > 0) $hasfav = true;
+        }
+
+        $this->view->assign('hasfav', $hasfav);
         $this->view->assign('mArticle', $mArticle);
         $this->view->assign('mArticlemsg', $mArticlemsg);
         return $this->view->fetch();

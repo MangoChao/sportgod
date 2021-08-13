@@ -2,8 +2,13 @@
     <div class="row">
         <div class="col-sm-5">
             <h2>{$mArticle->title}</h2>
-            <span>{$mArticle->cat_name}</span>
-            <span>{$mArticle->nickname}</span>
+            <span>分類:{$mArticle->cat_name}</span>
+            <span>作者:{$mArticle->nickname}</span>
+            <span>
+                <span id="fav_count">{$mArticle->fav}</span>人收藏
+            </span>
+            
+            <a class="btn_set_fav" data-id="{$mArticle->id}" href="javascript:;">{if !$hasfav}收藏文章{else/}取消收藏{/if}</a>
             <div class="article_content_box">
                 {$mArticle->content}
             </div>
