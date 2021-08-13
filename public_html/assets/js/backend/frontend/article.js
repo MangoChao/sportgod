@@ -26,6 +26,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'cat.cat_name', title: __('cat_name'), operate: 'LIKE'},
                         {field: 'title', title: __('title'), operate: 'LIKE'},
+                        {field: 'fav', title: __('fav'), operate: 'LIKE'},
                         {field: 'user.nickname', title: __('user_name'), operate: 'LIKE'},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},

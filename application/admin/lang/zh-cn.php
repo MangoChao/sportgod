@@ -211,5 +211,6 @@ return [
     'title' => '標題',
     'content' => '內容',
     'cat_name' => '分類',
-    'type' => '類型'
+    'type' => '類型',
+    'fav' => '收藏數'
 ];
