@@ -102,8 +102,8 @@ class Article extends Api
 
         
         $mArticlefav = model('Articlefav')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->find();
-        if($Articlefav){
-            $Articlefav->delete();
+        if($mArticlefav){
+            $mArticlefav->delete();
             $successText = '已取消收藏';
             $text = '收藏文章';
         }else{
