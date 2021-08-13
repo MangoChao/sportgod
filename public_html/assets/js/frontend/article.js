@@ -30,7 +30,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 let article_id = $(this).data('id');
                 let options = {url: Config.url.api+'/article/setfav', data: {id:article_id}};
                 Fast.api.ajax(options, function (mthis, data, ret) {
-                    $('#fav_count').val(data.data.count);
+                    $('#fav_count').text(data.data.count);
                     $(this).text(data.data.text);
                 });
             });
