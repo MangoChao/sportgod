@@ -1,30 +1,41 @@
 <div class="container">
     <div class="row">
-        <div class="col-sm-5">
-            <h2>{$ptitle}</h2>
-            {if $mArticlecat}
-                {if $mArticlecat->type == 1}
-                <a href="{:url('/index/user/addarticle/cid/'.$cid)}">發表文章</a>
-                {/if}
-            {else/}
-                <a href="{:url('/index/user/addarticle')}">發表文章</a>
-            {/if}
-            <div class="page">
-                {$pagelist}
-                <div>共 {$count} 則文章{if $pagelist}，目前在第 {$page} 頁{/if}</div>
-            </div>
-            {foreach $mArticle as $v}
-            <a href="{:url('/index/article/detail/id/'.$v->id)}">
-                <span>{$v->cat_name}</span>
-                <h3>{$v->title}</h3>
-            </a>
-            {/foreach}
-            <div class="page">
-                {$pagelist}
-                <div>共 {$count} 則文章{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+        <div class="col-sm-12">
+            <div class="m_panel">
+                <h2>{$ptitle}
+                    {if $mACat}
+                        {if $mACat->type == 1}
+                        <a class="btn" href="{:url('/index/user/addarticle/cid/'.$cid)}">發表文章</a>
+                        {/if}
+                    {else/}
+                        <a class="btn" href="{:url('/index/user/addarticle')}">發表文章</a>
+                    {/if}
+                </h2>
+                <ul class="article_list">
+                    {foreach $mArticle as $v}
+                    <li>
+                        <div class="left_box">
+                            <a class="btn btn-xs btn-warning" target="_blank" href="{:url('/index/article/index/cid/'.$v->cat_id)}">{$v->cat_name}</a>
+                        </div>
+                        <div class="center_box">
+                            <a href="{:url('/index/article/detail/id/'.$v->id)}"><h3>{$v->title}</h3></a>
+                        </div>
+                        <div class="msgc_box">
+                            <b>{$v->msg_count}</b>留言
+                        </div>
+                        <div class="right_box">
+                            <div>{$v->nickname}</div>
+                            <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                        </div>
+                    </li>
+                    {/foreach}
+                </ul>
+                <div class="page">
+                    {$pagelist}
+                </div>
             </div>
         </div>
-        <div class="col-sm-7">
+        <div class="col-sm-12">
         </div>
     </div>
 </div>

@@ -9,21 +9,22 @@
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container isrelative">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="{:url('/')}">{$site.name}</a>
+                    <a class="navbar-brand" href="{:url('/')}"><img src="__CDN__/assets/img/logo.svg" /></a>
                 </div>
                 
                 <div class="collapse navbar-collapse" id="navbar-collapse-menu">
                     <ul class="nav navbar-nav navbar-right">
                         {if $user}
-                        <li><a href="{:url('index/user/profile')}">{:__('Member center')}</a></li>
+                        <li><a href="{:url('index/user/profile')}" class="user_btn islogin"><i class="fa fa-user-circle-o"></i></a></li>
                         {else /}
-                        <li><a href="{:url('user/login')}">{:__('Sign in')}</a></li>
+                        <li><a href="{:url('user/login')}" class="user_btn"><i class="fa fa-user-circle-o"></i></a></li>
                         {/if}
                     </ul>
                 </div>
             </div>
+            <hr class="haderline" />
             <!-- 分類選單 -->
-            <div>
+            <div class="container menu_list">
                 <a href="{:url('/index/article')}">全部</a>
                 {if $mArticlecat}
                 {foreach $mArticlecat as $cat}
@@ -39,10 +40,17 @@
         </main>
 
         <footer class="footer" style="clear:both">
-            <div class="fb-like" data-href="https://www.facebook.com/sportgod.cc/" data-width="" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
-            <a href="https://instagram.com/sportgod.cc">IG</a>
-            <a href="{:url('/index/contact')}">聯絡我們</a>
-            <p class="copyright">Copyright&nbsp;©&nbsp;2017-{:date('Y',time())} {$site.name} All Rights Reserved</p>
+            <div class="container footer_top">
+                <div class="fb_like">
+                    <b>{$site.name}粉絲專頁</b> <div class="fb-like" data-href="https://www.facebook.com/sportgod.cc/" data-width="" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
+                </div>
+                <div class="info_list">
+                    <a target="_blank" href="https://instagram.com/sportgod.cc">IG</a>&nbsp;|&nbsp;<a href="{:url('/index/contact')}">聯絡我們</a>
+                </div>
+            </div>
+            <div class="footer_bottom">
+                <p class="container">Copyright&nbsp;©&nbsp; {$site.name} 版權所有</p>
+            </div>
         </footer>
 
         {include file="common/script" /}

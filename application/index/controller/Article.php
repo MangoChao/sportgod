@@ -21,16 +21,26 @@ class Article extends Frontend
         $ptitle = "所有文章";
         if($cid != 0){
             $catWhere = " AND cat_id = ".$cid;
-            $mArticlecat = model('Articlecat')->get($cid);
-            $ptitle = $mArticlecat->cat_name;
+            $mACat = model('Articlecat')->get($cid);
+            $ptitle = $mACat->cat_name;
         }else{
-            $mArticlecat = false;
+            $mACat = false;
         }
         $mArticle = model('Article')->alias('a')
+        ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
-        ->field('a.*, ac.cat_name')
-        ->where("a.status = 1 ".$catWhere)->paginate(50);
+        ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
+        ->field('a.*, ac.cat_name, u.nickname, count(am.id) as msg_count')
+        ->where("a.status = 1 ".$catWhere)->group('a.id')->paginate(5);
         
+        if($mArticle){
+            foreach($mArticle as $v){
+                if($v->user_id == 0){
+                    $v->nickname = "管理員";
+                }
+            }
+        }
+
         $count = $mArticle->total();
         $pagelist = $mArticle->render();
         
@@ -38,7 +48,7 @@ class Article extends Frontend
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
         $this->view->assign('mArticle', $mArticle);
-        $this->view->assign('mArticlecat', $mArticlecat);
+        $this->view->assign('mACat', $mACat);
         $this->view->assign('cid', $cid);
         $this->view->assign('ptitle', $ptitle);
         return $this->view->fetch();

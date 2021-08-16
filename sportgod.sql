@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2021 年 07 月 19 日 09:24
--- 伺服器版本： 5.7.33-log-cll-lve
--- PHP 版本： 7.4.16
+-- 產生時間： 2021 年 08 月 16 日 03:00
+-- 伺服器版本： 5.7.34-log-cll-lve
+-- PHP 版本： 7.4.21
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -30,27 +30,27 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `admin` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
-  `username` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '用户名',
-  `nickname` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '昵称',
-  `password` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '密码',
-  `salt` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '密码盐',
-  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '头像',
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '电子邮箱',
+  `username` varchar(20) DEFAULT '' COMMENT '用户名',
+  `nickname` varchar(50) DEFAULT '' COMMENT '昵称',
+  `password` varchar(32) DEFAULT '' COMMENT '密码',
+  `salt` varchar(30) DEFAULT '' COMMENT '密码盐',
+  `avatar` varchar(255) DEFAULT '' COMMENT '头像',
+  `email` varchar(100) DEFAULT '' COMMENT '电子邮箱',
   `loginfailure` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '失败次数',
   `logintime` int(10) DEFAULT NULL COMMENT '登录时间',
-  `loginip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '登录IP',
+  `loginip` varchar(50) DEFAULT NULL COMMENT '登录IP',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
-  `token` varchar(59) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'Session标识',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'normal' COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员表';
+  `token` varchar(59) DEFAULT '' COMMENT 'Session标识',
+  `status` varchar(30) NOT NULL DEFAULT 'normal' COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='管理员表';
 
 --
 -- 傾印資料表的資料 `admin`
 --
 
 INSERT INTO `admin` (`id`, `username`, `nickname`, `password`, `salt`, `avatar`, `email`, `loginfailure`, `logintime`, `loginip`, `createtime`, `updatetime`, `token`, `status`) VALUES
-(1, 'sysadmin', 'RD', '739a805f8299be8535e07272b55c06bf', 'd2f9c8', '/assets/img/avatar.png', 'sysadmin@admin.com', 0, 1626402658, '114.39.101.183', 1492186163, 1626402658, '8e62d180-b553-4fcd-93ce-e5a3b3ee74ba', 'normal');
+(1, 'sysadmin', 'RD', '739a805f8299be8535e07272b55c06bf', 'd2f9c8', '/assets/img/avatar.png', 'sysadmin@admin.com', 0, 1628847570, '111.254.221.106', 1492186163, 1628847570, 'ccd1bb8f-09f1-47a2-86c1-481f078858ea', 'normal');
 
 -- --------------------------------------------------------
 
@@ -61,14 +61,14 @@ INSERT INTO `admin` (`id`, `username`, `nickname`, `password`, `salt`, `avatar`,
 CREATE TABLE `admin_log` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
   `admin_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '管理员ID',
-  `username` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '管理员名字',
-  `url` varchar(1500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '操作页面',
-  `title` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '日志标题',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容',
-  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'IP',
-  `useragent` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'User-Agent',
+  `username` varchar(30) DEFAULT '' COMMENT '管理员名字',
+  `url` varchar(1500) DEFAULT '' COMMENT '操作页面',
+  `title` varchar(100) DEFAULT '' COMMENT '日志标题',
+  `content` text NOT NULL COMMENT '内容',
+  `ip` varchar(50) DEFAULT '' COMMENT 'IP',
+  `useragent` varchar(255) DEFAULT '' COMMENT 'User-Agent',
   `createtime` int(10) DEFAULT NULL COMMENT '操作时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='管理员日志表';
 
 --
 -- 傾印資料表的資料 `admin_log`
@@ -143,7 +143,32 @@ INSERT INTO `admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`
 (66, 1, 'sysadmin', '/backend.php/auth/rule/add?dialog=1', '權限管理 / 菜單規則 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"1\",\"pid\":\"91\",\"name\":\"frontend\\/articlecat\\/del\",\"title\":\"刪除\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"}}', '114.39.101.183', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1626403002),
 (67, 1, 'sysadmin', '/backend.php/auth/rule/add?dialog=1', '權限管理 / 菜單規則 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"0\",\"name\":\"frontend\\/articlecat\\/edit\",\"title\":\"編輯\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"}}', '114.39.101.183', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1626403023),
 (68, 1, 'sysadmin', '/backend.php/auth/rule/add?dialog=1', '權限管理 / 菜單規則 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"91\",\"name\":\"frontend\\/articlecat\\/edit\",\"title\":\"編輯\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"}}', '114.39.101.183', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1626403027),
-(69, 1, 'sysadmin', '/backend.php/auth/rule/multi', '權限管理 / 菜單規則', '{\"action\":\"\",\"ids\":\"94\",\"params\":\"ismenu=0\"}', '114.39.101.183', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1626403031);
+(69, 1, 'sysadmin', '/backend.php/auth/rule/multi', '權限管理 / 菜單規則', '{\"action\":\"\",\"ids\":\"94\",\"params\":\"ismenu=0\"}', '114.39.101.183', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1626403031),
+(70, 0, 'Unknown', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 1627871825),
+(71, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 1627871829),
+(72, 1, 'sysadmin', '/backend.php/frontend/articlecat/add?dialog=1', '前台管理 / 文章分類 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"cat_name\":\"www\",\"type\":\"1\",\"status\":\"1\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 1627871875),
+(73, 1, 'sysadmin', '/backend.php/user/article/add?dialog=1', '會員管理 / 文章管理 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"cat_id\":\"1\",\"title\":\"rrrr\",\"content\":\"456456\",\"status\":\"1\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 1627871907),
+(74, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628058310),
+(75, 1, 'sysadmin', '/backend.php/general.config/edit', '常規管理 / 系統配置 / 編輯', '{\"__token__\":\"***\",\"row\":{\"name\":\"運動神人\",\"beian\":\"\",\"cdnurl\":\"\",\"version\":\"1.0.0\",\"timezone\":\"Asia\\/Shanghai\",\"forbiddenip\":\"\",\"languages\":\"{&quot;backend&quot;:&quot;zh-cn&quot;,&quot;frontend&quot;:&quot;zh-cn&quot;}\",\"fixedpage\":\"user\\/user\",\"url\":\"{&quot;furl&quot;:&quot;https:\\/\\/sportgod.cc&quot;,&quot;api&quot;:&quot;https:\\/\\/sportgod.cc\\/api&quot;,&quot;burl&quot;:&quot;https:\\/\\/sportgod.cc\\/backend.php&quot;}\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628058342),
+(76, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php%2Ffrontend%2Farticlecat%3Faddtabs%3D1', '登入', '{\"url\":\"\\/backend.php\\/frontend\\/articlecat?addtabs=1\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061765),
+(77, 1, 'sysadmin', '/backend.php/frontend/articlecat/edit/ids/1?dialog=1', '前台管理 / 文章分類 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"id\":\"1\",\"cat_name\":\"籃球\",\"type\":\"1\",\"status\":\"1\"},\"ids\":\"1\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061776),
+(78, 1, 'sysadmin', '/backend.php/frontend/articlecat/edit/ids/1?dialog=1', '前台管理 / 文章分類 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"id\":\"1\",\"cat_name\":\"籃球\",\"type\":\"1\",\"status\":\"1\"},\"ids\":\"1\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061810),
+(79, 1, 'sysadmin', '/backend.php/frontend/articlecat/add?dialog=1', '前台管理 / 文章分類 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"cat_name\":\"新聞\",\"type\":\"1\",\"status\":\"1\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061820),
+(80, 1, 'sysadmin', '/backend.php/frontend/articlecat/edit/ids/2?dialog=1', '前台管理 / 文章分類 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"id\":\"2\",\"cat_name\":\"新聞\",\"type\":\"0\",\"status\":\"1\"},\"ids\":\"2\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061826),
+(81, 1, 'sysadmin', '/backend.php/frontend/articlecat/add?dialog=1', '前台管理 / 文章分類 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"cat_name\":\"棒球\",\"type\":\"1\",\"status\":\"1\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061833),
+(82, 1, 'sysadmin', '/backend.php/ajax/weigh', '', '{\"ids\":\"2,1,3\",\"changeid\":\"2\",\"pid\":\"\",\"field\":\"weigh\",\"orderway\":\"asc\",\"table\":\"article_cat\",\"pk\":\"id\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061835),
+(83, 1, 'sysadmin', '/backend.php/user/article/add?dialog=1', '會員管理 / 文章管理 / 添加', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"cat_id\":\"2\",\"title\":\"最新消息\",\"content\":\"456789\",\"status\":\"1\"}}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628061873),
+(84, 1, 'sysadmin', '/backend.php/auth/rule/edit/ids/85?dialog=1', '權限管理 / 菜單規則 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"1\",\"pid\":\"90\",\"name\":\"frontend\\/article\",\"title\":\"文章管理\",\"icon\":\"fa fa-file-text-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"},\"ids\":\"85\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062588),
+(85, 1, 'sysadmin', '/backend.php/auth/rule/edit/ids/86?dialog=1', '權限管理 / 菜單規則 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"85\",\"name\":\"frontend\\/article\\/index\",\"title\":\"查看\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"},\"ids\":\"86\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062602),
+(86, 1, 'sysadmin', '/backend.php/auth/rule/edit/ids/87?dialog=1', '權限管理 / 菜單規則 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"85\",\"name\":\"frontend\\/article\\/add\",\"title\":\"添加\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"},\"ids\":\"87\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062613),
+(87, 1, 'sysadmin', '/backend.php/auth/rule/edit/ids/88?dialog=1', '權限管理 / 菜單規則 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"85\",\"name\":\"frontend\\/article\\/edit\",\"title\":\"編輯\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"},\"ids\":\"88\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062620),
+(88, 1, 'sysadmin', '/backend.php/auth/rule/edit/ids/89?dialog=1', '權限管理 / 菜單規則 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"0\",\"pid\":\"85\",\"name\":\"frontend\\/article\\/del\",\"title\":\"刪除\",\"icon\":\"fa fa-circle-o\",\"weigh\":\"0\",\"condition\":\"\",\"remark\":\"\",\"status\":\"normal\"},\"ids\":\"89\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062627),
+(89, 1, 'sysadmin', '/backend.php/frontend/article/edit/ids/7?dialog=1', '前台管理 / 文章管理 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"id\":\"7\",\"cat_id\":\"3\",\"title\":\"0005\",\"content\":\"222\",\"status\":\"1\"},\"ids\":\"7\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062751),
+(90, 1, 'sysadmin', '/backend.php/frontend/article/edit/ids/2?dialog=1', '前台管理 / 文章管理 / 編輯', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"id\":\"2\",\"cat_id\":\"1\",\"title\":\"文字編輯器測試\",\"content\":\"8855\",\"status\":\"1\"},\"ids\":\"2\"}', '111.254.224.248', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628062797),
+(91, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php%2Fuser%2Fuser%3Fref%3Daddtabs', '登入', '{\"url\":\"\\/backend.php\\/user\\/user?ref=addtabs\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.194.15', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628229551),
+(92, 1, 'sysadmin', '/backend.php/user/user/del', '會員管理 / 會員管理 / 刪除', '{\"action\":\"del\",\"ids\":\"1\",\"params\":\"\"}', '111.254.194.15', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628229556),
+(93, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '114.39.107.242', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1628325327),
+(94, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.221.106', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36', 1628847570);
 
 -- --------------------------------------------------------
 
@@ -154,17 +179,17 @@ INSERT INTO `admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`
 CREATE TABLE `area` (
   `id` int(10) NOT NULL COMMENT 'ID',
   `pid` int(10) DEFAULT NULL COMMENT '父id',
-  `shortname` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '简称',
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
-  `mergename` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '全称',
+  `shortname` varchar(100) DEFAULT NULL COMMENT '简称',
+  `name` varchar(100) DEFAULT NULL COMMENT '名称',
+  `mergename` varchar(255) DEFAULT NULL COMMENT '全称',
   `level` tinyint(4) DEFAULT NULL COMMENT '层级 0 1 2 省市区县',
-  `pinyin` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '拼音',
-  `code` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '长途区号',
-  `zip` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮编',
-  `first` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '首字母',
-  `lng` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '经度',
-  `lat` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '纬度'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='地区表';
+  `pinyin` varchar(100) DEFAULT NULL COMMENT '拼音',
+  `code` varchar(100) DEFAULT NULL COMMENT '长途区号',
+  `zip` varchar(100) DEFAULT NULL COMMENT '邮编',
+  `first` varchar(50) DEFAULT NULL COMMENT '首字母',
+  `lng` varchar(100) DEFAULT NULL COMMENT '经度',
+  `lat` varchar(100) DEFAULT NULL COMMENT '纬度'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='地区表';
 
 -- --------------------------------------------------------
 
@@ -175,13 +200,28 @@ CREATE TABLE `area` (
 CREATE TABLE `article` (
   `id` int(11) NOT NULL,
   `title` varchar(50) NOT NULL,
-  `content` text NOT NULL,
+  `content` mediumtext NOT NULL,
   `user_id` int(11) NOT NULL DEFAULT '0',
   `cat_id` int(11) NOT NULL DEFAULT '0',
+  `fav` int(11) NOT NULL DEFAULT '0' COMMENT '收藏人數',
   `status` int(11) NOT NULL DEFAULT '1',
   `createtime` int(11) NOT NULL,
   `updatetime` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 傾印資料表的資料 `article`
+--
+
+INSERT INTO `article` (`id`, `title`, `content`, `user_id`, `cat_id`, `fav`, `status`, `createtime`, `updatetime`) VALUES
+(1, 'rrrr', '456456', 0, 1, 0, 1, 0, 0),
+(2, '文字編輯器測試', '<span style=\"color:#E53333;font-size:24px;\">8855</span>', 2, 1, 0, 1, 1628061731, 1628062797),
+(3, '最新消息', '456789', 0, 2, 1, 1, 1628061873, 1628849189),
+(4, '測試', 'w', 2, 1, 0, 1, 1628061908, 1628061908),
+(5, '棒球文章', '4568', 2, 3, 0, 1, 1628062004, 1628062004),
+(6, '999', '555', 2, 3, 0, 1, 1628062412, 1628062412),
+(7, '0005', '222', 2, 3, 0, 1, 1628062426, 1628062751),
+(8, '測試編輯氣2', '<span style=\"font-size:14px;color:#003399;\">文字編輯氣<br />4895146<br /><strong><span style=\"background-color:#E53333;\">555</span></strong></span>', 2, 3, 0, 1, 1628063226, 1628063226);
 
 -- --------------------------------------------------------
 
@@ -193,10 +233,69 @@ CREATE TABLE `article_cat` (
   `id` int(11) NOT NULL,
   `cat_name` varchar(20) NOT NULL,
   `weigh` int(11) NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '1' COMMENT '0後台 1通用',
   `status` int(11) NOT NULL DEFAULT '1',
   `createtime` int(11) NOT NULL,
   `updatetime` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 傾印資料表的資料 `article_cat`
+--
+
+INSERT INTO `article_cat` (`id`, `cat_name`, `weigh`, `type`, `status`, `createtime`, `updatetime`) VALUES
+(1, '籃球', 2, 1, 1, 0, 1628061776),
+(2, '新聞', 1, 0, 1, 1628061820, 1628061826),
+(3, '棒球', 3, 1, 1, 1628061833, 1628061833);
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `article_fav`
+--
+
+CREATE TABLE `article_fav` (
+  `id` int(11) NOT NULL,
+  `article_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `createtime` int(11) NOT NULL,
+  `updatetime` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 傾印資料表的資料 `article_fav`
+--
+
+INSERT INTO `article_fav` (`id`, `article_id`, `user_id`, `createtime`, `updatetime`) VALUES
+(7, 3, 2, 1628849189, 1628849189);
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `article_msg`
+--
+
+CREATE TABLE `article_msg` (
+  `id` int(11) NOT NULL,
+  `article_id` int(11) NOT NULL,
+  `msg` text NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '1',
+  `createtime` int(11) NOT NULL,
+  `updatetime` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 傾印資料表的資料 `article_msg`
+--
+
+INSERT INTO `article_msg` (`id`, `article_id`, `msg`, `user_id`, `status`, `createtime`, `updatetime`) VALUES
+(1, 1, '1', 2, 1, 0, 0),
+(2, 1, '6', 2, 1, 0, 0),
+(3, 1, '測試留言', 2, 1, 0, 0),
+(4, 2, '789', 2, 1, 1628061749, 1628061749),
+(5, 2, '<h2><span style=\"color:#FF9900;\">文字編輯器留言測試</span></h2>', 2, 1, 1628063135, 1628063135),
+(6, 2, '<span style=\"font-family:DFKai-SB;font-size:18px;color:#E53333;\">789<br />換行留言</span>', 2, 1, 1628063176, 1628063176);
 
 -- --------------------------------------------------------
 
@@ -208,21 +307,21 @@ CREATE TABLE `attachment` (
   `id` int(20) UNSIGNED NOT NULL COMMENT 'ID',
   `admin_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '管理员ID',
   `user_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '会员ID',
-  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '物理路径',
-  `imagewidth` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '宽度',
-  `imageheight` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '高度',
-  `imagetype` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '图片类型',
+  `url` varchar(255) DEFAULT '' COMMENT '物理路径',
+  `imagewidth` varchar(30) DEFAULT '' COMMENT '宽度',
+  `imageheight` varchar(30) DEFAULT '' COMMENT '高度',
+  `imagetype` varchar(30) DEFAULT '' COMMENT '图片类型',
   `imageframes` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '图片帧数',
-  `filename` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '文件名称',
+  `filename` varchar(100) DEFAULT '' COMMENT '文件名称',
   `filesize` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文件大小',
-  `mimetype` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'mime类型',
-  `extparam` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '透传数据',
+  `mimetype` varchar(100) DEFAULT '' COMMENT 'mime类型',
+  `extparam` varchar(255) DEFAULT '' COMMENT '透传数据',
   `createtime` int(10) DEFAULT NULL COMMENT '创建日期',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
   `uploadtime` int(10) DEFAULT NULL COMMENT '上传时间',
-  `storage` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'local' COMMENT '存储位置',
-  `sha1` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '文件 sha1编码'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='附件表';
+  `storage` varchar(100) NOT NULL DEFAULT 'local' COMMENT '存储位置',
+  `sha1` varchar(40) DEFAULT '' COMMENT '文件 sha1编码'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='附件表';
 
 --
 -- 傾印資料表的資料 `attachment`
@@ -240,12 +339,12 @@ INSERT INTO `attachment` (`id`, `admin_id`, `user_id`, `url`, `imagewidth`, `ima
 CREATE TABLE `auth_group` (
   `id` int(10) UNSIGNED NOT NULL,
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父组别',
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '组名',
-  `rules` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '规则ID',
+  `name` varchar(100) DEFAULT '' COMMENT '组名',
+  `rules` text NOT NULL COMMENT '规则ID',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分组表';
+  `status` varchar(30) DEFAULT '' COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分组表';
 
 --
 -- 傾印資料表的資料 `auth_group`
@@ -267,7 +366,7 @@ INSERT INTO `auth_group` (`id`, `pid`, `name`, `rules`, `createtime`, `updatetim
 CREATE TABLE `auth_group_access` (
   `uid` int(10) UNSIGNED NOT NULL COMMENT '会员ID',
   `group_id` int(10) UNSIGNED NOT NULL COMMENT '级别ID'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限分组表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='权限分组表';
 
 --
 -- 傾印資料表的資料 `auth_group_access`
@@ -284,19 +383,19 @@ INSERT INTO `auth_group_access` (`uid`, `group_id`) VALUES
 
 CREATE TABLE `auth_rule` (
   `id` int(10) UNSIGNED NOT NULL,
-  `type` enum('menu','file') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'file' COMMENT 'menu为菜单,file为权限节点',
+  `type` enum('menu','file') NOT NULL DEFAULT 'file' COMMENT 'menu为菜单,file为权限节点',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '规则名称',
-  `title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '规则名称',
-  `icon` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '图标',
-  `condition` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '条件',
-  `remark` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '备注',
+  `name` varchar(100) DEFAULT '' COMMENT '规则名称',
+  `title` varchar(50) DEFAULT '' COMMENT '规则名称',
+  `icon` varchar(50) DEFAULT '' COMMENT '图标',
+  `condition` varchar(255) DEFAULT '' COMMENT '条件',
+  `remark` varchar(255) DEFAULT '' COMMENT '备注',
   `ismenu` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '是否为菜单',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
   `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='节点表';
+  `status` varchar(30) DEFAULT '' COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='节点表';
 
 --
 -- 傾印資料表的資料 `auth_rule`
@@ -385,11 +484,11 @@ INSERT INTO `auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `conditio
 (82, 'file', 79, 'user/rule/add', 'Add', 'fa fa-circle-o', '', '', 0, 1516374729, 1516374729, 0, 'normal'),
 (83, 'file', 79, 'user/rule/edit', 'Edit', 'fa fa-circle-o', '', '', 0, 1516374729, 1516374729, 0, 'normal'),
 (84, 'file', 79, 'user/rule/multi', 'Multi', 'fa fa-circle-o', '', '', 0, 1516374729, 1516374729, 0, 'normal'),
-(85, 'file', 66, 'user/article', '文章管理', 'fa fa-file-text-o', '', '', 1, 1626110494, 1626137949, 0, 'normal'),
-(86, 'file', 85, 'user/article/index', '查看', 'fa fa-circle-o', '', '', 0, 1626110513, 1626110513, 0, 'normal'),
-(87, 'file', 85, 'user/article/add', '添加', 'fa fa-circle-o', '', '', 0, 1626110533, 1626110533, 0, 'normal'),
-(88, 'file', 85, 'user/article/edit', '編輯', 'fa fa-circle-o', '', '', 0, 1626110549, 1626110549, 0, 'normal'),
-(89, 'file', 85, 'user/article/del', '刪除', 'fa fa-circle-o', '', '', 0, 1626110561, 1626110561, 0, 'normal'),
+(85, 'file', 90, 'frontend/article', '文章管理', 'fa fa-file-text-o', '', '', 1, 1626110494, 1628062588, 0, 'normal'),
+(86, 'file', 85, 'frontend/article/index', '查看', 'fa fa-circle-o', '', '', 0, 1626110513, 1628062602, 0, 'normal'),
+(87, 'file', 85, 'frontend/article/add', '添加', 'fa fa-circle-o', '', '', 0, 1626110533, 1628062613, 0, 'normal'),
+(88, 'file', 85, 'frontend/article/edit', '編輯', 'fa fa-circle-o', '', '', 0, 1626110549, 1628062620, 0, 'normal'),
+(89, 'file', 85, 'frontend/article/del', '刪除', 'fa fa-circle-o', '', '', 0, 1626110561, 1628062627, 0, 'normal'),
 (90, 'file', 0, 'frontend', '前台管理', 'fa fa-window-maximize', '', '', 1, 1626402691, 1626402691, 137, 'normal'),
 (91, 'file', 90, 'frontend/articlecat', '文章分類', 'fa fa-bookmark', '', '', 1, 1626402947, 1626402947, 0, 'normal'),
 (92, 'file', 91, 'frontend/articlecat/index', '查看', 'fa fa-circle-o', '', '', 0, 1626402963, 1626402991, 0, 'normal'),
@@ -406,19 +505,19 @@ INSERT INTO `auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `conditio
 CREATE TABLE `category` (
   `id` int(10) UNSIGNED NOT NULL,
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
-  `type` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '栏目类型',
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `nickname` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `flag` set('hot','index','recommend') COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '图片',
-  `keywords` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '关键字',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '描述',
-  `diyname` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '自定义名称',
+  `type` varchar(30) DEFAULT '' COMMENT '栏目类型',
+  `name` varchar(30) DEFAULT '',
+  `nickname` varchar(50) DEFAULT '',
+  `flag` set('hot','index','recommend') DEFAULT '',
+  `image` varchar(100) DEFAULT '' COMMENT '图片',
+  `keywords` varchar(255) DEFAULT '' COMMENT '关键字',
+  `description` varchar(255) DEFAULT '' COMMENT '描述',
+  `diyname` varchar(30) DEFAULT '' COMMENT '自定义名称',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
   `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分类表';
+  `status` varchar(30) DEFAULT '' COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分类表';
 
 --
 -- 傾印資料表的資料 `category`
@@ -471,7 +570,7 @@ INSERT INTO `config` (`id`, `name`, `group`, `title`, `tip`, `type`, `value`, `c
 (5, 'timezone', 'basic', 'Timezone', '', 'string', 'Asia/Shanghai', '', 'required', '', NULL),
 (6, 'forbiddenip', 'basic', 'Forbidden ip', '一行一条记录', 'text', '', '', '', '', NULL),
 (7, 'languages', 'basic', 'Languages', '', 'array', '{\"backend\":\"zh-cn\",\"frontend\":\"zh-cn\"}', '', 'required', '', NULL),
-(8, 'fixedpage', 'basic', 'Fixed page', '请尽量输入左侧菜单栏存在的链接', 'string', 'user/merchant', '', 'required', '', NULL),
+(8, 'fixedpage', 'basic', 'Fixed page', '请尽量输入左侧菜单栏存在的链接', 'string', 'user/user', '', 'required', '', NULL),
 (9, 'categorytype', 'dictionary', 'Category type', '', 'array', '{\"default\":\"Default\",\"page\":\"Page\",\"article\":\"Article\",\"test\":\"Test\"}', '', '', '', ''),
 (10, 'configgroup', 'dictionary', 'Config group', '', 'array', '{\"basic\":\"Basic\",\"email\":\"Email\",\"dictionary\":\"Dictionary\",\"user\":\"User\",\"example\":\"Example\"}', '', '', '', ''),
 (11, 'mail_type', 'email', 'Mail type', '选择邮件发送方式', 'select', '1', '[\"请选择\",\"SMTP\",\"Mail\"]', '', '', ''),
@@ -491,13 +590,13 @@ INSERT INTO `config` (`id`, `name`, `group`, `title`, `tip`, `type`, `value`, `c
 
 CREATE TABLE `ems` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
-  `event` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '事件',
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '邮箱',
-  `code` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '验证码',
+  `event` varchar(30) DEFAULT '' COMMENT '事件',
+  `email` varchar(100) DEFAULT '' COMMENT '邮箱',
+  `code` varchar(10) DEFAULT '' COMMENT '验证码',
   `times` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '验证次数',
-  `ip` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'IP',
+  `ip` varchar(30) DEFAULT '' COMMENT 'IP',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮箱验证码表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='邮箱验证码表';
 
 -- --------------------------------------------------------
 
@@ -507,13 +606,13 @@ CREATE TABLE `ems` (
 
 CREATE TABLE `sms` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
-  `event` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '事件',
-  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '手机号',
-  `code` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '验证码',
+  `event` varchar(30) DEFAULT '' COMMENT '事件',
+  `mobile` varchar(20) DEFAULT '' COMMENT '手机号',
+  `code` varchar(10) DEFAULT '' COMMENT '验证码',
   `times` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '验证次数',
-  `ip` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'IP',
+  `ip` varchar(30) DEFAULT '' COMMENT 'IP',
   `createtime` int(10) UNSIGNED DEFAULT '0' COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='短信验证码表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='短信验证码表';
 
 -- --------------------------------------------------------
 
@@ -525,20 +624,20 @@ CREATE TABLE `test` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
   `admin_id` int(10) NOT NULL DEFAULT '0' COMMENT '管理员ID',
   `category_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '分类ID(单选)',
-  `category_ids` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '分类ID(多选)',
-  `week` enum('monday','tuesday','wednesday') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '星期(单选):monday=星期一,tuesday=星期二,wednesday=星期三',
-  `flag` set('hot','index','recommend') COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '标志(多选):hot=热门,index=首页,recommend=推荐',
-  `genderdata` enum('male','female') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'male' COMMENT '性别(单选):male=男,female=女',
-  `hobbydata` set('music','reading','swimming') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '爱好(多选):music=音乐,reading=读书,swimming=游泳',
-  `title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '标题',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容',
-  `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '图片',
-  `images` varchar(1500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '图片组',
-  `attachfile` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '附件',
-  `keywords` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '关键字',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '描述',
-  `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '省市',
-  `json` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '配置:key=名称,value=值',
+  `category_ids` varchar(100) NOT NULL COMMENT '分类ID(多选)',
+  `week` enum('monday','tuesday','wednesday') NOT NULL COMMENT '星期(单选):monday=星期一,tuesday=星期二,wednesday=星期三',
+  `flag` set('hot','index','recommend') DEFAULT '' COMMENT '标志(多选):hot=热门,index=首页,recommend=推荐',
+  `genderdata` enum('male','female') NOT NULL DEFAULT 'male' COMMENT '性别(单选):male=男,female=女',
+  `hobbydata` set('music','reading','swimming') NOT NULL COMMENT '爱好(多选):music=音乐,reading=读书,swimming=游泳',
+  `title` varchar(50) DEFAULT '' COMMENT '标题',
+  `content` text NOT NULL COMMENT '内容',
+  `image` varchar(100) DEFAULT '' COMMENT '图片',
+  `images` varchar(1500) DEFAULT '' COMMENT '图片组',
+  `attachfile` varchar(100) DEFAULT '' COMMENT '附件',
+  `keywords` varchar(100) DEFAULT '' COMMENT '关键字',
+  `description` varchar(255) DEFAULT '' COMMENT '描述',
+  `city` varchar(100) DEFAULT '' COMMENT '省市',
+  `json` varchar(255) DEFAULT NULL COMMENT '配置:key=名称,value=值',
   `price` float(10,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT '价格',
   `views` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击',
   `startdate` date DEFAULT NULL COMMENT '开始日期',
@@ -551,9 +650,9 @@ CREATE TABLE `test` (
   `deletetime` int(10) DEFAULT NULL COMMENT '删除时间',
   `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
   `switch` tinyint(1) NOT NULL DEFAULT '0' COMMENT '开关',
-  `status` enum('normal','hidden') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'normal' COMMENT '状态',
-  `state` enum('0','1','2') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '状态值:0=禁用,1=正常,2=推荐'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='测试表';
+  `status` enum('normal','hidden') NOT NULL DEFAULT 'normal' COMMENT '状态',
+  `state` enum('0','1','2') NOT NULL DEFAULT '1' COMMENT '状态值:0=禁用,1=正常,2=推荐'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='测试表';
 
 --
 -- 傾印資料表的資料 `test`
@@ -571,41 +670,40 @@ INSERT INTO `test` (`id`, `admin_id`, `category_id`, `category_ids`, `week`, `fl
 CREATE TABLE `user` (
   `id` int(10) UNSIGNED NOT NULL COMMENT 'ID',
   `group_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组别ID',
-  `username` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '用户名',
-  `nickname` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '昵称',
-  `password` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '密码',
-  `salt` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '密码盐',
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '电子邮箱',
-  `mobile` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '手机号',
-  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '头像',
+  `username` varchar(32) DEFAULT '' COMMENT '用户名',
+  `nickname` varchar(50) DEFAULT '' COMMENT '昵称',
+  `password` varchar(32) DEFAULT '' COMMENT '密码',
+  `salt` varchar(30) DEFAULT '' COMMENT '密码盐',
+  `email` varchar(100) DEFAULT '' COMMENT '电子邮箱',
+  `mobile` varchar(11) DEFAULT '' COMMENT '手机号',
+  `avatar` varchar(255) DEFAULT '' COMMENT '头像',
   `level` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级',
   `gender` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '性别',
   `birthday` date DEFAULT NULL COMMENT '生日',
-  `bio` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '格言',
+  `bio` varchar(100) DEFAULT '' COMMENT '格言',
   `money` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '余额',
   `score` int(10) NOT NULL DEFAULT '0' COMMENT '积分',
   `successions` int(10) UNSIGNED NOT NULL DEFAULT '1' COMMENT '连续登录天数',
   `maxsuccessions` int(10) UNSIGNED NOT NULL DEFAULT '1' COMMENT '最大连续登录天数',
   `prevtime` int(10) DEFAULT NULL COMMENT '上次登录时间',
   `logintime` int(10) DEFAULT NULL COMMENT '登录时间',
-  `loginip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '登录IP',
+  `loginip` varchar(50) DEFAULT '' COMMENT '登录IP',
   `loginfailure` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '失败次数',
-  `joinip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '加入IP',
+  `joinip` varchar(50) DEFAULT '' COMMENT '加入IP',
   `jointime` int(10) DEFAULT NULL COMMENT '加入时间',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
-  `token` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'Token',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '状态',
-  `verification` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '验证'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员表';
+  `token` varchar(50) DEFAULT '' COMMENT 'Token',
+  `status` varchar(30) DEFAULT '' COMMENT '状态',
+  `verification` varchar(255) DEFAULT '' COMMENT '验证'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员表';
 
 --
 -- 傾印資料表的資料 `user`
 --
 
 INSERT INTO `user` (`id`, `group_id`, `username`, `nickname`, `password`, `salt`, `email`, `mobile`, `avatar`, `level`, `gender`, `birthday`, `bio`, `money`, `score`, `successions`, `maxsuccessions`, `prevtime`, `logintime`, `loginip`, `loginfailure`, `joinip`, `jointime`, `createtime`, `updatetime`, `token`, `status`, `verification`) VALUES
-(1, 1, 'admin', 'admin', 'ddb269d00cb06da58222f95752b20c1d', '0da16e', 'admin@163.com', '13888888888', '', 0, 0, '2017-04-15', '', 0.00, 0, 1, 1, 1516170492, 1516171614, '127.0.0.1', 0, '127.0.0.1', 1491461418, 0, 1516171614, '', 'normal', ''),
-(2, 0, 'chao', 'chao', '26ce13a0c8dd05c819b1d41a20d5e74b', 'Ytn4go', '', '0928565121', '', 0, 0, NULL, '', 0.00, 0, 1, 1, NULL, 1626141522, '114.39.52.147', 0, '', NULL, 1626141516, 1626141522, '', '1', '');
+(2, 0, 'chao', 'chao', '26ce13a0c8dd05c819b1d41a20d5e74b', 'Ytn4go', '', '0928565121', '', 0, 0, NULL, '', 0.00, 0, 1, 1, 1628058393, 1628847672, '111.254.221.106', 0, '', NULL, 1626141516, 1628847672, '', '1', '');
 
 -- --------------------------------------------------------
 
@@ -615,12 +713,12 @@ INSERT INTO `user` (`id`, `group_id`, `username`, `nickname`, `password`, `salt`
 
 CREATE TABLE `user_group` (
   `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '组名',
-  `rules` text COLLATE utf8mb4_unicode_ci COMMENT '权限节点',
+  `name` varchar(50) DEFAULT '' COMMENT '组名',
+  `rules` text COMMENT '权限节点',
   `createtime` int(10) DEFAULT NULL COMMENT '添加时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
-  `status` enum('normal','hidden') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员组表';
+  `status` enum('normal','hidden') DEFAULT NULL COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员组表';
 
 --
 -- 傾印資料表的資料 `user_group`
@@ -641,9 +739,9 @@ CREATE TABLE `user_money_log` (
   `money` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '变更余额',
   `before` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '变更前余额',
   `after` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '变更后余额',
-  `memo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '备注',
+  `memo` varchar(255) DEFAULT '' COMMENT '备注',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员余额变动表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员余额变动表';
 
 -- --------------------------------------------------------
 
@@ -654,15 +752,15 @@ CREATE TABLE `user_money_log` (
 CREATE TABLE `user_rule` (
   `id` int(10) UNSIGNED NOT NULL,
   `pid` int(10) DEFAULT NULL COMMENT '父ID',
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
-  `title` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '标题',
-  `remark` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+  `name` varchar(50) DEFAULT NULL COMMENT '名称',
+  `title` varchar(50) DEFAULT '' COMMENT '标题',
+  `remark` varchar(100) DEFAULT NULL COMMENT '备注',
   `ismenu` tinyint(1) DEFAULT NULL COMMENT '是否菜单',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
   `weigh` int(10) DEFAULT '0' COMMENT '权重',
-  `status` enum('normal','hidden') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员规则表';
+  `status` enum('normal','hidden') DEFAULT NULL COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员规则表';
 
 --
 -- 傾印資料表的資料 `user_rule`
@@ -694,9 +792,9 @@ CREATE TABLE `user_score_log` (
   `score` int(10) NOT NULL DEFAULT '0' COMMENT '变更积分',
   `before` int(10) NOT NULL DEFAULT '0' COMMENT '变更前积分',
   `after` int(10) NOT NULL DEFAULT '0' COMMENT '变更后积分',
-  `memo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '备注',
+  `memo` varchar(255) DEFAULT '' COMMENT '备注',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员积分变动表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员积分变动表';
 
 -- --------------------------------------------------------
 
@@ -705,17 +803,18 @@ CREATE TABLE `user_score_log` (
 --
 
 CREATE TABLE `user_token` (
-  `token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Token',
+  `token` varchar(50) NOT NULL COMMENT 'Token',
   `user_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '会员ID',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `expiretime` int(10) DEFAULT NULL COMMENT '过期时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员Token表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='会员Token表';
 
 --
 -- 傾印資料表的資料 `user_token`
 --
 
 INSERT INTO `user_token` (`token`, `user_id`, `createtime`, `expiretime`) VALUES
+('67e4c8535b54f33c8bd013041d87faf0d72266af', 2, 1628847672, 1631439672),
 ('e0bf6c63db235bb13a3f15d966c6b4c19b6d5d95', 2, 1626141522, 1628733522);
 
 -- --------------------------------------------------------
@@ -726,17 +825,17 @@ INSERT INTO `user_token` (`token`, `user_id`, `createtime`, `expiretime`) VALUES
 
 CREATE TABLE `version` (
   `id` int(11) NOT NULL COMMENT 'ID',
-  `oldversion` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '旧版本号',
-  `newversion` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '新版本号',
-  `packagesize` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '包大小',
-  `content` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '升级内容',
-  `downloadurl` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '下载地址',
+  `oldversion` varchar(30) DEFAULT '' COMMENT '旧版本号',
+  `newversion` varchar(30) DEFAULT '' COMMENT '新版本号',
+  `packagesize` varchar(30) DEFAULT '' COMMENT '包大小',
+  `content` varchar(500) DEFAULT '' COMMENT '升级内容',
+  `downloadurl` varchar(255) DEFAULT '' COMMENT '下载地址',
   `enforce` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '强制更新',
   `createtime` int(10) DEFAULT NULL COMMENT '创建时间',
   `updatetime` int(10) DEFAULT NULL COMMENT '更新时间',
   `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '状态'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='版本表';
+  `status` varchar(30) DEFAULT '' COMMENT '状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版本表';
 
 --
 -- 已傾印資料表的索引
@@ -773,6 +872,18 @@ ALTER TABLE `article`
 -- 資料表索引 `article_cat`
 --
 ALTER TABLE `article_cat`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 資料表索引 `article_fav`
+--
+ALTER TABLE `article_fav`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 資料表索引 `article_msg`
+--
+ALTER TABLE `article_msg`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -896,7 +1007,7 @@ ALTER TABLE `admin`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `admin_log`
 --
 ALTER TABLE `admin_log`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID', AUTO_INCREMENT=70;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID', AUTO_INCREMENT=95;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `area`
@@ -908,13 +1019,25 @@ ALTER TABLE `area`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `article`
 --
 ALTER TABLE `article`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `article_cat`
 --
 ALTER TABLE `article_cat`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `article_fav`
+--
+ALTER TABLE `article_fav`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `article_msg`
+--
+ALTER TABLE `article_msg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `attachment`
