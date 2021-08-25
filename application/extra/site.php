@@ -11,7 +11,7 @@ return [
         'backend' => 'zh-cn',
         'frontend' => 'zh-cn',
     ],
-    'fixedpage' => 'user/merchant',
+    'fixedpage' => 'user/user',
     'categorytype' => [
         'default' => 'Default',
         'page' => 'Page',
@@ -33,8 +33,8 @@ return [
     'mail_verify_type' => '2',
     'mail_from' => '10000@qq.com',
     'url' => [
-        'furl' => 'https://sportgod.com',
-        'api' => 'https://sportgod.com/api',
-        'burl' => 'https://sportgod.com/backend.php',
+        'furl' => 'http://sportgod.com',
+        'api' => 'http://sportgod.com/api',
+        'burl' => 'http://sportgod.com/backend.php',
     ],
 ];
