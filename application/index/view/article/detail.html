@@ -27,18 +27,27 @@
                     <h4>{$mArticle->msg_count} 則留言</h4>
                     <div class="article_msg_box">
                         {foreach $mArticlemsg as $v}
-                            <div>
-                                <span>{$v->msg}</span>
-                                <span>{$v->nickname}</span>
-                                <span>{$v->createtime|date='Y/m/d H:i:s',###}</span>
+                            <div class="article_main">
+                                <div class="left_box">
+                                    <div class="avatar_img" style="background-image: url({$v->avatar});"></div>
+                                    <div>{$v->nickname}</div>
+                                    <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                                </div>
+                                <div class="right_box">
+                                    <div class="article_content_box">
+                                        {$v->msg}
+                                    </div>
+                                </div>
                             </div>
                         {/foreach}
                     </div>
                     <div class="add_article_msg_box">
+                        <h5>我要留言</h5>
                         <form id="add_msg_form">
                             <input type="hidden" id="article_id" value="{$mArticle->id}"/>
                             <textarea id="msg_content" class="form-control editor" name="msg_content"></textarea>
-                            <a id="btn_add_msg" href="javascript:;">留言</a>
+                            <br>
+                            <a class="btn btn-info" id="btn_add_msg" href="javascript:;">留言</a>
                         </form>
                     </div>
                 </div>

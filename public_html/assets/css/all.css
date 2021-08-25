@@ -102,6 +102,7 @@ footer.footer{
 .m_panel{
     background-color: #ffffff;
     border-radius: 3px;
+    margin-bottom: 10px;
 }
 
 .m_panel h2{ 
@@ -199,6 +200,7 @@ footer.footer{
 }
 .article_main{
     display: flex;
+    border-bottom: 1px #e5fbff solid;
 }
 .article_main .avatar_img{
     width: 70px;
@@ -246,4 +248,67 @@ footer.footer{
 }
 .article_main .right_box .article_content_box{
     padding: 15px;
+}
+.article_msg h4{
+    font-size: 20px;
+    font-weight: bold;
+    padding: 15px;
+    margin: 0;
+    border-bottom: 3px #e5fbff solid;
+}
+.article_msg .add_article_msg_box{
+    padding: 15px;
+}
+.article_msg h5{
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.article_msg_box{
+    border-bottom: 3px #e5fbff solid;
+}
+.article_msg_box .article_main .right_box{
+    min-height: auto;
+}
+.user-section{
+    background-color: #c1f5fd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.login-section .logon-tab > a{
+    color: #e5fbff;
+    background-color: #71ace6;
+    font-weight: bold;
+}
+.login-section .logon-tab > a:hover{
+    background-color: #ff6200;
+}
+.login-section .logon-tab > a.active{
+    background-color: #c1f5fd;
+    color: #71ace6;
+}
+.btn-primary{
+    color: #fff;
+    background-color: #71ace6;
+    border-color: #71ace6;
+}
+.btn-primary:hover{
+    background-color: #ff6200;
+    border-color: #ff6200;
+}
+.form-control{
+    color: #ff6200;
+    background-color: #e5fbff;
+    border: 1px solid #71ace6;
+}
+.sidenav .list-group .list-group-item > a{
+    font-weight: bold;
+    font-size: 16px;
+}
+.sidenav .list-group .list-group-item.active > a{
+    color: #ff6200;
+}
+.sidenav .list-group .list-group-item.active{
+    border-left: 2px solid #ff6200;
 }

@@ -70,15 +70,68 @@ class User extends Frontend
         return $this->view->fetch();
     }
     
-    public function favorites()
+    public function favorites($page = 1)
     {
-        $this->view->assign('title', '收藏');
+        $mArticle = model('Article')->alias('a')
+        ->join("article_fav af","af.article_id = a.id AND af.user_id = ".$this->auth->id)
+        ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
+        ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
+        ->where("a.status = 1 ")->order('a.updatetime','desc')->group('a.id')->paginate(5);
+        
+        if($mArticle){
+            foreach($mArticle as $v){
+                if($v->user_id == 0){
+                    $v->nickname = "管理員";
+                    $v->avatar = model('User')->getAvatarAttr('');
+                }else{
+                    $v->avatar = model('User')->getAvatarAttr($v->avatar);
+                }
+            }
+        }
+
+        $count = $mArticle->total();
+        $pagelist = $mArticle->render();
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mArticle', $mArticle);
+
+        $this->view->assign('title', '收藏的文章');
         return $this->view->fetch();
     }
     
-    public function article()
+    public function article($page = 1)
     {
-        $this->view->assign('title', '文章');
+        $mArticle = model('Article')->alias('a')
+        ->join("user u","u.id = a.user_id ")
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
+        ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
+        ->where("a.status = 1 AND a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(5);
+        
+        if($mArticle){
+            foreach($mArticle as $v){
+                if($v->user_id == 0){
+                    $v->nickname = "管理員";
+                    $v->avatar = model('User')->getAvatarAttr('');
+                }else{
+                    $v->avatar = model('User')->getAvatarAttr($v->avatar);
+                }
+            }
+        }
+
+        $count = $mArticle->total();
+        $pagelist = $mArticle->render();
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mArticle', $mArticle);
+
+        $this->view->assign('title', '發表的文章');
         return $this->view->fetch();
     }
 
