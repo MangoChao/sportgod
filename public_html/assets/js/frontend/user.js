@@ -30,6 +30,17 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 }
             });
         },
+        editarticle: function () {
+            Form.api.bindevent($("#editarticle_form"), function (data) {
+                console.log(data);
+                let id = data.id;
+                if(id != 0){
+                    location.href = Config.url.furl+"/index/article/detail/id/"+id;
+                }else{
+                    location.href = Config.url.furl+"/index/article";
+                }
+            });
+        },
         login: function () {
             //本地验证未通过时提示
             $("#login-form").data("validator-options", validatoroptions);

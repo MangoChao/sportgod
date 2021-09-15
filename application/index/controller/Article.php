@@ -31,7 +31,7 @@ class Article extends Frontend
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
         ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
-        ->where("a.status = 1 ".$catWhere)->group('a.id')->order('a.updatetime','desc')->paginate(5);
+        ->where("a.status = 1 ".$catWhere)->group('a.id')->order('a.updatetime','desc')->paginate(25);
         
         if($mArticle){
             foreach($mArticle as $v){

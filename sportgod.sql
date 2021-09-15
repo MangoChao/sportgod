@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： localhost
--- 產生時間： 2021 年 08 月 16 日 03:00
--- 伺服器版本： 5.7.34-log-cll-lve
+-- 產生時間： 2021 年 09 月 15 日 03:29
+-- 伺服器版本： 5.7.34-cll-lve
 -- PHP 版本： 7.4.21
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -50,7 +50,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `username`, `nickname`, `password`, `salt`, `avatar`, `email`, `loginfailure`, `logintime`, `loginip`, `createtime`, `updatetime`, `token`, `status`) VALUES
-(1, 'sysadmin', 'RD', '739a805f8299be8535e07272b55c06bf', 'd2f9c8', '/assets/img/avatar.png', 'sysadmin@admin.com', 0, 1628847570, '111.254.221.106', 1492186163, 1628847570, 'ccd1bb8f-09f1-47a2-86c1-481f078858ea', 'normal');
+(1, 'sysadmin', 'RD', '739a805f8299be8535e07272b55c06bf', 'd2f9c8', '/assets/img/avatar.png', 'sysadmin@admin.com', 0, 1629083667, '111.254.219.89', 1492186163, 1629083667, 'a5e1aeb4-dbd4-4722-825d-1f8e2d81d6bb', 'normal');
 
 -- --------------------------------------------------------
 
@@ -168,7 +168,8 @@ INSERT INTO `admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`
 (91, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php%2Fuser%2Fuser%3Fref%3Daddtabs', '登入', '{\"url\":\"\\/backend.php\\/user\\/user?ref=addtabs\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.194.15', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628229551),
 (92, 1, 'sysadmin', '/backend.php/user/user/del', '會員管理 / 會員管理 / 刪除', '{\"action\":\"del\",\"ids\":\"1\",\"params\":\"\"}', '111.254.194.15', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36', 1628229556),
 (93, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '114.39.107.242', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1628325327),
-(94, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.221.106', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36', 1628847570);
+(94, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php', '登入', '{\"url\":\"\\/backend.php\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.221.106', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36', 1628847570),
+(95, 1, 'sysadmin', '/backend.php/index/login?url=%2Fbackend.php%2Fauth%2Frule%3Faddtabs%3D1', '登入', '{\"url\":\"\\/backend.php\\/auth\\/rule?addtabs=1\",\"__token__\":\"***\",\"username\":\"sysadmin\",\"password\":\"***\"}', '111.254.219.89', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36', 1629083667);
 
 -- --------------------------------------------------------
 
@@ -814,7 +815,6 @@ CREATE TABLE `user_token` (
 --
 
 INSERT INTO `user_token` (`token`, `user_id`, `createtime`, `expiretime`) VALUES
-('67e4c8535b54f33c8bd013041d87faf0d72266af', 2, 1628847672, 1631439672),
 ('e0bf6c63db235bb13a3f15d966c6b4c19b6d5d95', 2, 1626141522, 1628733522);
 
 -- --------------------------------------------------------
@@ -1007,7 +1007,7 @@ ALTER TABLE `admin`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `admin_log`
 --
 ALTER TABLE `admin_log`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID', AUTO_INCREMENT=95;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID', AUTO_INCREMENT=96;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `area`

@@ -33,8 +33,8 @@ return [
     'mail_verify_type' => '2',
     'mail_from' => '10000@qq.com',
     'url' => [
-        'furl' => 'http://sportgod.com',
-        'api' => 'http://sportgod.com/api',
-        'burl' => 'http://sportgod.com/backend.php',
+        'furl' => 'http://xp.sportgod.com',
+        'api' => 'http://xp.sportgod.com/api',
+        'burl' => 'http://xp.sportgod.com/backend.php',
     ],
 ];

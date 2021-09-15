@@ -14,7 +14,13 @@
                             <div class="fav_box">
                                 <span><span id="fav_count">{$mArticle->fav}</span>人收藏</span>
                                 <a class="btn btn_set_fav" data-id="{$mArticle->id}" href="javascript:;">{if !$hasfav}收藏文章{else/}取消收藏{/if}</a>
+                                {if $user && $user->id == $mArticle->user_id}
+                                <a class="btn btn_edit" href="{:url('/index/user/editarticle/id/'.$mArticle->id)}">編輯文章</a>
+                                {/if}
                             </div>
+                        </div>
+                        <div class="article_img_box">
+                            <img src="{$mArticle->img}" />
                         </div>
                         <div class="article_content_box">
                             {$mArticle->content}

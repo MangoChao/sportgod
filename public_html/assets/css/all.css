@@ -229,7 +229,7 @@ footer.footer{
     width: 100%;
 }
 .article_main .right_box .a_header .fav_box{
-    width: 300px;
+    width: 500px;
     padding: 0 18px;
     font-size: 18px;
     text-align: right;
@@ -244,6 +244,11 @@ footer.footer{
 .article_main .right_box .a_header .fav_box .btn{
     background-color: #ff6200;
     border-color: #ff6200;
+    color: #fff;
+}
+.article_main .right_box .a_header .fav_box .btn_edit.btn{
+    background-color: #3498db;
+    border-color: #3498db;
     color: #fff;
 }
 .article_main .right_box .article_content_box{

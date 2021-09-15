@@ -78,7 +78,7 @@ class User extends Frontend
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
         ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
-        ->where("a.status = 1 ")->order('a.updatetime','desc')->group('a.id')->paginate(5);
+        ->where("a.status = 1 ")->order('a.updatetime','desc')->group('a.id')->paginate(15);
         
         if($mArticle){
             foreach($mArticle as $v){
@@ -110,7 +110,7 @@ class User extends Frontend
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
         ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
-        ->where("a.status = 1 AND a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(5);
+        ->where("a.status = 1 AND a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(15);
         
         if($mArticle){
             foreach($mArticle as $v){
@@ -151,6 +151,29 @@ class User extends Frontend
 
         $this->view->assign('catlist', $catlist);
         $this->view->assign('cid', $cid);
+        return $this->view->fetch();
+    }
+
+    //編輯文章
+    public function editarticle($id = 0)
+    {
+        $mArticle = model('Article')->where("id = ".$id." AND status = 1 AND user_id = ".$this->auth->id)->find();
+        if(!$mArticle){
+            $this->redirect('/index/article');
+        }
+        
+        $catlist = [
+            '0' => '請選擇分類'
+        ];
+        $mArticlecat = model('Articlecat')->where("type = 1 AND status = 1")->order("weigh")->select();
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
+                $catlist[$v->id] = $v->cat_name;
+            }
+        }
+
+        $this->view->assign('mArticle', $mArticle);
+        $this->view->assign('catlist', $catlist);
         return $this->view->fetch();
     }
 
