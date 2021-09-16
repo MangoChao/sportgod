@@ -317,3 +317,26 @@ footer.footer{
 .sidenav .list-group .list-group-item.active{
     border-left: 2px solid #ff6200;
 }
+.contact p{
+    padding: 15px;
+    font-size: 16px;
+}
+.homepage .row{
+    margin-left: -5px;
+    margin-right: -5px;
+}
+.homepage [class *='col']{
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.m_panel.banner {
+    display: flex;
+}
+.m_panel.banner .left_box,
+.m_panel.banner .right_box{
+    padding: 10px;
+}
+.m_panel.banner h3{
+    margin: 0;
+}
