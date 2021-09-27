@@ -5,7 +5,42 @@
             {include file="common/sidenav" /}
         </div>
         <div class="col-md-9">
-
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h2 class="page-header">通知的文章</h2>
+                    <ul class="article_list">
+                        {if sizeof($mArticle)>0}
+                            {foreach $mArticle as $v}
+                            <li>
+                                <div class="left_box">
+                                    <a class="btn btn-xs btn-warning" target="_blank" href="{:url('/index/article/index/cid/'.$v->cat_id)}">{$v->cat_name}</a>
+                                </div>
+                                <div class="center_box">
+                                    <a href="{:url('/index/article/detail/id/'.$v->id)}"><h3>{$v->title}</h3></a>
+                                </div>
+                                <div class="msgc_box">
+                                    <b>{$v->msg_count}</b>留言
+                                </div>
+                                <div class="avatar_box">
+                                    <div class="avatar_img" style="background-image: url({$v->avatar});"></div>
+                                </div>
+                                <div class="right_box">
+                                    <div>{$v->nickname}</div>
+                                    <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                                </div>
+                            </li>
+                            {/foreach}
+                        {else/}
+                        <li>
+                            無通知
+                        </li>
+                        {/if}
+                    </ul>
+                    <div class="page">
+                        {$pagelist}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

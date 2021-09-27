@@ -163,6 +163,8 @@ class Article extends Backend
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
+
+                    model('Articleread')->where("article_id = ".$ids)->delete();
                     $this->success();
                 } else {
                     $this->error(__('No rows were updated'));

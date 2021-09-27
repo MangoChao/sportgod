@@ -97,6 +97,16 @@ class Article extends Frontend
         if($this->auth->isLogin()){
             $afc = model('Articlefav')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->count();
             if($afc > 0) $hasfav = true;
+
+            $ard = model('Articleread')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->count();
+            if(!$ard > 0){
+                $params = [
+                    'article_id' => $id,
+                    'user_id' => $this->auth->id,
+                ];
+                model('Articleread')::create($params);
+                $this->redirect('/index/article/detail/id/'.$id);
+            }
         }
 
         $this->view->assign('hasfav', $hasfav);

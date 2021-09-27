@@ -4,16 +4,16 @@
         <div class="col-xs-12">
             <div class="m_panel banner main_banner">
                 <div class="left_box">
-                    {foreach $mNewArticle as $v}
-                        <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_img_box" style="background: url({$v->img});">
-                            <span class="a_title">{$v->title}</span>
+                    {foreach $mNewArticle as $k=>$v}
+                        <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_img_box" data-k="{$k}" style="background-image: url({$v->img});{if $k != 0}display:none{/if}">
+                            <span class="s_title">{$v->title}</span>
                         </a>
                     {/foreach}
                 </div>
                 <div class="right_box">
                     <h3>最新文章</h3>
-                    {foreach $mNewArticle as $v}
-                    <a href="{:url('/index/article/detail/id/'.$v->id)}">{$v->title}</a>
+                    {foreach $mNewArticle as $k=>$v}
+                    <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
                     {/foreach}
                 </div>
             </div>
@@ -26,14 +26,14 @@
                         <div class="m_panel banner sub_banner">
                             <div class="left_box">
                                 <h3>{$ca['cat_name']}</h3>
-                                {foreach $ca['mArticle'] as $v}
-                                <a href="{:url('/index/article/detail/id/'.$v->id)}">{$v->title}</a>
+                                {foreach $ca['mArticle'] as $k=>$v}
+                                <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
                                 {/foreach}
                             </div>
                             <div class="right_box">
-                                {foreach $ca['mArticle'] as $v}
-                                    <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_img_box" style="background: url({$v->img});">
-                                        <span class="a_title">{$v->title}</span>
+                                {foreach $ca['mArticle'] as $k=>$v}
+                                    <a href="{:url('/index/article/detail/id/'.$v->id)}" class="a_img_box" data-k="{$k}" style="background-image: url({$v->img});{if $k != 0}display:none{/if}">
+                                        <span class="s_title">{$v->title}</span>
                                     </a>
                                 {/foreach}
                             </div>

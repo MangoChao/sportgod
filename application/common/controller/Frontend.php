@@ -119,6 +119,7 @@ class Frontend extends Controller
         Config::set('upload', array_merge(Config::get('upload'), $upload));
 
         $this->assignArticlecat();
+        $this->checkArticleread();
         // 配置信息后
         Hook::listen("config_init", $config);
         // 加载当前控制器语言包
@@ -170,6 +171,19 @@ class Frontend extends Controller
     {
         $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
         $this->assign('mArticlecat', $mArticlecat);
+    }
+
+    protected function checkArticleread()
+    {
+        if ($this->auth->isLogin()) {
+            $isnotify = model('Article')->alias('a')
+            ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
+            ->join("article_read ar","a.id = ar.article_id AND ar.user_id = ".$this->auth->id,"LEFT")
+            ->where("a.status = 1 AND ar.id IS NULL AND (a.user_id = ".$this->auth->id." OR am.user_id = ".$this->auth->id.")")->group('a.id')->count();
+        }else{
+            $isnotify = 0;
+        }
+        $this->assign('isnotify', $isnotify);
     }
     
 }

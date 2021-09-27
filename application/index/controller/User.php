@@ -64,8 +64,35 @@ class User extends Frontend
         return $this->view->fetch();
     }
     
-    public function notify()
+    public function notify($page = 1)
     {
+        $mArticle = model('Article')->alias('a')
+        ->join("user u","u.id = a.user_id ")
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
+        ->join("article_read ar","a.id = ar.article_id AND ar.user_id = ".$this->auth->id,"LEFT")
+        ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
+        ->where("a.status = 1 AND ar.id IS NULL AND (a.user_id = ".$this->auth->id." OR am.user_id = ".$this->auth->id.")")->order('a.updatetime','desc')->group('a.id')->paginate(15);
+        
+        if($mArticle){
+            foreach($mArticle as $v){
+                if($v->user_id == 0){
+                    $v->nickname = "管理員";
+                    $v->avatar = model('User')->getAvatarAttr('');
+                }else{
+                    $v->avatar = model('User')->getAvatarAttr($v->avatar);
+                }
+            }
+        }
+
+        $count = $mArticle->total();
+        $pagelist = $mArticle->render();
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mArticle', $mArticle);
+
         $this->view->assign('title', '通知');
         return $this->view->fetch();
     }
