@@ -336,6 +336,9 @@ footer.footer{
     width: 100%;
     min-height: 240px;
 }
+.m_panel.banner.main_banner {
+    min-height: 340px;
+}
 .m_panel.banner .left_box,
 .m_panel.banner .right_box{
     padding: 10px;
