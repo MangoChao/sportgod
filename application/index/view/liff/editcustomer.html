@@ -1,0 +1,57 @@
+
+{__NOLAYOUT__}
+<div class="panel-body popup_box">
+    <form id="mform5" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/customer/editcustomer')}" >
+        {:token()}
+        <input type="hidden" name="line_user_id" value="{$line_user_id}" >
+        <input type="hidden" id="id" name="id" value="{$mCustomer.id}" data-rule="required" >
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">標籤:</label>
+            <div class="col-xs-12 col-sm-8">
+                {if sizeof($customer_tag)>0}
+                {:build_checkboxs('customer_tag[]', $customer_tag, $mCustomer['customer_tag'])}
+                {else/}
+                    <label class="control-label text-orange">無可用標籤, 請至［標籤工具］新增</label>
+                {/if}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">手機:</label>
+            <div class="col-xs-12 col-sm-8">
+                <input type="number" class="form-control" id="mobile" name="mobile" data-rule="required" value="{$mCustomer.mobile}" autocomplete="off" placeholder="">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">姓名:</label>
+            <div class="col-xs-12 col-sm-8">
+                <input type="text" class="form-control" id="customer_name" name="customer_name" data-rule="required" value="{$mCustomer.customer_name}" autocomplete="off" placeholder="">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">生日:</label>
+            <div class="col-xs-12 col-sm-8">
+                <input type="text" style="width: 120px;" class="form-control" id="birthday" name="birthday" value="{$mCustomer.birthday}" data-rule="required" placeholder="106.09.25">
+                <span class="birthday_notify_btn">{:build_checkboxs('birthday_notify', ['1'=> __('自動祝賀')], $mCustomer['birthday_notify'])}</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">性別:</label>
+            <div class="col-xs-12 col-sm-8">
+                {:build_radios('gender', ['0' => '女','1' => '男'], $mCustomer['gender'])}
+            </div>
+        </div>
+        {if $mCustomer['status']>0}
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">狀態:</label>
+            <div class="col-xs-12 col-sm-8">
+                {:build_radios('status', ['1' => '啟用', '2' => '停用'], $mCustomer['status'])}
+            </div>
+        </div>
+        {/if}
+        <div class="form-group normal-footer">
+            <div class="col-xs-12">
+                <a class="btn btn-warning btn-full" href="javascript:;" onclick="$('#mform5').submit()">儲存</a>
+            </div>
+        </div>
+    </form>
+</div>

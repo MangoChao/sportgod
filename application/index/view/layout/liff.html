@@ -3,10 +3,20 @@
     <head>
         {include file="common/meta" /}
         <link href="__CDN__/assets/css/user.css?v={$Think.config.site.version}" rel="stylesheet">
+        <link href="__CDN__/assets/css/liff.css?v={$Think.config.site.version}" rel="stylesheet">
     </head>
     <body>
+        <div class="liff_bg">
+            <img src="__CDN__/assets/img/liff_bg.png" />
+        </div>
         <main class="content">
-            {__CONTENT__}
+            <input type="hidden" id="line_user_id" value="----">
+            <div id="content-container" class="container" style="display: none;">
+                {__CONTENT__}
+            </div>
+            <div id="get_uid_loding" class="container error_msg">
+                請稍後
+            </div>
         </main>
         <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
         {include file="common/script" /}

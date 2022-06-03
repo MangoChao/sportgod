@@ -1,0 +1,51 @@
+{__NOLAYOUT__}
+<div class="panel-body analyst_page">
+    {if $mAnalyst}
+    <h2>
+        {$mAnalyst->analyst_name} 
+        <a href="javascript:;" class="btn btn-info btn_analyst_pred" data-id="{$mAnalyst->id}" >看預測</a>
+
+    </h2>
+    <div class="table-row">
+        {if $mPred}
+            <table class="table pred_list">
+                <thead>
+                    <tr>
+                        <th width="70px">比賽時間</th>
+                        <th>比分</th>
+                        <th>隊伍</th>
+                        <th width="60px">預測</th>
+                        <th>結果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $mPred as $v}
+                    <tr>
+                        <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                        <td style="text-align: right;">{$v->score_str}</td>
+                        <td>{$v->event_str}</td>
+                        <td>{$v->pred_str}</td>
+                        <td>{$v->comply_str}</td>
+                    </tr>
+                {/foreach}
+                <tbody>
+            </table>
+        {else/}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>尚無預測結果</td>
+            </tr>
+            <tbody>
+        </table>
+        {/if}
+    </div>
+    {else/}
+    <h2>查無分析師</h2>
+    {/if}
+</div>

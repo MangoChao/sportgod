@@ -1,0 +1,17 @@
+{__NOLAYOUT__}
+<h1>推播分析</h1>
+<div class="panel-body">
+    <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="" >
+        {:token()}
+        <input type="hidden" id="form_line_user_id" name="line_user_id" value="{$line_user_id}">
+        <div class="form-group">
+            <label class="control-label col-xs-12">累積推播則數: {$success}</label>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12">URL點擊/已讀數: {$isread}</label>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-12 ">發送失敗數: {$failure}</label>
+        </div>
+    </form>
+</div>

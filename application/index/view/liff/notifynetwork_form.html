@@ -1,0 +1,32 @@
+
+{__NOLAYOUT__}
+<h1>設定新通知<a href="javascript:;" class="notifylist"><i class="fa fa-list"></i></a></h1>
+<div class="panel-body">
+    <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/notify/notifynetwork')}"  >
+        {:token()}
+        <input type="hidden" id="form_line_user_id" name="line_user_id" value="{$line_user_id}">
+        <input id="allsendfortotal" type="hidden" value="{$allsendfortotal}"/>
+        <a href="javascript:;" id="view_sendfor" class="sendfortotal_box"><i class="fa fa-envelope"></i>&nbsp;<i class="fa fa-arrow-right" style="font-size: 14px;"></i>&nbsp;<i class="fa fa-user"></i>&nbsp;<span id="sendfortotal">{$allsendfortotal}</span></a>
+        <div class="">
+            {:build_radios('sendfor', ['0' => '全部發送','1' => '分眾標籤發送'])}
+        </div>
+        <div id="customer_tag_box" class="customer_tag_style" style="display: none;">
+            {:build_checkboxs('customer_tag[]', $customer_tag)}
+        </div>
+        <div class="type_style">
+            {:build_radios('type', ['2'=> '立即發送','1'=> '預約發送'])}
+        </div>
+        <div id="definitetime_box" style="display: none;">
+            <input type="text" class="form-control datetimepicker text-center" id="definitetime" name="definitetime" value="{:date('Y-m-d H:i:s')}" placeholder="選擇日期">
+        </div>
+        <textarea class="form-control" id="content" name="content" placeholder="發送內容" rows="4"></textarea>
+        <div class="upimg_box">
+            <span class="msg-box n-right" for="img" style="display: none;"></span>
+            <button type="button" id="faupload-img" class="btn faupload" data-input-id="img" data-maxsize="1m" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-img"><i class="fa fa-upload"></i> 附加圖片</button>
+            <input id="img"  class="form-control hide" size="50" name="img" type="text" placeholder="" value="">
+            <ul class="row list-inline faupload-preview" id="p-img"></ul>
+        </div>
+        <label class="form_msg_box text-orange">※ 限制1M以下檔案大小</label>
+        <a class="btn btn-info btn-full btn_sbt" href="javascript:;" onclick="$('#mform').submit()">送出</a>
+    </form>
+</div>

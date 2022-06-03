@@ -1,0 +1,46 @@
+
+{__NOLAYOUT__}
+<h1>通知列表<a href="javascript:;" class="notifyform"><i class="fa fa-plus"></i></a></h1>
+<div class="panel-body">
+    <div class="table-row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>預定發送</th>
+                    <th class="text-center">總數</th>
+                    <th class="text-center">成功</th>
+                    <th class="text-center">已讀</th>
+                    <th class="text-center">狀態</th>
+                    <th width="100px" class="text-center">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {foreach name="table_data" item="data"}
+                <tr><td>
+                    {if $data->definitetime}
+                    <span style="font-size: 17px;">{$data->definitetime|date='Y/m/d',###}</span>
+                    {else/}
+                    <b>立即發送</b>
+                    {/if}
+                </td>
+                <td class="text-center">{$data->total}</td>
+                <td class="text-center">{$data->success}</td>
+                <td class="text-center">{$data->isread}</td>
+                <td class="text-center">
+                    {$data->statusstr}
+                </td>
+                <td class="text-center">
+                        <a class="abtn text-info btn_notify_info" data-id="{$data->id}" href="javascript:;"><i class="fa fa-pencil"></i></a>
+                        <a class="abtn text-danger btn_notify_cancel" data-id="{$data->id}" href="javascript:;"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            {/foreach}
+            {empty name="table_data"}
+                <tr>
+                    <td colspan="3">無標籤</td>
+                </tr>
+            {/empty}
+            <tbody>
+        </table>
+    </div>
+</div>

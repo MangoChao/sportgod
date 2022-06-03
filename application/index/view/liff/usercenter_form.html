@@ -1,0 +1,9 @@
+{__NOLAYOUT__}
+<h1>個人設定</h1>
+<div class="panel-body">
+    <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/user/edituser')}" >
+        {:token()}
+        <input type="hidden" id="form_line_user_id" name="line_user_id" value="{$line_user_id}">
+        
+    </form>
+</div>

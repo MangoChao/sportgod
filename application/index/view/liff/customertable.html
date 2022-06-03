@@ -1,0 +1,33 @@
+{__NOLAYOUT__}
+<h1>顧客列表</h1>
+<div class="panel-body">
+    <div class="table-row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>手機&nbsp;/&nbsp;生日</th>
+                    <th class="text-center">性別</th>
+                    <th class="text-center">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {foreach name="table_data" item="data"}
+                <tr>
+                    <td>{$data->status_str}&nbsp;<a class="text-info btn_edit" data-id="{$data->id}" href="javascript:;">{$data->customer_name}</a></td>
+                    <td><a class="text-info btn_edit" data-id="{$data->id}" href="javascript:;">{$data->mobile}<br>{$data->birthday}</a></td>
+                    <td class="text-center">{$data->gender_str}</td>
+                    <td class="text-center">
+                        <a class="abtn text-info btn_edit" data-id="{$data->id}" href="javascript:;"><i class="fa fa-pencil"></i></a>
+                    </td>
+                </tr>
+            {/foreach}
+            {empty name="table_data"}
+                <tr>
+                    <td colspan="6">無訂閱者</td>
+                </tr>
+            {/empty}
+            <tbody>
+        </table>
+    </div>
+</div>

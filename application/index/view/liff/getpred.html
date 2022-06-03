@@ -1,0 +1,19 @@
+{__NOLAYOUT__}
+<h1>賽事列表</h1>
+<div class="panel-body">
+    {:token()}
+    <div class="type_style">
+        {:build_radios('eventcatlist', $eventcatlist)}
+    </div>
+    <form id="s_analyst_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/user/getanalyst')}" >
+        <div class="s_box">
+            <a href="javascript:;" class="btn btn-warning btn_rank">排行榜</a>
+            <input type="text" class="form-control" name="analyst_name" value="" placeholder="搜尋分析師"/>
+        </div>
+    </form>
+    <div id="eventlist">
+        {if $mLotteryimg}
+        <img class="lotteryimg" src="{$mLotteryimg->img}" />
+        {/if}
+    </div>
+</div>

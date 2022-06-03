@@ -1,0 +1,19 @@
+
+{__NOLAYOUT__}
+<div class="panel-body">
+    <form id="mform5" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/user/editcustomertag')}" >
+        {:token()}
+        <input type="hidden" name="line_user_id" value="{$line_user_id}" >
+        <input type="hidden" id="id" name="id" value="{$mCustomertag.id}" data-rule="required" >
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" class="form-control" id="tag_name" name="tag_name" value="{$mCustomertag.tag_name|htmlentities}" data-rule="required" placeholder="標籤名稱">
+            </div>
+        </div>
+        <div class="form-group normal-footer">
+            <div class="col-xs-12">
+                <a class="btn btn-warning btn-full" href="javascript:;" onclick="$('#mform5').submit()">儲存</a>
+            </div>
+        </div>
+    </form>
+</div>

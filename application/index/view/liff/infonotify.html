@@ -1,0 +1,28 @@
+{__NOLAYOUT__}
+<div class="panel-body">
+    <h3>發送內容{if $mNotify.status == 0}<a href="javascript:;" class="btn_content_edit text-orange"><i class="fa fa-pencil-square-o"></i></a>{/if}</h3>
+    {if $mNotify.status == 0}
+    <div id="notify_content_edit" style="display: none;">
+        <form id="mform_content_edit" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/notify/notifycontentedit')}">
+            {:token()}
+            <input type="hidden" id="form_line_user_id" name="line_user_id" value="{$uid}">
+            <input type="hidden" name="id" value="{$mNotify.id}">
+            <textarea class="form-control" id="content_edit" name="content_edit" placeholder="發送內容" rows="4">{$mNotify.content}</textarea>
+            <a class="btn btn-info btn-full" href="javascript:;" onclick="$('#mform_content_edit').submit()">儲存修改</a>
+        </form>
+    </div>
+    {/if}
+    <div class="notify_content" id="notify_content">
+        {:nl2br($mNotify.content)}
+    </div>
+    {if $mNotify.img}
+        {foreach name="mNotify.img_arr" item="img_url"}
+        <div class="notify_img">
+            <img src="{:cdnurl($img_url)}" />
+        </div>
+        {/foreach}
+    {/if}
+</div>
+<div id="notifysubtable_box" class="panel-body">
+    {$notifysubtable}
+</div>

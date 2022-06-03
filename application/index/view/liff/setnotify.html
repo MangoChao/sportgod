@@ -1,0 +1,46 @@
+<div class="panel panel-default">
+    <div id="step01_box" class="step_box" style="display: none;">
+        <h1>設定Line Notify</h1>
+        <div class="panel-body">
+            <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="" >
+                {:token()}
+                <input type="hidden" id="form_line_user_id" name="line_user_id" value="----">
+                <div class="form-group">
+                    <label class="control-label col-xs-12 col-sm-2">Client ID:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <input type="password" class="form-control" id="notify_client_id" name="notify_client_id" data-rule="required" value="" autocomplete="off" placeholder="Client ID">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-12 col-sm-2">Client Secret:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <input type="password" class="form-control" id="notify_client_secret" name="notify_client_secret" data-rule="required" value="" placeholder="Client Secret">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-12 col-sm-2">Callback URL:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <label class="control-label">{$notifycallback}</label>
+                    </div>
+                </div>
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <a class="btn btn-info btn-full" href="javascript:;" onclick="$('#mform').submit()">進行連結</a>
+                    </div>
+                </div>
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <a class="btn btn-success btn-full btn_usedef" href="javascript:;">使用公共帳號</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="step02_box" class="step_box">
+        <div id="step02_box_error" class="error_msg">
+            讀取資料中請稍後...
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+{__NOLAYOUT__}
+<div class="panel-body">
+    {if $mRank}<h2>{$mRank->rtime1|date='Y/m/d',###} - {$mRank->rtime2|date='Y/m/d',###}</h2>{/if}
+    <div class="table-row">
+        {if $mRankcontent}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>名次</th>
+                        <th>分析師</th>
+                        <th>勝率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $mRankcontent as $v}
+                    <tr>
+                        <td>{$v->rank}</td>
+                        <td><a href="javascript:;" class="analyst_btn" data-id="{$v->analyst_id}" >{$v->analyst_name}</a></td>
+                        <td>{$v->winrate}%</td>
+                    </tr>
+                {/foreach}
+                <tbody>
+            </table>
+        {else/}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>尚無資料</td>
+            </tr>
+            <tbody>
+        </table>
+        {/if}
+    </div>
+</div>

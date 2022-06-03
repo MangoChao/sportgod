@@ -1,0 +1,38 @@
+{__NOLAYOUT__}
+<hr>
+<div class="table-row">
+    {foreach $table_data_list as $startdate=>$table_data}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{$startdate}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {foreach $table_data as $k=>$data}
+            <tr>
+                <td>{$data->team_str}</td>
+                <td class="text-right">
+                    <a class="abtn btn_eventinfo" style="color: #00a15e;" data-id="{$data->id}" href="javascript:;"><i class="fa fa-eye"></i></a>
+                </td>
+            </tr>
+        {/foreach}
+        <tbody>
+    </table>
+    {/foreach}
+    {empty name="table_data_list"}
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>目前無預測</td>
+        </tr>
+        <tbody>
+    </table>
+    {/empty}
+</div>

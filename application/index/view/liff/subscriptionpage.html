@@ -1,0 +1,21 @@
+<div class="panel panel-default">
+    <div id="step01_box" class="step_box" style="display: none;">
+        <h1>個人訂閱</h1>
+        <div class="panel-body">
+            <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="get" action="" >
+                {:token()}
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <a id="sub_btn" class="btn btn-info btn-full" href="javascript:;" >進行訂閱</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="step02_box" class="step_box">
+        <div id="step02_box_error" class="error_msg">
+            讀取資料中請稍後...
+        </div>
+    </div>
+</div>

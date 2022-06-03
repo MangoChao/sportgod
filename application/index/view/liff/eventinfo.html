@@ -1,0 +1,82 @@
+{__NOLAYOUT__}
+<div class="panel-body">
+    <h2>預測次數</h2>
+    <div class="info_box">
+        <div class="text-green"><span class="text-danger lastpred_box">{$mUser->lastpred}次</span></div>
+    </div>
+    {if $mEvent}
+        <input type="hidden" id="id" value="{$mEvent->id}">
+        <h2>賽事詳情</h2>
+        <div class="info_box">
+            <div>分類:{$mEvent->title}</div>
+            <div class="text-purple">{$mEvent->starttime|date='Y/m/d H:i',###}</div>
+            <div>{$mEvent->guests}&nbsp;&nbsp;{$mEvent->guests_refund_box}</div>
+            <div class="text-info">{$mEvent->master}<span class="text-danger">(主)</span>&nbsp;&nbsp;{$mEvent->master_refund_box}</div>
+            <div>大小&nbsp;&nbsp;<span class="refund_box">{$mEvent->bigscore_box}</span></div>
+        </div>
+        <div class="pred_type1_box" {if $mUser->haspred1 == 0}style="display: none;"{/if}>
+            <h2>讓分預測</h2>
+            <div class="info_box pred_str_box pred_type1_str" >
+                {$predstr1}
+            </div>
+        </div>
+        <div class="pred_type2_box" {if $mUser->haspred2 == 0}style="display: none;"{/if}>
+            <h2>大小預測</h2>
+            <div class="info_box pred_str_box pred_type2_str" >
+                {$predstr2}
+            </div>
+        </div>
+        <br>
+        <div class="info_box text-center pred_box">
+            {if $mUser->haspred1 == 1}
+                <a href="javascript:;" class="btn btn-success btn_type1 btn_haspred">讓分已預測</a>&nbsp;
+            {/if}
+            {if $mUser->haspred2 == 1}
+            <a href="javascript:;" class="btn btn-warning btn_type2 btn_haspred">大小已預測</a>
+            {/if}
+            {if $mUser->isfree == 1 && $mUser->freepred < 1}
+                {if $mUser->haspred1 == 0}
+                    <a href="javascript:;" class="btn btn-success btn_type1 btn_setcode">讓分預測</a>&nbsp;
+                {/if}
+                {if $mUser->haspred2 == 0}
+                <a href="javascript:;" class="btn btn-warning btn_type2 btn_setcode">大小預測</a>
+                {/if}
+            {elseif ($mUser->isfree == 1 && $mUser->freepred > 0) || ($mUser->isfree == 0 && ($mUser->lastpred > 0 || $mUser->freepred > 0)) /}
+                {if $mUser->haspred1 == 0}
+                    <a href="javascript:;" class="btn btn-success btn_type1 btn_pred" data-type="1">讓分預測</a>&nbsp;
+                {/if}
+                {if $mUser->haspred2 == 0}
+                    <a href="javascript:;" class="btn btn-warning btn_type2 btn_pred" data-type="2">大小預測</a>
+                {/if}
+            {else/}
+                {if $mUser->haspred1 == 0}
+                    <a href="javascript:;" class="btn btn-success btn_type1 btn_nopred">讓分預測</a>&nbsp;
+                {/if}
+                {if $mUser->haspred2 == 0}
+                    <a href="javascript:;" class="btn btn-warning btn_type2 btn_nopred">大小預測</a>
+                {/if}
+            {/if}
+        </div>
+        <div class="info_box setcode_box" style="display: none;">
+            <form id="mform" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/user/setcode')}"  >
+                {:token()}
+                <input type="hidden" id="form_line_user_id" name="line_user_id" value="{$line_user_id}">
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <input type="text" class="form-control" id="code" name="code" data-rule="required" value="" autocomplete="off" placeholder="代碼">
+                    </div>
+                </div>
+                <label class="form_msg_box text-danger">※ 代碼取得方式請聯繫客服</label>
+                <div class="form-group normal-footer">
+                    <div class="col-xs-12">
+                        <a class="btn btn-info btn-full" href="javascript:;" onclick="$('#mform').submit()">驗證代碼</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {else/}
+        <div class="error_msg">
+            賽事無預測, 請重試
+        </div>
+    {/if}
+</div>

@@ -1,0 +1,29 @@
+{__NOLAYOUT__}
+<h3>發送名單</h3>
+<div class="table-row">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>顧客</th>
+                <th class="text-center">狀態</th>
+                <th class="text-center">追蹤</th>
+            </tr>
+        </thead>
+        <tbody>
+        {foreach name="table_data" item="data"}
+            <tr>
+                <td>{$data->customer_name}</td>
+                <td class="text-center">
+                    {$data->statusstr}
+                </td>
+                <td class="text-center">{$data->isread_str}</td>
+            </tr>
+        {/foreach}
+        {empty name="table_data"}
+            <tr>
+                <td colspan="3">目前無資料</td>
+            </tr>
+        {/empty}
+        <tbody>
+    </table>
+</div>

@@ -1,0 +1,22 @@
+<form id="param-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <table class="table " style="border: 1px #ccc solid;">
+        <thead>
+            <tr>
+                <th>主場讓分</th>
+                <th>客場讓分</th>
+                <th>大小分</th>
+                <th>變動時間</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $mEventparam as $k => $v}
+            <tr>
+                <td>{$v->master_refund}</td>
+                <td>{$v->guests_refund}</td>
+                <td>{$v->bigscore}</td>
+                <td>{$v->createtime|datetime}</td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+</form>

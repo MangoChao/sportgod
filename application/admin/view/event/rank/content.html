@@ -1,0 +1,20 @@
+<form id="content-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <table class="table " style="border: 1px #ccc solid;">
+        <thead>
+            <tr>
+                <th>名次</th>
+                <th>分析師</th>
+                <th>勝率</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $mRankcontent as $k => $v}
+            <tr>
+                <td>{$v->rank}</td>
+                <td>{$v->analyst_name}</td>
+                <td>{$v->winrate}%</td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+</form>
