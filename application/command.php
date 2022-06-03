@@ -18,5 +18,12 @@ return [
     'app\admin\command\Addon',
     'app\admin\command\Api',
 
-    // 'app\admin\command\Cron\SendNotify',
+    'app\admin\command\Cron\Getvideo',
+    'app\admin\command\Cron\Getvideo2',
+    'app\admin\command\Cron\Getvideocat',
+    'app\admin\command\Cron\Getevent',
+    'app\admin\command\Cron\Geteventhistory',
+    'app\admin\command\Cron\Predevent',
+    'app\admin\command\Cron\Dayreport',
+    'app\admin\command\Cron\Weekreport',
 ];

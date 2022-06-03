@@ -15,7 +15,10 @@ class Index extends Frontend
 
     public function index()
     {
-        $mNewArticle = model('Article')->where("status = 1 AND img <> '' ")->order("createtime","desc")->limit(8)->select();
+        $mNewArticle = model('Article')->alias('a')
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->field('a.*')
+        ->where("a.status = 1 AND a.img <> '' ")->order("a.createtime","desc")->limit(8)->select();
 
         $mCatArticle = [];
         $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
