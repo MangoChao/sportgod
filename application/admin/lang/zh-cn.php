@@ -212,5 +212,7 @@ return [
     'content' => '內容',
     'cat_name' => '分類',
     'type' => '類型',
-    'fav' => '收藏數'
+    'fav' => '收藏數',
+    'autopred 0' => '關閉',
+    'autopred 1' => '開啟'
 ];
