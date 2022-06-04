@@ -102,6 +102,7 @@ class Frontend extends Controller
         // 上传信息配置后
         Hook::listen("upload_config_init", $upload);
 
+        $suid = $this->request->get('suid','----');
         // 配置信息
         $config = [
             'site'           => array_intersect_key($site, array_flip(['name', 'cdnurl', 'version', 'timezone', 'languages', 'liffid'])),
@@ -121,7 +122,7 @@ class Frontend extends Controller
 
         $channel_access_token = Config::get("site.line_channel_access_token");
         $this->LineBot = new LineBot($channel_access_token);
-        
+
         $this->assignArticlecat();
         $this->checkArticleread();
         // 配置信息后
