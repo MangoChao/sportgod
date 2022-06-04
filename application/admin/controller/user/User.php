@@ -14,6 +14,7 @@ use fast\Random;
 class User extends Backend
 {
 
+    protected $dataLimit = true;
     protected $relationSearch = true;
     protected $searchFields = '';
 
@@ -45,6 +46,7 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $list = $this->model
+                ->with('service')
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
@@ -74,6 +76,26 @@ class User extends Backend
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->id;
                 }
+                $mUser = $this->model->get(['code' => $params['code'], 'status' => ['<>',3]]);
+                if($mUser){
+                    $this->error(__('代碼已存在'));
+                }
+
+                $mUser = $this->model->get(['bid' => $params['bid'], 'status' => ['<>',3]]);
+                if($mUser){
+                    $this->error(__('球版ID已存在'));
+                }
+                if($params['nickname'] == '') $params['nickname'] = $params['bid'];
+
+                if($params['ptime1'] == '' OR $params['ptime2'] == ''){
+                    $params['ptime1'] = null;
+                    $params['ptime2'] = null;
+                }else{
+                    $params['ptime1'] = strtotime($params['ptime1']);
+                    $params['ptime2'] = strtotime($params['ptime2']);
+                }
+
+                $params['pred2'] = $params['pred'];
 
                 $result = false;
                 Db::startTrans();
@@ -85,8 +107,8 @@ class User extends Backend
                         $this->model->validateFailException(true)->validate($validate);
                     }
 
-                    $params['salt'] = Random::alnum();
-                    $params['password'] = $this->getEncryptPassword($params['password'], $params['salt']);
+                    // $params['salt'] = Random::alnum();
+                    // $params['password'] = $this->getEncryptPassword($params['password'], $params['salt']);
 
 
                     $result = $this->model->allowField(true)->save($params);
@@ -133,6 +155,28 @@ class User extends Backend
             if ($params) {
                 $params = $this->preExcludeFields($params);
 
+                $mUser = $this->model->get(['id' => ['<>',$ids], 'code' => $params['code'], 'status' => ['<>',3]]);
+                if($mUser){
+                    $this->error(__('代碼已存在'));
+                }
+                $mUser = $this->model->get(['id' => ['<>',$ids], 'bid' => $params['bid'], 'status' => ['<>',3]]);
+                if($mUser){
+                    $this->error(__('球版ID已存在'));
+                }
+                if($params['nickname'] == '') $params['nickname'] = $params['bid'];
+
+                if($params['ptime1'] == '' OR $params['ptime2'] == ''){
+                    $params['ptime1'] = null;
+                    $params['ptime2'] = null;
+                }else{
+                    $params['ptime1'] = strtotime($params['ptime1']);
+                    $params['ptime2'] = strtotime($params['ptime2']);
+                }
+                
+                if($params['pred'] != $row->pred){
+                    $params['pred2'] = $params['pred'];
+                }
+
                 $result = false;
                 Db::startTrans();
                 try {
@@ -162,6 +206,8 @@ class User extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        if($row->ptime1) $row->ptime1 = date("Y-m-d", $row->ptime1);
+        if($row->ptime2) $row->ptime2 = date("Y-m-d", $row->ptime2);
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }
