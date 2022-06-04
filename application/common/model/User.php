@@ -47,12 +47,12 @@ class User extends Model
      * @param   array  $data
      * @return string
      */
-    public function getAvatarAttr($value, $data = [])
+    public function getAvatarAttr($value, $data)
     {
         if (!$value) {
             //如果不需要启用首字母头像，请使用
-            $value = '/assets/img/avatar.png';
-            // $value = letter_avatar($data['nickname']);
+            //$value = '/assets/img/avatar.png';
+            $value = letter_avatar($data['nickname']);
         }
         return $value;
     }
@@ -146,5 +146,14 @@ class User extends Model
         return $level;
     }
 
-
+    public function admin()
+    {
+        return $this->belongsTo('Admin', 'admin_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+    
+    public function service()
+    {
+        return $this->belongsTo('Service', 'service_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+    
 }
