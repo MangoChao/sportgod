@@ -14,7 +14,7 @@ use think\Log;
  */
 class User extends Api
 {
-    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
+    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third','setcode','getanalystpred','getpred','findAnalyst','predEvent','getanalyst'];
     protected $noNeedRight = '*';
 
     public function _initialize()
