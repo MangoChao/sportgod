@@ -104,7 +104,7 @@ class Frontend extends Controller
 
         // 配置信息
         $config = [
-            'site'           => array_intersect_key($site, array_flip(['name', 'cdnurl', 'version', 'timezone', 'languages'])),
+            'site'           => array_intersect_key($site, array_flip(['name', 'cdnurl', 'version', 'timezone', 'languages', 'liffid'])),
             'upload'         => $upload,
             'modulename'     => $modulename,
             'controllername' => $controllername,
@@ -112,12 +112,16 @@ class Frontend extends Controller
             'jsname'         => 'frontend/' . str_replace('.', '/', $controllername),
             'moduleurl'      => rtrim(url("/{$modulename}", '', false), '/'),
             'language'       => $lang,
-            'url'            => $this->site_url
+            'url'            => $this->site_url,
+            'suid'            => $suid
         ];
         $config = array_merge($config, Config::get("view_replace_str"));
 
         Config::set('upload', array_merge(Config::get('upload'), $upload));
 
+        $channel_access_token = Config::get("site.line_channel_access_token");
+        $this->LineBot = new LineBot($channel_access_token);
+        
         $this->assignArticlecat();
         $this->checkArticleread();
         // 配置信息后
