@@ -1,0 +1,419 @@
+@import url(https://fonts.googleapis.com/earlyaccess/cwtexyen.css);
+
+body{
+    padding-top: 0;
+    font-family: 'cwTeXYen','Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: rgb(235, 235, 235);
+}
+.liff_bg{
+    position: fixed;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+.liff_bg>img{
+  width: 100%;
+  max-width: 50%;
+  height: auto;
+  display: inline-block;
+  margin-top: 50%;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
+  font-family: 'cwTeXYen','Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+main.content{
+  padding: 10px;
+}
+.container{
+  padding: 0;
+}
+.panel{
+  padding: 0;
+  background: none;
+}
+.panel-body{
+  padding: 0;
+  /* box-shadow: 1px 1px #adadad;
+  background-color: aquamarine; */
+  border-radius: 2px;
+  position: relative;
+}
+.error_msg{
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 26px;
+  text-shadow: 1px 1px #adadad;
+}
+h1{
+  font-weight: bold;
+  margin: 0;
+  margin-bottom: 5px;
+  font-size: 26px;
+  padding-right: 90px;
+  position: relative;
+  color: #00a15e;
+  line-height: 34px;
+  text-shadow: 1px 1px #ffffff;
+}
+h1>a{
+  position: absolute;
+  right: 45px;
+  top: 0;
+  display: block;
+  width: 40px;
+  text-align: center;
+  color: #18bc9c;
+  font-size: 24px;
+  line-height: 34px;
+  text-shadow: none;
+}
+h1>a:last-child{
+  right: 0;
+  top: 0;
+}
+h2{
+  margin: 0;
+}
+.panel-body .sendfortotal_box{
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 20px;
+  padding: 10px 10px;
+  display: block;
+  color: #ff6a00;
+  font-weight: bold;
+}
+.panel-body .radio,
+.panel-body .checkbox{
+  padding: 0;
+  margin-bottom: 5px;
+}
+.panel-body .radio input[type="radio"],
+.panel-body .radio-inline input[type="radio"],
+.panel-body .checkbox input[type="checkbox"],
+.panel-body .checkbox-inline input[type="checkbox"]{
+  display: none;
+}
+.panel-body .radio label,
+.panel-body .checkbox label{
+  padding: 0;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  font-size: 20px;
+  border-radius: 3px;
+  border: 2px #3fa500 solid;
+  color: #3fa500;
+  padding: 0 5px;
+  text-align: center;
+  background: #fff;
+  box-shadow: 1px 1px 1px #5ef500;
+  font-weight: bold;
+  line-height: 32px;
+  padding: 0 10px;
+}
+.panel-body .radio label.active,
+.panel-body .checkbox label.active{
+  color: #fff;
+  background: #3fa500;
+} 
+.panel-body .customer_tag_style .checkbox label{
+  border: 2px #0097a7 solid;
+  color: #0097a7;
+}
+.panel-body .customer_tag_style .checkbox label.active{
+  color: #fff;
+  background: #0097a7;
+}
+.panel-body .customer_tag_style .checkbox label:last-child{
+  border: 2px #e06666 solid;
+  color: #e06666;
+  margin-right: 30%;
+}
+.panel-body .customer_tag_style .checkbox label:last-child.active{
+  color: #fff;
+  background: #e06666;
+}
+.panel-body select,
+.panel-body input[type="password"],
+.panel-body input[type="text"],
+.panel-body input[type="number"]{
+  border: 2px #3498db solid;
+  border-radius: 5px;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 1px 1px 1px #5ef500;
+  color:#3498db;
+  margin-bottom: 10px;
+  height: 42px;
+}
+.panel-body input[type="text"].exptime_base{
+  color:#dd7e6b;
+  border: 2px #dd7e6b solid;
+  background-color: #fff;
+  width: 135px;
+}
+.panel-body input[type="text"].exptime_red{
+  color:#fff;
+  border: 2px red solid;
+  background-color: red;
+  width: 135px;
+}
+.panel-body select{
+  padding: 1px 7px;
+}
+.panel-body textarea{
+  resize: none;
+  font-size: 20px;
+  border: 2px #3498db solid;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px #5ef500;
+  font-weight: bold;
+  color:#3498db;
+}
+.panel-body .upimg_box{
+  margin-bottom: 5px;
+}
+.panel-body .faupload{
+  opacity: 1;
+  background: #fff;
+  border-color: #cd2a19;
+  color: #cd2a19;
+  font-size: 20px;
+  font-weight: bold;
+  width: 100%;
+}
+.panel-body .form_msg_box{
+  font-size: 18px;
+}
+.panel-body .btn{
+  font-size: 20px;
+  box-shadow: 1px 1px 1px #5ef500;
+}
+.panel-body .btn_sbt.btn{
+  margin-top: 10px;
+}
+.panel-body .table .abtn{
+  font-size: 24px;
+  margin-left: 5px;
+}
+.panel-body .smbtn{
+  background-color: #dd7e6b;
+  color: #fff;
+  display: inline-block;
+  border-radius: 5px;
+  padding: 0 10px;
+  line-height: 41px;
+  vertical-align: top;
+}
+.panel-body .table > thead > tr > th, 
+.panel-body .table > tbody > tr > th, 
+.panel-body .table > tfoot > tr > th, 
+.panel-body .table > thead > tr > td, 
+.panel-body .table > tbody > tr > td, 
+.panel-body .table > tfoot > tr > td{
+  padding: 3px;
+  font-size: 18px;
+  vertical-align: top;
+}
+.panel-body .birthday_notify_btn{
+  width: 120px;
+  display: inline-block;
+}
+.panel-body .birthday_notify_btn .checkbox label{
+  font-size: 20px;
+  line-height: 38px;
+}
+.layui-layer{
+  border-radius: 8px;
+}
+.layui-layer-title{
+  font-size: 28px;
+  border-radius: 8px 8px 0 0;
+  background-color: #00904e;
+  color: #fff;
+}
+.layui-layer-page .layui-layer-content{
+  border-radius: 0 0 8px 8px;
+}
+.panel-body h3{
+  font-size: 24px;
+  margin: 0;
+  margin-bottom: 5px;
+  font-weight: bold;
+  position: relative;
+}
+.panel-body .notify_content{
+  padding: 8px 10px;
+  font-size: 20px;
+  border: 2px #fff solid;
+  border-radius: 5px;
+  background: #d9ffdf;
+  color:#3498db;
+}
+.bootstrap-datetimepicker-widget a.btn{
+  box-shadow: none;
+  font-size: 12px;
+}
+.bootstrap-datetimepicker-widget .timepicker .timepicker-picker .table-condensed td{
+  padding: 0!important;
+}
+.panel-body .btn_content_edit{
+  font-size: 20px;
+  position: absolute;
+  right: 0;
+  width: 25px;
+  text-align: center;
+}
+.toast-bottom-center,
+.toast-top-center{
+  top:20%;
+}
+.toast-message{
+  font-size: 18px;
+}
+#toast-container .toast-close-button{
+  right: 5px;
+  top: 2px;
+}
+#toast-container>.toast-success,
+#toast-container>.toast-error{
+  background-image: none!important;
+}
+#toast-container>div{
+  padding: 8px 8px 8px 15px;
+  /* opacity: 1; */
+}
+.panel-body form.form-horizontal .control-label{
+  font-size: 20px;
+  color:#3498db;
+}
+.form-group{
+  margin: 0;
+}
+.normal-footer{
+  margin-top: 10px;
+}
+.msg-box{
+  position: absolute;
+  right: 15px;
+  top: -30px;
+}
+.n-default .msg-box .msg-wrap{
+  position: relative;
+  font-size: 15px;
+}
+.layui-layer-setwin .layui-layer-close1{
+  background-image: none;
+}
+.layui-layer-setwin .layui-layer-close1::after{
+  content: 'X';
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  height: 20px;
+}
+.layui-layer-setwin{
+  top: 11px;
+}
+.refund_box{
+  display: inline-block;
+  padding: 2px 8px 1px;
+  font-size: 14px;
+  line-height: 12px;
+  border: 1px #f00 solid;
+  border-radius: 4px;
+  color: #f00;
+}
+.layui-layer .panel-body{
+  padding: 10px;
+  background-color: cornsilk;
+}
+.layui-layer .panel-body h2{
+  font-weight: bold;
+  color: #9c0000;
+  margin-bottom: 5px;
+  font-size: 25px;
+}
+.layui-layer .panel-body .info_box{
+  font-size: 20px;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+}
+.layui-layer .panel-body .refund_box{
+  padding: 2px 8px 0px;
+  font-size: 16px;
+  line-height: 17px;
+}
+.layui-layer .panel-body .pred_str_box{
+  font-weight: bold;
+  font-size: 24px;
+  /* color: #9c0000; */
+}
+@media only screen and (max-width: 600px){
+  .layui-layer .panel-body h2{
+    font-size: 24px;
+  }
+  .layui-layer .panel-body .info_box{
+    font-size: 18px;
+  }
+  .layui-layer .panel-body .refund_box{
+    padding: 2px 4px 0px;
+    font-size: 15px;
+    line-height: 13px;
+  }
+}
+@media only screen and (max-width: 400px){
+  .layui-layer .panel-body h2{
+    font-size: 22px;
+  }
+  .layui-layer .panel-body .info_box{
+    font-size: 16px;
+  }
+  .layui-layer .panel-body .refund_box{
+    padding: 2px 4px 0px;
+    font-size: 14px;
+    line-height: 13px;
+  }
+}
+
+@media only screen and (max-width: 350px){
+
+  .panel-body .radio label,
+  .panel-body .checkbox label{
+    font-size: 17px;
+  }
+
+  .panel-body .sendfortotal_box{
+    font-size: 17px;
+  }
+}
+
+.s_box{
+  display: flex;
+}
+.s_box>input[type="text"]{
+  width: 100%;
+  margin: 0;
+}
+.s_box>.btn{
+  width: 100px;
+  margin-right: 10px;
+}
+.pred_list.table > tbody > tr > td{
+  font-size: 13px!important;
+}
+.pred_list.table > thead > tr > th{
+  font-size: 14px!important;
+}
+
+.analyst_page h2>.btn{
+  float: right;
+  font-size: 15px;
+}
+.lotteryimg{
+  width: 100%;
+  margin-top: 10px;
+}
