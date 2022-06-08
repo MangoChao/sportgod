@@ -1,0 +1,44 @@
+
+
+<div class="container">
+    {if $mRank}<h2>統計期間&nbsp;&nbsp;{$mRank->rtime1|date='Y/m/d',###} - {$mRank->rtime2|date='Y/m/d',###}</h2>{/if}
+    {if $mRankcontent}
+    <div class="mainconboxin mainconboxinwide ">
+        <div class="rankpage-title"></div>
+        <div class="rank-lists-box">
+        <ul class="rank-lists rank-lists-universe">
+            <li class="rank-lists00">
+                {foreach $mRankcontent as $k=>$v}
+                    {if $k == 0}
+                    <div class="rank-unit rank-unit-champion">
+                        <div class="champion">
+                            <strong><span></span>{$v->rank}</strong>
+                        </div>
+                        <a href="{$v->id}" class="profile" target="_blank">
+                            <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
+                            <h1>{$v->analyst_name}</h1>
+                            <span></span>
+                        </a>
+                        <h2>{$v->win}勝-{$v->lose}敗</h2>
+                        <h3>{$v->winrate}%</h3>
+                    </div>
+                    {else/}
+                    <div class="rank-unit ">
+                        <div><strong class="one-digit">{$v->rank}</strong></div>
+                        <a href="{$v->id}" class="profile" target="_blank">
+                            <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
+                            <h1>{$v->analyst_name}</h1>
+                        </a>
+                        <h2>{$v->win}勝-{$v->lose}敗</h2>
+                        <h3>{$v->winrate}%</h3>
+                    </div>
+                    {/if}
+                {/foreach}
+            </li>
+        </ul>
+        </div>
+    </div>
+    {else/}
+        尚無資料
+    {/if}
+</div>

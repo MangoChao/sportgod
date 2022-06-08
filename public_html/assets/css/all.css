@@ -27,7 +27,8 @@ body{
     margin-right: 10px;
 }
 .menu_list a:hover{
-    color: #ff6200;
+    color: #34568b;
+    text-decoration: unset;
 }
 .haderline{
     border-top: 1px solid #ccc;
