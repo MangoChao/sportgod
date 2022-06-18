@@ -300,7 +300,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                             layer.open({
                                 title: '排行榜',
                                 type: 1,
-                                area : '90%',
+                                area : ['90%','90%'],
                                 offset: '5%',
                                 shadeClose: true,
                                 content: ret 
