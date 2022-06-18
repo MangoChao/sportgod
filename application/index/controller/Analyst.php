@@ -128,7 +128,7 @@ class Analyst extends Frontend
 
         $page = $this->request->request('page', 1);
         $mPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
@@ -146,7 +146,7 @@ class Analyst extends Frontend
         
         $page = $this->request->request('page', 1);
         $mHPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)

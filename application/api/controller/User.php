@@ -70,7 +70,7 @@ class User extends Api
 
     
     public function buyAnalystPred($id = 0, $cat_id = 0){
-        Log::init(['type' => 'File', 'log_name' => 'getanalystpredall']);
+        Log::init(['type' => 'File', 'log_name' => 'buyAnalystPred']);
         
         if($id == 0 OR $cat_id == 0){
             $this->error('參數異常');
@@ -107,7 +107,7 @@ class User extends Api
         $starttime_end = strtotime(date('Y-m-d').' +1 day');
 
         $mAPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.pred_id = p.id AND uta.cat_id = ".$cat_id.". AND uta.user_id = ".$this->auth->id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id."  AND uta.cat_id = ".$cat_id.". AND uta.user_id = ".$this->auth->id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id AND e.event_category_id = ".$cat_id)
         ->field("p.*, uta.id as uta_id")
         ->where('p.analyst_id = '.$id.' AND e.starttime > '.time().' AND e.starttime < '.$starttime_end.' AND e.starttime > '.$starttime_start)->find();
