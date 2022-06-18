@@ -13,6 +13,7 @@ use think\Request;
 use think\Response;
 use think\Route;
 use think\Validate;
+use think\Log;
 
 /**
  * API控制器基类
@@ -65,6 +66,7 @@ class Api
     protected $responseType = 'json';
 
     protected $site_url = null;
+
     /**
      * 构造方法
      * @access public
@@ -329,5 +331,32 @@ class Api
     public function getEncryptPassword($password, $salt = '')
     {
         return md5(md5($password) . $salt);
+    }
+
+    
+    protected function changePoint($id, $point, $memo = '')
+    {
+        $mUser = model('User')->get($id);
+        if($mUser){
+            $amount = $point;
+            $before = $mUser->point;
+            $after = $mUser->point + $amount;
+
+            $p_params = [
+                'user_id' => $mUser->id,
+                'amount' => $amount,
+                'before' => $before,
+                'after' => $after,
+                'memo' => $memo,
+                'admin_id' => $mUser->admin_id,
+            ];
+            model('Pointlog')::create($p_params);
+
+            $mUser->point = $after;
+            $mUser->save();
+            Log::notice("[".__METHOD__."] 更動點數成功 pointlog參數:".json_encode($p_params));
+        }else{
+            Log::notice("[".__METHOD__."] 查無用戶 id:".$id);
+        }
     }
 }

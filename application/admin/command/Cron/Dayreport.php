@@ -17,6 +17,7 @@ use app\common\model\Pred;
 use app\common\model\Event;
 use app\common\model\Eventparam;
 use app\common\model\Eventcategory;
+use app\common\model\Analysttoeventcategory;
 use app\common\model\Rank;
 use app\common\model\Rankcontent;
 
@@ -54,23 +55,27 @@ class Dayreport extends Command
             $modelEventparam->where("createtime < ".$monthTime)->delete();
             $modelPred = new Pred;
             $modelPred->where("createtime < ".$monthTime)->delete();
+            
+            $modelAnalysttoeventcategory = new Analysttoeventcategory;
 
             //補預測
             $ysday = strtotime(date("Y-m-d")." -2 day");
             $modelAnalyst = new Analyst;
             $mAnalyst = $modelAnalyst->alias('a')
-            ->field("a.*")
-            ->where("(a.status = 1 OR (a.status = 0 AND a.autopred_today <> 0)) AND a.autopred = 1 ")->order("updatetime","asc")->select();
+            ->join("analyst_to_event_category atc","atc.analyst_id = a.id")
+            ->join("event_category ec","atc.event_category_id = ec.id AND ec.status = 1")
+            ->field("a.*, atc.id as atc_id, atc.event_category_id, atc.autopred_today as atc_autopred_today, atc.autopred_count as atc_autopred_count, ec.title as cat_name")
+            ->where("(a.status = 1 OR (a.status = 0 AND atc.autopred_today <> 0)) AND a.autopred = 1 ")->order("updatetime","asc")->select();
             if($mAnalyst){
                 foreach($mAnalyst as $v){
-                    if($v->autopred_today < $v->autopred_count AND $v->status == 1){
-                        $pcount = $v->autopred_count - $v->autopred_today;
-                        Log::notice("分析師id:".$v->id);
+                    if($v->atc_autopred_today < $v->atc_autopred_count AND $v->status == 1){
+                        $pcount = $v->atc_autopred_count - $v->atc_autopred_today;
+                        Log::notice("分析師:[".$v->id."]".$v->analyst_name." / 分類:[".$v->event_category_id."]".$v->cat_name);
                         for($i = 0;$i <= $pcount;$i++){
                             $modelEvent = new Event;
                             $mEvent = $modelEvent->alias('e')
                             ->join("analyst_to_event_category atc","atc.event_category_id = e.event_category_id AND atc.analyst_id = ".$v->id)
-                            ->join("event_category ec","ec.id = e.event_category_id AND ec.status = 1")
+                            ->join("event_category ec","ec.id = e.event_category_id AND ec.status = 1 AND ec.id = ".$v->event_category_id)
                             ->join("pred p1","e.id = p1.event_id AND p1.pred_type = 1 AND p1.analyst_id = ".$v->id,"LEFT")
                             ->join("pred p2","e.id = p2.event_id AND p2.pred_type = 2 AND p2.analyst_id = ".$v->id,"LEFT")
                             ->field("e.*, p1.id as type1, p2.id as type2")
@@ -250,9 +255,13 @@ class Dayreport extends Command
                             }
                         }
                     }
-                    $v->autopred_today = 0;
-                    $v->autopred_count = rand(1,5);
-                    $v->save();
+
+                    $mAtc = $modelAnalysttoeventcategory->get($v->atc_id);
+                    if($mAtc){
+                        $mAtc->autopred_today = 0;
+                        $mAtc->autopred_count = rand(1,5);
+                        $mAtc->save();
+                    }
                 }
             }
 

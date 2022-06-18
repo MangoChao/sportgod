@@ -45,6 +45,8 @@ class Frontend extends Controller
     protected $auth = null;
 
     protected $site_url = null;
+    protected $def_avatar = "";
+    protected $paginate_config = [];
 
     public function _initialize()
     {
@@ -96,6 +98,9 @@ class Frontend extends Controller
 
         $site = Config::get("site");
         $this->site_url = $site['url'];
+        $this->paginate_config = [
+            'query' => $this->request->get()
+        ];
 
         $upload = \app\common\model\Config::upload();
 
@@ -125,6 +130,8 @@ class Frontend extends Controller
 
         $this->assignArticlecat();
         $this->checkArticleread();
+
+        $this->def_avatar = "/uploads/20220608/822e61d8fe01146ce6aa1ec3742adca1.jpg";
         // 配置信息后
         Hook::listen("config_init", $config);
         // 加载当前控制器语言包
@@ -191,6 +198,32 @@ class Frontend extends Controller
             $isnotify = 0;
         }
         $this->assign('isnotify', $isnotify);
+    }
+    
+    protected function changePoint($id, $point, $memo = '')
+    {
+        $mUser = model('User')->get($id);
+        if($mUser){
+            $amount = $point;
+            $before = $mUser->point;
+            $after = $mUser->point + $amount;
+
+            $p_params = [
+                'user_id' => $mUser->id,
+                'amount' => $amount,
+                'before' => $before,
+                'after' => $after,
+                'memo' => $memo,
+                'admin_id' => $mUser->admin_id,
+            ];
+            model('Pointlog')::create($p_params);
+
+            $mUser->point = $after;
+            $mUser->save();
+            Log::notice("[".__METHOD__."] 更動點數成功 pointlog參數:".json_encode($p_params));
+        }else{
+            Log::notice("[".__METHOD__."] 查無用戶 id:".$id);
+        }
     }
     
 }

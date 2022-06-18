@@ -29,8 +29,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'analyst_name', title: __('名稱'), operate: 'LIKE', sortable: true, align: 'left'},
                         {field: 'pred_cat', title: '預測類別', align: 'left', operate:false, formatter: Table.api.formatter.label},
                         {field: 'autopred', title: __('自動預測'), formatter: Controller.api.formatter.autopred, searchList: {1: __('autopred 1'), 0: __('autopred 0')}},
-                        {field: 'autopred_count', title: __('自動預測上限'), operate: 'LIKE', sortable: true},
-                        {field: 'autopred_today', title: __('今日已預測'), operate: 'LIKE', sortable: true},
+                        {field: 'free', title: __('收費'), formatter: Controller.api.formatter.free, searchList: {0: __('free 0'), 1: __('free 1')}},
+                        // {field: 'autopred_count', title: __('自動預測上限'), operate: 'LIKE', sortable: true},
+                        // {field: 'autopred_today', title: __('今日已預測'), operate: 'LIKE', sortable: true},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {1: __('Status 1'), 0: __('Status 0'), 2: __('Status 2')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
@@ -65,6 +66,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 autopred: function (value, row, index, custom) {
                     var colorArr = {'0':'gray','1':'success'};
                     var valueArr = {'0':__('autopred 0'),'1':__('autopred 1')};
+                    if (typeof custom !== 'undefined') {
+                        colorArr = $.extend(colorArr, custom);
+                    }
+                    var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
+                    return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
+                },
+                free: function (value, row, index, custom) {
+                    var colorArr = {'0':'info','1':'success'};
+                    var valueArr = {'0':__('free 0'),'1':__('free 1')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }

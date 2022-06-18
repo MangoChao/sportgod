@@ -1,4 +1,6 @@
-
+body{
+    background-image: none;
+}
 h2 {
     color: #1f499f;
 }
@@ -34,4 +36,87 @@ h2 {
 }
 .rank-lists .rank-unit-champion .profile h1 {
     padding: 0;
+}
+
+ul.member-showroom-nav li,
+.member-maincon .tagsection{
+    box-sizing: unset;
+}
+
+.container.analyst{
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.row{
+    display: block;
+}
+.row div {
+    display: block;
+}
+
+.photoframe{
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+}
+p.memberidname {
+    font-size: 18px;
+    line-height: normal;
+    letter-spacing: -1px;
+    text-align: center;
+    width: 140px;
+    margin: 10px auto;
+    font-weight: bold;
+}
+
+.analyst .left_box{
+    padding-top: 30px;
+}
+.analyst .right_box{
+    padding: 20px 30px 15px 0px;
+}
+.analyst .right_box .box1{
+    border-left: 1px #c6c6c6 solid;
+    min-height: 500px;
+    padding: 10px 10px 10px 25px;
+}
+
+
+ul.mu{
+    padding:10px 45px;
+    display: block;
+}
+ul.mu li{
+    display: block;
+    border-bottom: 1px #c6c6c6 solid;
+    transition: margin .5s ease-out;
+    -moz-transition: margin .5s ease-out;
+    -webkit-transition: margin .5s ease-out;
+    -o-transition: margin .5s ease-out;
+    -ms-transition: margin .5s ease-out;
+}
+ul.mu li>a{
+    display: block;
+    text-align: center;
+    font-size: 18px;
+    color: #585858;
+    padding: 10px ;
+    transition: margin .2s ease-out;
+    -moz-transition: margin .2s ease-out;
+    -webkit-transition: margin .2s ease-out;
+    -o-transition: margin .2s ease-out;
+    -ms-transition: margin .2s ease-out;
+}
+ul.mu li:hover{
+    border-bottom: 1px #005d9b solid;
+}
+ul.mu li:hover>a{
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+    margin-right: 20px;
+}
+a.btn:link{
+    color: #fff;
 }

@@ -14,7 +14,7 @@ use think\Log;
  */
 class User extends Api
 {
-    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third','setcode','getanalystpred','getpred','findAnalyst','predEvent','getanalyst'];
+    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third','setcode','getanalystpred','getpred','findAnalyst','predEvent','getanalyst','getanalystpredall'];
     protected $noNeedRight = '*';
 
     public function _initialize()
@@ -65,6 +65,249 @@ class User extends Api
             }else{
                 $this->error('發生錯誤, 請重啟視窗');
             }
+        }
+    }
+
+    
+    public function getanalystpredall($id = 0){
+        Log::init(['type' => 'File', 'log_name' => 'getanalystpredall']);
+        if(!$this->auth->id){
+            $this->error('請先登入');
+        }
+        $mUser = model('User')->get(['id'=> $this->auth->id, 'status'=> 1]);
+        if(!$mUser){
+            $this->error('無權操作');
+        }
+
+        $mAnalyst = model('Analyst')->alias('a')
+        ->field("a.*")
+        ->where("a.id = ".$id)->find();
+        if($mAnalyst){
+            if($mAnalyst->status != 1){
+                $this->error('分析師已停用');
+            }
+            if($mAnalyst->free == 1){
+                $this->error('分析師沒有開啟賣牌');
+            }
+        }else{
+            $this->error('查無分析師');
+        }
+
+        if($mUser->point < 100){
+            $this->error('點數不足');
+        }
+
+        // Log::notice($mAnalyst);
+        if($mAnalyst->autopred_today < $mAnalyst->autopred_count AND $mAnalyst->autopred == 1){
+            // $ysday = strtotime(date("Y-m-d")." -2 day");
+            $pcount = $mAnalyst->autopred_count - $mAnalyst->autopred_today;
+            for($i = 0;$i <= $pcount;$i++){
+                $mEvent = model('Event')->alias('e')
+                ->join("analyst_to_event_category atc","atc.event_category_id = e.event_category_id AND atc.analyst_id = ".$mAnalyst->id)
+                ->join("event_category ec","ec.id = e.event_category_id AND ec.status = 1")
+                ->join("pred p1","e.id = p1.event_id AND p1.pred_type = 1 AND p1.analyst_id = ".$mAnalyst->id,"LEFT")
+                ->join("pred p2","e.id = p2.event_id AND p2.pred_type = 2 AND p2.analyst_id = ".$mAnalyst->id,"LEFT")
+                ->field("e.*, p1.id as type1, p2.id as type2")
+                ->where("((p2.id IS NULL AND e.master_refund <> '0' AND e.guests_refund <> '0') OR (p1.id IS NULL AND e.bigscore <> '0')) AND e.starttime > ".time())->orderRaw('RAND()')->find();
+                
+                if($mEvent){
+                    if($mEvent->type1 == null AND $mEvent->type2 == null AND $mEvent->bigscore == '0' AND ($mEvent->master_refund == '0' OR $mEvent->guests_refund == '0')){
+                        $pred_type = Rand(1,2);
+                    }elseif($mEvent->type1 == null OR $mEvent->bigscore == '0'){
+                        $pred_type = 1;
+                    }else{
+                        $pred_type = 2;
+                    }
+                    // Log::notice("pred_type:".$pred_type);
+                    
+                    $randomPred = [
+                        1 => 50,
+                        0 => 50,
+                    ];
+                    $randomValue = Random::lottery($randomPred);
+
+                    $bigscore = $mEvent->bigscore;
+                    $master_refund = $mEvent->master_refund;
+                    $guests_refund = $mEvent->guests_refund;
+
+                    if($pred_type == 1){
+                        $other_type = 2;
+                    }else{
+                        $other_type = 1;
+                    }
+                    $mPredOtherType = model('Pred')->alias('p')
+                    ->field('p.*')
+                    ->where("p.analyst_id = ".$mAnalyst->id." AND p.event_id = ".$mEvent->id." AND p.pred_type = ".$other_type)->find();
+                    if($mPredOtherType){
+                        $predtime = $mPredOtherType->predtime;
+                        $bigscore = $mPredOtherType->bigscore;
+                        $master_refund = $mPredOtherType->master_refund;
+                        $guests_refund = $mPredOtherType->guests_refund;
+                    }else{
+                        $htime = strtotime(date("Y-m-d H:i:s", $mEvent->starttime)." -1 hours");
+                        $predtime = Rand($mEvent->createtime, $htime);
+                        if($predtime < $mEvent->updatetime){
+                            $mEventparam = model('Eventparam')->alias('ep')
+                            ->field('ep.*')
+                            ->where("ep.event_id = ".$mEvent->id." AND ep.createtime <= ".$predtime)->order('ep.createtime','desc')->find();
+                            if($mEventparam){
+                                $bigscore = $mEventparam->bigscore;
+                                $master_refund = $mEventparam->master_refund;
+                                $guests_refund = $mEventparam->guests_refund;
+                            }
+                        }
+                    }
+                    // $predtime = Rand($mEvent->createtime, time());
+                    // Log::notice($predtime);
+                    
+                    $ptpred = [
+                        'event_id' => $mEvent->id,
+                        'analyst_id' => $mAnalyst->id,
+                        'master_refund' => $master_refund,
+                        'guests_refund' => $guests_refund,
+                        'bigscore' => $bigscore,
+                        'predtime' => $predtime,
+                        'pred_type' => $pred_type,
+                        'isauto' => 1,
+                    ];
+
+                    if($pred_type == 1){
+                        $ptpred['winteam'] = $randomValue;
+                    }else{
+                        $ptpred['bigsmall'] = $randomValue;
+                    }
+                    if($mEvent->status == 1){
+                        // Log::notice("status:1");
+                        $ptpred['master_score'] = $mEvent->master_score;
+                        $ptpred['guests_score'] = $mEvent->guests_score;
+                        if($pred_type == 1){
+                            // Log::notice("讓分");
+                            if($master_refund != null){
+                                // Log::notice($master_refund);
+                                $winscore = $mEvent->master_score - $mEvent->guests_score;
+                                $refund = $master_refund;
+                                $minus = false;
+                                $l = strpos($refund, '-');
+                                if($l === false){
+                                    //+
+                                    $l = strpos($refund, '+');
+                                    if($l === false){
+                                        $l = mb_strlen($refund);
+                                    }
+                                }else{
+                                    //-
+                                    $minus = true;
+                                }
+                                $refund = substr($refund, 0, $l);
+                                if($minus){
+                                    $refund = $refund+1;
+                                }
+                                if($winscore < $refund AND $ptpred['winteam'] == 0){
+                                    $ptpred['comply'] = 1;
+                                }elseif($winscore >= $refund AND $ptpred['winteam'] == 1){
+                                    $ptpred['comply'] = 1;
+                                }else{
+                                    $ptpred['comply'] = 2;
+                                }
+                            }elseif($guests_refund != null){
+                                // Log::notice($guests_refund);
+                                $winscore = $mEvent->guests_score - $mEvent->master_score;
+                                $refund = $guests_refund;
+                                $minus = false;
+                                $l = strpos($refund, '-');
+                                if($l === false){
+                                    //+
+                                    $l = strpos($refund, '+');
+                                    if($l === false){
+                                        $l = mb_strlen($refund);
+                                    }
+                                }else{
+                                    //-
+                                    $minus = true;
+                                }
+                                $refund = substr($refund, 0, $l);
+                                if($minus){
+                                    $refund = $refund+1;
+                                }
+                                if($winscore < $refund AND $ptpred['winteam'] == 1){
+                                    $ptpred['comply'] = 1;
+                                }elseif($winscore >= $refund AND $ptpred['winteam'] == 0){
+                                    $ptpred['comply'] = 1;
+                                }else{
+                                    $ptpred['comply'] = 2;
+                                }
+                            }else{
+                                Log::notice('讓分有誤');
+                                continue;
+                            }
+                        }else{
+                            // Log::notice("大小");
+                            $totalscore = $mEvent->master_score + $mEvent->guests_score;
+                            $minus = false;
+                            $l = strpos($bigscore, '-');
+                            if($l === false){
+                                //+
+                                $l = strpos($bigscore, '+');
+                                if($l === false){
+                                    $l = mb_strlen($bigscore);
+                                }
+                            }else{
+                                //-
+                                $minus = true;
+                            }
+                            $bigscore = substr($bigscore, 0, $l);
+                            if($minus){
+                                $bigscore = $bigscore+1;
+                            }
+
+                            if($totalscore < $bigscore AND $ptpred['bigsmall'] == 0){
+                                $ptpred['comply'] = 1;
+                            }elseif($totalscore >= $bigscore AND $ptpred['bigsmall'] == 1){
+                                $ptpred['comply'] = 1;
+                            }else{
+                                $ptpred['comply'] = 2;
+                            }
+                        }
+                    }
+
+                    model('Pred')::create($ptpred);
+                    $mEvent->pred = $mEvent->pred+1;
+                    $mEvent->save();
+
+                    Log::notice("預測師id[".$mAnalyst->id."] 自動預測 預測時間[".date("Y-m-d H:i:s",$predtime)."] 預測賽事 ".json_encode($ptpred, JSON_UNESCAPED_UNICODE));
+                }else{
+                    Log::notice("沒有可預測的賽事");
+                    break;
+                }
+            }
+            $mAnalyst->autopred_today = $mAnalyst->autopred_count;
+            $mAnalyst->save();
+        }
+
+        
+        $todays = strtotime(date('Y-m-d'));
+        $todaye = strtotime(date('Y-m-d').' +1 day');
+
+        $mAPred = model('Pred')->alias('p')
+        ->join("user_to_pred utp","utp.pred_id = p.id AND utp.user_id = ".$this->auth->id, "LEFT")
+        ->join("event e","e.id = p.event_id")
+        ->field("p.*, e.guests, e.master, e.starttime, utp.id as utp_id")
+        ->where('p.analyst_id = '.$id.' AND p.predtime < '.$todaye.' AND p.predtime > '.$todays)->order('e.starttime','desc')->select();
+        if($mAPred){
+            $memo = "購買預測";
+            $this->changePoint($this->auth->id, -100, $memo);
+            foreach($mAPred as $v){
+                if(!$v->utp_id){
+                    $params = [
+                        'user_id' => $this->auth->id,
+                        'pred_id' => $v->id
+                    ];
+                    model('Usertopred')::create($params);
+                }
+            }
+            $this->success('成功購買預測');
+        }else{
+            $this->error('分析師沒有預測');
         }
     }
     

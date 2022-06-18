@@ -214,5 +214,7 @@ return [
     'type' => '類型',
     'fav' => '收藏數',
     'autopred 0' => '關閉',
-    'autopred 1' => '開啟'
+    'autopred 1' => '開啟',
+    'free 0' => '是',
+    'free 1' => '免費'
 ];

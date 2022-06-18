@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Api;
+use think\Log;
 
 /**
  * 首页接口
@@ -18,6 +19,8 @@ class Index extends Api
      */
     public function index()
     {
+        $post = $this->request->post();
+        Log::notice($post);
         $this->success('請求成功');
     }
 }

@@ -3,7 +3,6 @@
 <div class="container">
     {if $mRank}<h2>統計期間&nbsp;&nbsp;{$mRank->rtime1|date='Y/m/d',###} - {$mRank->rtime2|date='Y/m/d',###}</h2>{/if}
     {if $mRankcontent}
-    <div class="mainconboxin mainconboxinwide ">
         <div class="rankpage-title"></div>
         <div class="rank-lists-box">
         <ul class="rank-lists rank-lists-universe">
@@ -14,7 +13,7 @@
                         <div class="champion">
                             <strong><span></span>{$v->rank}</strong>
                         </div>
-                        <a href="{$v->id}" class="profile" target="_blank">
+                        <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}" class="profile" target="_blank">
                             <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                             <h1>{$v->analyst_name}</h1>
                             <span></span>
@@ -25,7 +24,7 @@
                     {else/}
                     <div class="rank-unit ">
                         <div><strong class="one-digit">{$v->rank}</strong></div>
-                        <a href="{$v->id}" class="profile" target="_blank">
+                        <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}" class="profile" target="_blank">
                             <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                             <h1>{$v->analyst_name}</h1>
                         </a>
@@ -37,7 +36,6 @@
             </li>
         </ul>
         </div>
-    </div>
     {else/}
         尚無資料
     {/if}

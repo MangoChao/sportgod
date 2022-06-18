@@ -1,0 +1,44 @@
+{__NOLAYOUT__}
+<div class="table-row">
+    {if $mPred}
+        <table class="table pred_list">
+            <thead>
+                <tr>
+                    <th width="70px">比賽時間</th>
+                    <th style="text-align: right;">比分</th>
+                    <th>隊伍</th>
+                    <th width="100px">預測</th>
+                    <th>結果</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach $mPred as $v}
+                <tr>
+                    <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                    <td style="text-align: right;">{$v->score_str}</td>
+                    <td>{$v->event_str}</td>
+                    <td>{$v->pred_str}</td>
+                    <td>{$v->comply_str}</td>
+                </tr>
+            {/foreach}
+            <tbody>
+        </table>
+        <div class="page">
+            {$pagelist}
+            <div>總筆數共 {$count} 筆{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+        </div>
+    {else/}
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>尚無預測結果</td>
+        </tr>
+        <tbody>
+    </table>
+    {/if}
+</div>

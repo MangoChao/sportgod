@@ -24,7 +24,7 @@ class Rank extends Frontend
             ->where('rc.rank_id = '.$mRank->id)->order('rc.rank','asc')->select();
             if($mRankcontent){
                 foreach($mRankcontent as $v){
-                    if(!$v->avatar) $v->avatar = "/uploads/20220608/822e61d8fe01146ce6aa1ec3742adca1.jpg";
+                    if(!$v->avatar) $v->avatar = $this->def_avatar;
                 }
             }
         }
@@ -32,10 +32,4 @@ class Rank extends Frontend
         $this->view->assign('mRankcontent', $mRankcontent);
         return $this->view->fetch();
     }
-    
-    public function contact()
-    {
-        return $this->view->fetch();
-    }
-
 }

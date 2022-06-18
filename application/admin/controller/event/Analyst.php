@@ -92,6 +92,11 @@ class Analyst extends Backend
                 $eventcategory_id = $params['eventcategory_id'];
                 unset($params['eventcategory_id']);
                 
+                if($params['autopred'] == 1){
+                    $params['free'] = 0;
+                }else{
+                    $params['free'] = 1;
+                }
                 $result = false;
                 Db::startTrans();
                 try {
@@ -169,6 +174,11 @@ class Analyst extends Backend
                 $eventcategory_id = $params['eventcategory_id'];
                 unset($params['eventcategory_id']);
 
+                if($params['autopred'] == 1){
+                    $params['free'] = 0;
+                }else{
+                    $params['free'] = 1;
+                }
 
                 $result = false;
                 Db::startTrans();
