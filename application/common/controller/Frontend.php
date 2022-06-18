@@ -131,7 +131,7 @@ class Frontend extends Controller
         $this->assignArticlecat();
         $this->checkArticleread();
 
-        $this->def_avatar = "/uploads/20220608/822e61d8fe01146ce6aa1ec3742adca1.jpg";
+        $this->def_avatar = "/assets/img/def_avatar.jpg";
         // 配置信息后
         Hook::listen("config_init", $config);
         // 加载当前控制器语言包
