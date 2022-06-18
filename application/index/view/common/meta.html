@@ -9,7 +9,9 @@
 {if isset($description)}
 <meta name="description" content="{$description}">
 {/if}
-
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v14.0&appId=535408187578330&autoLogAppEvents=1" nonce="E9jvl0ei"></script>
+        
 <link rel="shortcut icon" href="__CDN__/assets/img/favicon.ico" />
 
 <link href="__CDN__/assets/css/frontend{$Think.config.app_debug?'':'.min'}.css?v={$Think.config.site.version}" rel="stylesheet">
