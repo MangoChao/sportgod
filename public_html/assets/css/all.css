@@ -429,3 +429,50 @@ footer.footer{
 #toast-container{
     z-index: 999999999999;
 }
+
+
+.check_style .radio,
+.check_style .checkbox,
+.check_style a{
+  padding: 0;
+  margin-bottom: 5px;
+  text-decoration: none;
+}
+.check_style .radio input[type="radio"],
+.check_style .radio-inline input[type="radio"],
+.check_style .checkbox input[type="checkbox"],
+.check_style .checkbox-inline input[type="checkbox"]{
+  display: none;
+}
+.check_style .radio label,
+.check_style .checkbox label,
+.check_style a{
+  padding: 0;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 2px #7ca7c3 solid;
+  color: #005d9b;
+  padding: 0 5px;
+  text-align: center;
+  background: #fff;
+  box-shadow: 1px 1px 1px #7ca7c3;
+  font-weight: bold;
+  line-height: 28px;
+  padding: 0 10px;
+  display: inline-block;
+}
+.check_style .radio label.active,
+.check_style .checkbox label.active,
+.check_style a.active,
+.check_style a:hover{
+  color: #fff;
+  background: #005d9b;
+  box-shadow: 1px 1px 1px #005d9b;
+  border: 2px #005d9b solid;
+} 
+
+.flex_box{
+    display: flex!important;
+}

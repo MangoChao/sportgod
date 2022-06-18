@@ -1,4 +1,18 @@
 {__NOLAYOUT__}
+<div class="flex_box">
+    <div class="check_style">
+        {foreach $datelist as $k=>$v}
+        <a href="{:url('/index/analyst/profile/id/'.$id.'/pt/1')}?cat={$cat_id}&sdate={$k}" class="{if $k == $sdate}active{/if}">{$v}</a>
+        {/foreach}
+    </div>
+    {if $mEventcategory}
+        <div class="check_style">
+            {foreach $mEventcategory as $v}
+            <a href="{:url('/index/analyst/profile/id/'.$id.'/pt/1')}?cat={$v->id}&sdate={$sdate}" class="{if $v->id == $cat_id}active{/if}">{$v->title}</a>
+            {/foreach}
+        </div>
+    {/if}
+</div>
 <div class="table-row">
     {if $mPred}
         <table class="table pred_list">

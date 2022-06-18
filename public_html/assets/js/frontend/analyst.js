@@ -11,11 +11,12 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         },
         profile: function () {
             
-            $(document).on("click", ".btn_analyst_pred_all", function () {
+            $(document).on("click", ".btn_buy_analyst_pred", function () {
                 var mload = layer.load();
                 let id = $(this).data('id');
+                let cat_id = $(this).data('cat_id');
 
-                let options = {url: Config.url.api+'/user/getanalystpredall/id/'+id};
+                let options = {url: Config.url.api+'/user/buyAnalystPred/id/'+id+'/cat_id/'+cat_id};
                 Fast.api.ajax(options, function (mthis, result, ret) {
                     setTimeout(function () {
                         layer.close(mload);

@@ -48,10 +48,11 @@ class Analyst extends Frontend
         $buy_btn = true;
         $no_pred = false;
         $mEventcategory = model('Eventcategory')->order('id')->find();
-        $sdate = $this->request->request('sdate', date('Y-m-d'));
-        $cat_id = $this->request->request('cat_id', $mEventcategory->id);
-        $starttime_start = strtotime($sdate);
-        $starttime_end = strtotime($sdate.' +1 day');
+        $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
+        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $this->view->assign('cat_id', $cat_id);
+        $starttime_start = $sdate;
+        $starttime_end = strtotime(date('Y-m-d',$sdate).' +1 day');
         if($mAnalyst){
             //頭像
             if(!$mAnalyst->avatar) $mAnalyst->avatar = $this->def_avatar;
@@ -94,25 +95,45 @@ class Analyst extends Frontend
     
     public function pred($id)
     {
+        $this->view->assign('id', $id);
+        $mEventcategory = model('Eventcategory')->order('id')->find();
+        $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
+        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $starttime_start = $sdate;
+        $starttime_end = strtotime(date('Y-m-d',$sdate).' +1 day');
+        
+        $this->view->assign('sdate', $sdate);
+        $this->view->assign('cat_id', $cat_id);
+
+
+        $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        $this->view->assign('mEventcategory', $mEventcategory);
+        
+        $datelist = [];
+        $weekStr =  ['日', '一', '二', '三', '四', '五', '六'];
+        $time = strtotime(date('y-m-d').' -1 day');
+        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
+        $time = strtotime(date('y-m-d'));
+        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
+        $time = strtotime(date('y-m-d').' +1 day');
+        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
+
+        $this->view->assign('datelist', $datelist);
+
+
         $user_id = 0;
         if($this->auth->id) {
             $user_id = $this->auth->id;
         }
 
-        $mEventcategory = model('Eventcategory')->order('id')->find();
-        $sdate = $this->request->request('sdate', date('Y-m-d'));
-        $cat_id = $this->request->request('cat_id', $mEventcategory->id);
-        $starttime_start = strtotime($sdate);
-        $starttime_end = strtotime($sdate.' +1 day');
-
         $page = $this->request->request('page', 1);
         $mPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
         ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free")
-        ->where('p.analyst_id = '.$id.' AND p.predtime < '.$starttime_end.' AND p.predtime > '.$starttime_start)->order('e.starttime','desc')->select();
+        ->where('p.analyst_id = '.$id.' AND e.starttime < '.$starttime_end.' AND e.starttime > '.$starttime_start)->order('e.starttime','desc')->select();
         // $count = $mPred->total();
         // $pagelist = $mPred->render();
         $mPred = $this->createPredStr($mPred);
@@ -125,7 +146,7 @@ class Analyst extends Frontend
         
         $page = $this->request->request('page', 1);
         $mHPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = p.id AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
