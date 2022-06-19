@@ -1,98 +1,87 @@
 {__NOLAYOUT__}
+{if $mEventcategory}
+    <h3>預測類別</h3>
+    <div class="check_style">
+        {foreach $mEventcategory as $v}
+        <a href="{:url('/index/analyst/profile/id/'.$id.'/pt/1')}?cat={$v->id}&sdate={$sdate}" class="{if $v->id == $cat_id}active{/if}">{$v->title}</a>
+        {/foreach}
+    </div>
+{/if}
+<h3>獲利專區</h3>
 <div class="flex_box">
     <div class="check_style">
         {foreach $datelist as $k=>$v}
         <a href="{:url('/index/analyst/profile/id/'.$id.'/pt/1')}?cat={$cat_id}&sdate={$k}" class="{if $k == $sdate}active{/if}">{$v}</a>
         {/foreach}
     </div>
-    {if $mEventcategory}
-        <div class="check_style">
-            {foreach $mEventcategory as $v}
-            <a href="{:url('/index/analyst/profile/id/'.$id.'/pt/1')}?cat={$v->id}&sdate={$sdate}" class="{if $v->id == $cat_id}active{/if}">{$v->title}</a>
-            {/foreach}
-        </div>
-    {/if}
 </div>
 <div class="table-row">
-    {if $mPred}
-        <table class="table pred_list">
-            <thead>
-                <tr>
-                    <th width="100px">比賽時間</th>
-                    <th style="text-align: right;">比分</th>
-                    <th>隊伍</th>
-                    <th width="100px">預測</th>
-                    <th>結果</th>
-                </tr>
-            </thead>
-            <tbody>
-                {foreach $mPred as $v}
-                <tr>
-                    <td>{$v->starttime|date='Y/m/d H:i',###}</td>
-                    <td style="text-align: right;">{$v->score_str}</td>
-                    <td>{$v->event_str}</td>
-                    <td>{if $v->per}{$v->pred_str}{else/}未購買{/if}</td>
-                    <td>{$v->comply_str}</td>
-                </tr>
-            {/foreach}
-            <tbody>
-        </table>
-    {else/}
-    <table class="table">
+    <table class="table pred_list">
         <thead>
             <tr>
-                <th></th>
+                <th width="100px">比賽時間</th>
+                <th style="text-align: right;">比分</th>
+                <th>隊伍</th>
+                <th width="100px">預測</th>
+                <th>結果</th>
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>尚無預測</td>
-        </tr>
+            {if $mPred}
+            {foreach $mPred as $v}
+            <tr>
+                <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                <td style="text-align: right;">{$v->score_str}</td>
+                <td>{$v->event_str}</td>
+                <td>{if $v->per}{$v->pred_str}{else/}未購買{/if}</td>
+                <td>{$v->comply_str}</td>
+            </tr>
+            {/foreach}
+            {else/}
+                <tr>
+                    <td colspan="5">此分類尚無預測</td>
+                </tr>
+            {/if}
         <tbody>
     </table>
-    {/if}
 </div>
+{if $buy_btn}
+<a href="javascript:;" class="btn btn-info btn_buy_analyst_pred" data-id="{$id}" data-cat_id="{$cat_id}">購買</a>
+{else/}
 
+{/if}
+<h3>歷史戰績</h3>
 <div class="table-row">
-    {if $mHPred}
-        <table class="table pred_list">
-            <thead>
-                <tr>
-                    <th width="100px">比賽時間</th>
-                    <th style="text-align: right;">比分</th>
-                    <th>隊伍</th>
-                    <th width="100px">預測</th>
-                    <th>結果</th>
-                </tr>
-            </thead>
-            <tbody>
-                {foreach $mHPred as $v}
-                <tr>
-                    <td>{$v->starttime|date='Y/m/d H:i',###}</td>
-                    <td style="text-align: right;">{$v->score_str}</td>
-                    <td>{$v->event_str}</td>
-                    <td>{$v->pred_str}</td>
-                    <td>{$v->comply_str}</td>
-                </tr>
-            {/foreach}
-            <tbody>
-        </table>
-        <div class="page">
-            {$pagelist}
-            <div>總筆數共 {$count} 筆{if $pagelist}，目前在第 {$page} 頁{/if}</div>
-        </div>
-    {else/}
-    <table class="table">
+    <table class="table pred_list">
         <thead>
             <tr>
-                <th></th>
+                <th width="100px">比賽時間</th>
+                <th style="text-align: right;">比分</th>
+                <th>隊伍</th>
+                <th width="100px">預測</th>
+                <th>結果</th>
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>尚無預測結果</td>
-        </tr>
+            {if $count > 0}
+            {foreach $mHPred as $v}
+            <tr>
+                <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                <td style="text-align: right;">{$v->score_str}</td>
+                <td>{$v->event_str}</td>
+                <td>{$v->pred_str}</td>
+                <td>{$v->comply_str}</td>
+            </tr>
+            {/foreach}
+            {else/}
+            <tr>
+                <td colspan="5">此分類無預測紀錄</td>
+            </tr>
+            {/if}
         <tbody>
     </table>
-    {/if}
+    <div class="page">
+        {$pagelist}
+        <div>總筆數共 {$count} 筆{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+    </div>
 </div>

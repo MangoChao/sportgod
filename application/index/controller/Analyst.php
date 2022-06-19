@@ -45,49 +45,21 @@ class Analyst extends Frontend
     {
         $mAnalyst = model('Analyst')->where("id = ".$id)->find();
         $content = "";
-        $buy_btn = true;
-        $no_pred = false;
-        $mEventcategory = model('Eventcategory')->order('id')->find();
-        $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
-        $cat_id = $this->request->request('cat', $mEventcategory->id);
-        $this->view->assign('cat_id', $cat_id);
-        $starttime_start = $sdate;
-        $starttime_end = strtotime(date('Y-m-d',$sdate).' +1 day');
         if($mAnalyst){
             //頭像
             if(!$mAnalyst->avatar) $mAnalyst->avatar = $this->def_avatar;
 
+            //檢查預測
+            if($mAnalyst->autopred == 1){
+                $this->checkPred($id);
+            }
+
             if($pt == 1){
-                if($mAnalyst->autopred == 1){
-                    $this->checkPred($id);
-                }else{
-                    $mPred = model('Pred')->alias('p')
-                    ->join("event e","e.id = p.event_id")
-                    ->field("p.*")
-                    ->where('p.analyst_id = '.$id.' AND e.starttime < '.$starttime_end.' AND p.starttime > '.$starttime_start)->find();
-                    if(!$mPred){
-                        $no_pred = true;
-                    }
-                }
-                
-                if($mAnalyst->free == 1){
-                    $buy_btn = false;
-                }elseif($this->auth->id){
-                    $mUsertoanalyst = model('Usertoanalyst')->alias('uta')
-                    ->field("uta.*")
-                    ->where("uta.analyst_id = ".$id." AND uta.user_id = ".$this->auth->id." AND uta.cat_id = ".$cat_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start)->find();
-                    if($mUsertoanalyst){
-                        $buy_btn = false;
-                    }
-                }
-                
                 $content = $this->pred($id);
             }
         }else{
             $this->redirect('/');
         }
-        $this->view->assign('no_pred', $no_pred);
-        $this->view->assign('buy_btn', $buy_btn);
         $this->view->assign('mAnalyst', $mAnalyst);
         $this->view->assign('content', $content);
         return $this->view->fetch();
@@ -111,15 +83,31 @@ class Analyst extends Frontend
         
         $datelist = [];
         $weekStr =  ['日', '一', '二', '三', '四', '五', '六'];
-        $time = strtotime(date('y-m-d').' -1 day');
-        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
-        $time = strtotime(date('y-m-d'));
-        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
-        $time = strtotime(date('y-m-d').' +1 day');
-        $datelist[$time] = date('y-m-d', $time).'&nbsp;<'.$weekStr[date('w', $time)].'>';
+        $time = strtotime(date('Y-m-d').' -1 day');
+        $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
+        $time = strtotime(date('Y-m-d'));
+        $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
+        $time = strtotime(date('Y-m-d').' +1 day');
+        $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
 
         $this->view->assign('datelist', $datelist);
 
+
+        $mAnalyst = model('Analyst')->where("id = ".$id)->find();
+
+        $buy_btn = true;
+        
+        if($mAnalyst->free == 1){
+            $buy_btn = false;
+        }elseif($this->auth->id){
+            $mUsertoanalyst = model('Usertoanalyst')->alias('uta')
+            ->field("uta.*")
+            ->where("uta.analyst_id = ".$id." AND uta.user_id = ".$this->auth->id." AND uta.cat_id = ".$cat_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start)->find();
+            if($mUsertoanalyst){
+                $buy_btn = false;
+            }
+        }
+        $this->view->assign('buy_btn', $buy_btn);
 
         $user_id = 0;
         if($this->auth->id) {
@@ -140,6 +128,20 @@ class Analyst extends Frontend
         // $this->view->assign('count', $count);
         // $this->view->assign('page', $page);
         // $this->view->assign('pagelist', $pagelist);
+        
+        if(!$mPred){
+            $buy_btn = false;
+        }else if($mAnalyst->free == 1){
+            $buy_btn = false;
+        }elseif($this->auth->id){
+            $mUsertoanalyst = model('Usertoanalyst')->alias('uta')
+            ->field("uta.*")
+            ->where("uta.analyst_id = ".$id." AND uta.user_id = ".$this->auth->id." AND uta.cat_id = ".$cat_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start)->find();
+            if($mUsertoanalyst){
+                $buy_btn = false;
+            }
+        }
+        $this->view->assign('buy_btn', $buy_btn);
         $this->view->assign('mPred', $mPred);
 
         //歷史紀錄
@@ -225,7 +227,7 @@ class Analyst extends Frontend
         ->field("a.*, atc.id as atc_id, atc.event_category_id, atc.autopred_today as atc_autopred_today, atc.autopred_count as atc_autopred_count, ec.title as cat_name")
         ->where("a.autopred = 1 AND a.status = 1 AND atc.autopred_today < atc.autopred_count AND a.id = ".$id)->select();
         if(!$mAnalyst){
-            Log::notice("[".__METHOD__."] 查無分析師,或是無效的分類,或是已預測完");
+            // Log::notice("[".__METHOD__."] 查無分析師,或是無效的分類,或是已預測完");
         }else{
             foreach($mAnalyst as $v){
                 Log::notice("分析師:[".$v->id."]".$v->analyst_name." / 分類:[".$v->event_category_id."]".$v->cat_name);

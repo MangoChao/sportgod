@@ -476,3 +476,9 @@ footer.footer{
 .flex_box{
     display: flex!important;
 }
+
+.box1 h3{
+    font-size: 18px;
+    font-weight: bold;
+    color: #b19b61;
+}
