@@ -531,7 +531,7 @@ a.btn_buy_pred:link:active{
 .analyst_list>li>a{
     display: flex;
     text-decoration: none!important;
-    padding: 5px 10px 15px;
+    padding: 0px 8px 8px;
     border-right: 1px #c6c6c6 solid;
     border-bottom: 1px #c6c6c6 solid;
     border-bottom-right-radius: 5px;
@@ -548,19 +548,20 @@ a.btn_buy_pred:link:active{
     margin-left: 20px;
 }
 .analyst_list>li>a .photoframe{
-    width: 100px;
-    height: 100px;
+    width: 70px;
+    height: 70px;
     background-size: cover;
-    padding: 10px;
+    padding: 8px;
     margin: 0;
 }
 .analyst_list>li>a .photoframe img{
-    height: 80px;
-    width: 80px;
+    height: 55px;
+    width: 55px;
 }
 .analyst_list>li>a h4{
     font-weight: bold;
     padding: 0 15px;
     margin: 0;
-    line-height: 60px;
+    line-height: 44px;
+    font-size: 16px;
 }
