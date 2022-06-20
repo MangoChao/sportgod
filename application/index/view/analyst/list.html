@@ -1,0 +1,34 @@
+<div class="container analyst">
+    <div class="row">
+        <div class="col-md-3 left_box">
+            <ul class="mu">
+                <li class="{if $cat_id == 0}active{/if}"><a href="{:url('/index/analyst/list')}">全部</a></li>
+                {foreach $mEventcategory as $v}
+                <li class="{if $cat_id == $v->id}active{/if}"><a href="{:url('/index/analyst/list')}?cat={$v->id}">{$v->title}</a></li>
+                {/foreach}
+            </ul>
+        </div>
+        <div class="col-md-9 right_box">
+            <div class="box1">
+                {if $count > 0}
+                    <ul class="analyst_list">
+                        {foreach $mAnalyst as $v}
+                        <li><a href="{:url('/index/analyst/profile/id/'.$v->id.'/pt/1')}">
+                            <div class="photoframe">
+                                <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
+                            </div>
+                            <h4>{$v->analyst_name}</h4>
+                        </a></li>
+                        {/foreach}
+                    </ul>
+                    <div class="page">
+                        {$pagelist}
+                        <div>總筆數共 {$count} 筆{if $pagelist}，目前在第 {$page} 頁{/if}</div>
+                    </div>
+                {else/}
+                    <p>無分析師預測</p>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>

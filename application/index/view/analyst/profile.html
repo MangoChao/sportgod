@@ -6,7 +6,7 @@
             </div>
             <p class="memberidname">{$mAnalyst->analyst_name}</p>
             <ul class="mu">
-                <li><a href="{:url('/index/analyst/profile/id/'.$mAnalyst->id.'/pt/1')}">預測</a></li>
+                <li class="{if $pt == 1}active{/if}"><a href="{:url('/index/analyst/profile/id/'.$mAnalyst->id.'/pt/1')}">預測</a></li>
             </ul>
         </div>
         <div class="col-md-9 right_box">

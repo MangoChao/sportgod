@@ -108,10 +108,12 @@ ul.mu li>a{
     -o-transition: margin .2s ease-out;
     -ms-transition: margin .2s ease-out;
 }
-ul.mu li:hover{
+ul.mu li:hover,
+ul.mu li.active{
     border-bottom: 1px #005d9b solid;
 }
-ul.mu li:hover>a{
+ul.mu li:hover>a,
+ul.mu li.active>a{
     color: #000;
     font-weight: bold;
     text-decoration: none;

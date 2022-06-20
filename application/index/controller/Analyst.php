@@ -40,9 +40,44 @@ class Analyst extends Frontend
         return $this->view->fetch();
     }
 
+    public function list()
+    {
+        $cat_id = $this->request->request('cat', 0);
+        $this->view->assign('cat_id', $cat_id);
+        
+        $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        $this->view->assign('mEventcategory', $mEventcategory);
+        
+        $cat_where = "";
+        if($cat_id != 0){
+            $cat_where = " AND e.event_category_id = ".$cat_id;
+        }
+
+        $page = $this->request->request('page', 1);
+        $mAnalyst = model('Analyst')->alias('a')
+        ->join("pred p","p.analyst_id = a.id")
+        ->join("event e","e.id = p.event_id")
+        ->field("a.*")
+        ->where("a.status = 1 ".$cat_where)->group('a.id')->orderRaw('RAND()')->paginate(20, false, $this->paginate_config);
+        $count = $mAnalyst->total();
+        $pagelist = $mAnalyst->render();
+        if($count > 0){
+            foreach($mAnalyst as $v){
+                if(!$v->avatar) $v->avatar = $this->def_avatar;
+            }
+        }
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+
+        $this->view->assign('mAnalyst', $mAnalyst);
+        return $this->view->fetch();
+    }
+
     
     public function profile($id = 0, $pt = 1)
     {
+        $this->view->assign('pt', $pt);
         $mAnalyst = model('Analyst')->where("id = ".$id)->find();
         $content = "";
         if($mAnalyst){
