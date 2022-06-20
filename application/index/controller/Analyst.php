@@ -68,7 +68,12 @@ class Analyst extends Frontend
     public function pred($id)
     {
         $this->view->assign('id', $id);
-        $mEventcategory = model('Eventcategory')->order('id')->find();
+        $mEventcategory = model('Eventcategory')->alias('ec')
+        ->join("event e","e.event_category_id = ec.id")
+        ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
+        ->distinct(true)
+        ->field("ec.*")
+        ->where("ec.status = 1")->order('ec.id')->find();
         $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
         $cat_id = $this->request->request('cat', $mEventcategory->id);
         $starttime_start = $sdate;
@@ -78,7 +83,13 @@ class Analyst extends Frontend
         $this->view->assign('cat_id', $cat_id);
 
 
-        $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        // $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        $mEventcategory = model('Eventcategory')->alias('ec')
+        ->join("event e","e.event_category_id = ec.id")
+        ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
+        ->distinct(true)
+        ->field("ec.*")
+        ->where("ec.status = 1")->order('ec.id')->select();
         $this->view->assign('mEventcategory', $mEventcategory);
         
         $datelist = [];

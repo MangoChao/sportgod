@@ -45,11 +45,12 @@
         <tbody>
     </table>
 </div>
-{if $buy_btn}
-<a href="javascript:;" class="btn btn-info btn_buy_analyst_pred" data-id="{$id}" data-cat_id="{$cat_id}">購買</a>
-{else/}
-
-{/if}
+<div style="text-align: center;">
+    <a href="javascript:;" class="btn btn_buy_pred btn_buy_analyst_pred" data-id="{$id}" data-cat_id="{$cat_id}">購買預測</a>
+    {if $buy_btn}
+    <a href="javascript:;" class="btn btn_buy_pred btn_buy_analyst_pred" data-id="{$id}" data-cat_id="{$cat_id}">購買預測</a>
+    {/if}
+</div>
 <h3>歷史戰績</h3>
 <div class="table-row">
     <table class="table pred_list">
