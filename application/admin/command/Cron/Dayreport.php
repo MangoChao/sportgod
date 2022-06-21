@@ -468,7 +468,7 @@ class Dayreport extends Command
             ->join("event e","e.id = p.event_id")
             ->join("event_category ec","ec.id = e.event_category_id AND ec.id = ".$id)
             ->field("a.id, ec.rankrule as rankrule, count(case when p.comply = 1 then 0 end)/count(p.id)*100 as winrate, count(case when p.comply = 1 then 0 end) as win,count(p.id) - count(case when p.comply = 1 then 0 end) as lose")
-            ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime." ")->group("a.id")->having('count(p.id) >= rankrule')->order("winrate","desc")->limit(20)->select();
+            ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime."")->group("a.id")->having('count(p.id) >= rankrule AND win > 1')->order("winrate","desc")->limit(20)->select();
             if($mAnalyst){
                 $param = [
                     'rtime1' => $weekTime,
