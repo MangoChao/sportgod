@@ -35,11 +35,7 @@
                 <td style="text-align: center;">{$v->eventstatus}</td>
                 <td style="text-align: right;">{$v->score_str}</td>
                 <td>{$v->event_str}</td>
-                <td>{if $v->per}
-                        {$v->pred_str}
-                    {else/}
-                        未購買
-                    {/if}</td>
+                <td>{$v->pred_str}</td>
                 <td>{$v->comply_str}</td>
             </tr>
             {/foreach}

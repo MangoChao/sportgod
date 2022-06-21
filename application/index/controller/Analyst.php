@@ -206,16 +206,6 @@ class Analyst extends Frontend
     public function createPredStr($mPred){
         if($mPred){
             foreach($mPred as $v){
-                if($v->free == 1 OR $v->uta_id){
-                    $v->per = true;
-                }else{
-                    $v->per = false;
-                }
-                if($v->starttime > time()){
-                    $v->eventstatus = "<span class='text-gray'>未開賽</span>";
-                }else{
-                    $v->eventstatus = "<span class='text-orange'>已開賽</span>";
-                }
                 $v->score_str = "<span class='text-info'>".$v->guests_score."&nbsp;</span><br><span class='text-info'>".$v->master_score."&nbsp;</span>";
                 $v->event_str = "<span class=''>".$v->guests."</span><br><span class='text-info'>".$v->master."</span><span class='text-danger'>(主)</span>";
                 if($v->pred_type == 1){
@@ -255,6 +245,15 @@ class Analyst extends Frontend
                     $v->comply_str = "<span class='text-danger'>輸</span>";
                 }else{
                     $v->comply_str = "-";
+                }
+                
+                if($v->free != 1 AND !$v->uta_id AND $v->starttime > time()){
+                    $v->pred_str = "<span class='text-gray'>未購買</span>";
+                }
+                if($v->starttime > time()){
+                    $v->eventstatus = "<span class='text-gray'>未開賽</span>";
+                }else{
+                    $v->eventstatus = "<span class='text-orange'>已開賽</span>";
                 }
             }
         }
