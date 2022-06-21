@@ -138,23 +138,6 @@ class Analyst extends Frontend
 
         $this->view->assign('datelist', $datelist);
 
-
-        $mAnalyst = model('Analyst')->where("id = ".$id)->find();
-
-        $buy_btn = true;
-        
-        if($mAnalyst->free == 1){
-            $buy_btn = false;
-        }elseif($this->auth->id){
-            $mUsertoanalyst = model('Usertoanalyst')->alias('uta')
-            ->field("uta.*")
-            ->where("uta.analyst_id = ".$id." AND uta.user_id = ".$this->auth->id." AND uta.cat_id = ".$cat_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start)->find();
-            if($mUsertoanalyst){
-                $buy_btn = false;
-            }
-        }
-        $this->view->assign('buy_btn', $buy_btn);
-
         $user_id = 0;
         if($this->auth->id) {
             $user_id = $this->auth->id;
@@ -162,7 +145,7 @@ class Analyst extends Frontend
 
         $page = $this->request->request('page', 1);
         $mPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.buydate = ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
@@ -177,11 +160,12 @@ class Analyst extends Frontend
         
         if(!$mPred){
             $buy_btn = false;
-        }else if($mAnalyst->free == 1){
-            $buy_btn = false;
         }else{
             $checktime = true;
             foreach($mPred as $v){
+                if($v->free == 1){
+                    $buy_btn = false;
+                }
                 if($v->uta_id){
                     $buy_btn = false;
                 }
@@ -200,7 +184,7 @@ class Analyst extends Frontend
         
         $page = $this->request->request('page', 1);
         $mHPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.buydate = ".$starttime_start, "LEFT")
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)

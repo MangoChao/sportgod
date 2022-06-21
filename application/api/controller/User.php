@@ -92,10 +92,10 @@ class User extends Api
         $this->changePoint($this->auth->id, $mPointitem->point, $memo);
         $this->success('購買成功');
     }
-    public function buyAnalystPred($id = 0, $cat_id = 0){
+    public function buyAnalystPred($id = 0, $cat_id = 0, $sdate = 0){
         Log::init(['type' => 'File', 'log_name' => 'buyAnalystPred']);
         
-        if($id == 0 OR $cat_id == 0){
+        if($id == 0 OR $cat_id == 0 OR $sdate == 0){
             $this->error('參數異常');
         }
 
@@ -126,11 +126,11 @@ class User extends Api
             $this->error('點數不足');
         }
 
-        $starttime_start = strtotime(date('Y-m-d'));
-        $starttime_end = strtotime(date('Y-m-d').' +1 day');
+        $starttime_start = $sdate;
+        $starttime_end = strtotime(date('Y-m-d',$sdate).' +1 day');
 
         $mAPred = model('Pred')->alias('p')
-        ->join("user_to_analyst uta","uta.analyst_id = ".$id."  AND uta.cat_id = ".$cat_id.". AND uta.user_id = ".$this->auth->id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start, "LEFT")
+        ->join("user_to_analyst uta","uta.analyst_id = ".$id."  AND uta.cat_id = ".$cat_id.". AND uta.user_id = ".$this->auth->id." AND uta.buydate = ".$sdate, "LEFT")
         ->join("event e","e.id = p.event_id AND e.event_category_id = ".$cat_id)
         ->field("p.*, uta.id as uta_id")
         ->where('p.analyst_id = '.$id.' AND e.starttime > '.time().' AND e.starttime < '.$starttime_end.' AND e.starttime > '.$starttime_start)->find();
@@ -144,7 +144,8 @@ class User extends Api
                 'user_id' => $this->auth->id,
                 'analyst_id' => $id,
                 'point' => $point,
-                'cat_id' => $cat_id
+                'cat_id' => $cat_id,
+                'sdate' => $sdate,
             ];
             model('Usertoanalyst')::create($params);
 
