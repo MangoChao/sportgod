@@ -179,13 +179,6 @@ class Analyst extends Frontend
             $buy_btn = false;
         }else if($mAnalyst->free == 1){
             $buy_btn = false;
-        }elseif($this->auth->id){
-            $mUsertoanalyst = model('Usertoanalyst')->alias('uta')
-            ->field("uta.*")
-            ->where("uta.analyst_id = ".$id." AND uta.user_id = ".$this->auth->id." AND uta.cat_id = ".$cat_id." AND uta.createtime < ".$starttime_end." AND uta.createtime > ".$starttime_start)->find();
-            if($mUsertoanalyst){
-                $buy_btn = false;
-            }
         }else{
             $checktime = true;
             foreach($mPred as $v){
