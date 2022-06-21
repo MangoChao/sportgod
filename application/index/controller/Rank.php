@@ -15,7 +15,14 @@ class Rank extends Frontend
 
     public function index()
     {
-        $mRank = model('Rank')->order("id","desc")->find();
+        $mEventcategory = model('Eventcategory')->where('status = 1')->find();
+        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $this->view->assign('cat_id', $cat_id);
+        
+        $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        $this->view->assign('mEventcategory', $mEventcategory);
+        
+        $mRank = model('Rank')->where("event_category_id = ".$cat_id)->order("id","desc")->find();
         $mRankcontent = false;
         if($mRank){
             $mRankcontent = model('Rankcontent')->alias('rc')
