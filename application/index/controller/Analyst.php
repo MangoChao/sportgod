@@ -158,6 +158,7 @@ class Analyst extends Frontend
         // $this->view->assign('page', $page);
         // $this->view->assign('pagelist', $pagelist);
         
+        $buy_btn = true;
         if(!$mPred){
             $buy_btn = false;
         }else{
