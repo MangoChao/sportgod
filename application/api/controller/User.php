@@ -145,7 +145,7 @@ class User extends Api
                 'analyst_id' => $id,
                 'point' => $point,
                 'cat_id' => $cat_id,
-                'sdate' => $sdate,
+                'buydate' => $sdate,
             ];
             model('Usertoanalyst')::create($params);
 
