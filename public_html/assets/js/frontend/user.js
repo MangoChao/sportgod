@@ -19,6 +19,30 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         article: function () {
 
         },
+        buypoint: function () {
+            $(document).on("click", ".btn_butpoint", function () {
+                let id = $(this).data('id');
+                layer.confirm('確定購買?', {
+                    title: false,
+                    closeBtn: false,
+                    shadeClose:true,
+                    btn: ['確定','取消'] 
+                }, function(index){
+                    layer.close(index);
+                    var mload = layer.load();
+
+                    let options = {url: Config.url.api+'/user/buyPoint/id/'+id};
+                    Fast.api.ajax(options, function (mthis, result, ret) {
+                        setTimeout(function () {
+                            layer.close(mload);
+                            location.reload();
+                        }, 1000);
+                    },function (mthis, result, ret) {
+                        layer.close(mload);
+                    });
+                });
+            });
+        },
         addarticle: function () {
             Form.api.bindevent($("#addarticle_form"), function (data) {
                 console.log(data);

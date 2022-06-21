@@ -14,7 +14,7 @@ use think\Log;
  */
 class User extends Api
 {
-    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third','setcode','getanalystpred','getpred','findAnalyst','predEvent','getanalyst','getanalystpredall'];
+    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third','setcode','getanalystpred','getpred','findAnalyst','predEvent','getanalyst','buyAnalystPred','buyPoint'];
     protected $noNeedRight = '*';
 
     public function _initialize()
@@ -68,7 +68,30 @@ class User extends Api
         }
     }
 
-    
+    public function buyPoint($id = 0){
+        Log::init(['type' => 'File', 'log_name' => 'buyPoint']);
+        
+        if($id == 0 ){
+            $this->error('參數異常');
+        }
+
+        if(!$this->auth->id){
+            $this->error('請先登入');
+        }
+        $mUser = model('User')->get(['id'=> $this->auth->id, 'status'=> 1]);
+        if(!$mUser){
+            $this->error('無權操作');
+        }
+
+        $mPointitem = model('Pointitem')->get($id);
+        if(!$mPointitem){
+            $this->error('資料異常,請重整畫面');
+        }
+
+        $memo = "儲值點數";
+        $this->changePoint($this->auth->id, $mPointitem->point, $memo);
+        $this->success('購買成功');
+    }
     public function buyAnalystPred($id = 0, $cat_id = 0){
         Log::init(['type' => 'File', 'log_name' => 'buyAnalystPred']);
         

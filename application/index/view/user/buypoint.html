@@ -1,0 +1,24 @@
+
+<div id="content-container" class="container">
+    <div class="row">
+        <div class="col-md-3">
+            {include file="common/sidenav" /}
+        </div>
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h2 class="page-header">儲值點數 <span>目前點數:{$user->point}</span></h2>
+                    {if $mPointitem}
+                    <div class="point_item">
+                        {foreach $mPointitem as $v}
+                            <a class="btn btn_butpoint" href="javascript:;" data-id="{$v->id}" >{$v->price}元 - {$v->point}點</a>
+                        {/foreach}
+                    </div>
+                    {else/}
+                    <p>尚未開放,請洽客服人員</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

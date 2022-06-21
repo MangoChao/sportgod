@@ -216,5 +216,7 @@ return [
     'autopred 0' => '關閉',
     'autopred 1' => '開啟',
     'free 0' => '是',
-    'free 1' => '免費'
+    'free 1' => '免費',
+    'point' => '點數',
+    'price' => '價格',
 ];

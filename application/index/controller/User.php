@@ -204,6 +204,16 @@ class User extends Frontend
         return $this->view->fetch();
     }
 
+    
+    
+    public function buypoint()
+    {
+        $mPointitem = model('Pointitem')->order('point','asc')->select();
+        $this->view->assign('mPointitem', $mPointitem);
+        $this->view->assign('title', '儲值點數');
+        return $this->view->fetch();
+    }
+
     /**
      * 注册会员
      */

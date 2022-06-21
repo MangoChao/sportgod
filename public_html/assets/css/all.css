@@ -149,7 +149,7 @@ footer.footer{
     color: #6d6d6d;
 }
 .article_list li>div.center_box a:hover{
-    color: #ff6200!important;
+    color: #1f449b!important;
 }
 .article_list li>div.msgc_box{
     text-align: center;
@@ -252,8 +252,8 @@ footer.footer{
     display: inline-block;
 }
 .article_main .right_box .a_header .fav_box .btn{
-    background-color: #ff6200;
-    border-color: #ff6200;
+    background-color: #1f449b;
+    border-color: #1f449b;
     color: #fff;
 }
 .article_main .right_box .a_header .fav_box .btn_edit.btn{
@@ -297,7 +297,7 @@ footer.footer{
     font-weight: bold;
 }
 .login-section .logon-tab > a:hover{
-    background-color: #ff6200;
+    background-color: #1f449b;
 }
 .login-section .logon-tab > a.active{
     background-color: #c1f5fd;
@@ -309,11 +309,11 @@ footer.footer{
     border-color: #71ace6;
 }
 .btn-primary:hover{
-    background-color: #ff6200;
-    border-color: #ff6200;
+    background-color: #1f449b;
+    border-color: #1f449b;
 }
 .form-control{
-    color: #ff6200;
+    color: #1f449b;
     background-color: #e5fbff;
     border: 1px solid #71ace6;
 }
@@ -322,10 +322,10 @@ footer.footer{
     font-size: 16px;
 }
 .sidenav .list-group .list-group-item.active > a{
-    color: #ff6200;
+    color: #1f449b;
 }
 .sidenav .list-group .list-group-item.active{
-    border-left: 2px solid #ff6200;
+    border-left: 2px solid #1f449b;
 }
 .contact p{
     padding: 15px;
@@ -357,7 +357,7 @@ footer.footer{
 }
 .m_panel.banner h3{
     margin: 0;
-    border-bottom: 3px #ff6101 solid;
+    border-bottom: 3px #1f449b solid;
     padding-top: 5px;
     padding-bottom: 3px;
 }
@@ -486,15 +486,15 @@ footer.footer{
     color: #b19b61;
 }
 a.btn_buy_pred:link{
-    height: 44px;
-    font-size: 22px;
-    line-height: 40px;
+    height: 34px;
+    font-size: 17px;
+    line-height: 30px;
     border: 1px solid #c7ad00;
     color: #000;
-    padding: 0 26px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 14px;
+    padding: 0 13px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius:3px;
+    border-radius: 3px;
     margin-bottom: 10px;
     background: #ffde00;
     background: -webkit-linear-gradient(bottom,#ffe412 00%,#ffd806 51%,#ffe513 51%,#ffee01 99%);
@@ -564,4 +564,49 @@ a.btn_buy_pred:link:active{
     margin: 0;
     line-height: 44px;
     font-size: 16px;
+}
+
+.navbar-inverse .navbar-nav > li > a.user_btn.text_btn{
+    font-size: 20px;
+    line-height: 31px;
+    color: #a7985b;
+}
+.navbar-inverse .navbar-nav > li > a.user_btn.text_btn:hover{
+    color: #897a41!important;
+    font-weight: bold;
+}
+
+.point_item>a.btn{
+    background: #005d9b;
+    border-radius: 6px;
+    margin: 5px;
+}
+.point_item>a.btn:hover,
+.point_item>a.btn:active {
+    background: #0785d9;
+}
+
+.costprice{
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+.costprice b{
+    font-size: 26px;
+}
+
+.layui-layer-btn .layui-layer-btn0 {
+    border-color: #005d9b;
+    background-color: #005d9b;
+    color: #fff;
+}
+.layui-layer-btn a{
+    line-height: 26px;
+}
+
+.page-header>span{
+    font-size: 16px;
+    font-style: italic;
+    color: #a7985b;
 }
