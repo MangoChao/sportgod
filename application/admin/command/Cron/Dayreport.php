@@ -429,6 +429,34 @@ class Dayreport extends Command
             $func_name = 'Weekreport';
             Log::notice("[command][Cron][".$func_name."] 開始執行 ".date('Y-m-d H:i:s',time()));
             
+            $modelEventcategory = new Eventcategory;
+            $mEventcategory = $modelEventcategory->where('status = 1')->select();
+            if($mEventcategory){
+                foreach($mEventcategory as $v){
+                    Log::notice("[command][Cron][".$func_name."] 分類:".$v->title." 建立排行...");
+                    $this->createRank($v->id);
+                }
+                Log::notice("[command][Cron][".$func_name."] 完成建立排行");
+            }else{
+                Log::notice("[command][Cron][".$func_name."] 沒有可用分類");
+            }
+
+            Log::notice("[command][Cron][".$func_name."] 完整結束 ".date('Y-m-d H:i:s',time()));
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
+        }
+    }
+
+    
+    public function createRank($id = 0)
+    {
+        try {
+            $func_name = 'createRank';
+            
             $todayTime = strtotime(date("Y-m-d")." -1 Day");
             // $todayTime = strtotime(date("Y-m-d")." +2 week");
             // $weekTime = strtotime(date("Y-m-d")." -1 week");
@@ -437,12 +465,14 @@ class Dayreport extends Command
             $mAnalyst = $modelAnalyst->alias('a')
             ->join("pred p","a.id = p.analyst_id")
             ->join("event e","e.id = p.event_id")
+            ->join("event_category ec","ec.id = e.event_category_id AND ec.id = ".$id)
             ->field("a.id, count(case when p.comply = 1 then 0 end)/count(p.id)*100 as winrate, count(case when p.comply = 1 then 0 end) as win,count(p.id) - count(case when p.comply = 1 then 0 end) as lose")
-            ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime)->group("a.id")->order("winrate","desc")->limit(20)->select();
+            ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime." AND count(p.id) >= ec.rankrule ")->group("a.id")->order("winrate","desc")->limit(20)->select();
             if($mAnalyst){
                 $param = [
                     'rtime1' => $weekTime,
                     'rtime2' => $todayTime,
+                    'event_category_id' => $id,
                 ];
                 $modelRank = new Rank;
                 $mRank = $modelRank::create($param);
@@ -465,21 +495,11 @@ class Dayreport extends Command
             }else{
                 Log::notice("[command][Cron][".$func_name."] 無預測");
             }
-
-            Log::notice("[command][Cron][".$func_name."] 完整結束 ".date('Y-m-d H:i:s',time()));
         } catch (ValidateException $e) {
             Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
         } catch (PDOException $e) {
             Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
         } catch (Exception $e) {
-            if($v){
-                Log::notice("v data:");
-                Log::notice($v);
-            }
-            if($mEvent){
-                Log::notice("mEvent data:");
-                Log::notice($mEvent);
-            }
             Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
         }
     }
