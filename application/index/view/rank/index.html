@@ -21,7 +21,7 @@
                                     <div class="champion">
                                         <strong><span></span>{$v->rank}</strong>
                                     </div>
-                                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}" class="profile" >
+                                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$v->id}" class="profile" >
                                         <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                                         <h1>{$v->analyst_name}</h1>
                                         <span></span>
@@ -32,7 +32,7 @@
                                 {else/}
                                 <div class="rank-unit ">
                                     <div><strong class="one-digit">{$v->rank}</strong></div>
-                                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}" class="profile" >
+                                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$v->id}" class="profile" >
                                         <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                                         <h1>{$v->analyst_name}</h1>
                                     </a>
