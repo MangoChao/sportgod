@@ -20,6 +20,7 @@
         <thead>
             <tr>
                 <th width="100px">比賽時間</th>
+                <th>狀態</th>
                 <th style="text-align: right;">比分</th>
                 <th>隊伍</th>
                 <th width="100px">預測</th>
@@ -31,9 +32,14 @@
             {foreach $mPred as $v}
             <tr>
                 <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                <td>{$v->eventstatus}</td>
                 <td style="text-align: right;">{$v->score_str}</td>
                 <td>{$v->event_str}</td>
-                <td>{if $v->per}{$v->pred_str}{else/}未購買{/if}</td>
+                <td>{if $v->per}
+                        {$v->pred_str}
+                    {else/}
+                        未購買
+                    {/if}</td>
                 <td>{$v->comply_str}</td>
             </tr>
             {/foreach}

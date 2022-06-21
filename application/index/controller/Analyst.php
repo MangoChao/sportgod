@@ -186,6 +186,19 @@ class Analyst extends Frontend
             if($mUsertoanalyst){
                 $buy_btn = false;
             }
+        }else{
+            $checktime = true;
+            foreach($mPred as $v){
+                if($v->uta_id){
+                    $buy_btn = false;
+                }
+                if($v->starttime > time()){
+                    $checktime = false;
+                }
+            }
+            if($checktime){
+                $buy_btn = false;
+            }
         }
         $this->view->assign('buy_btn', $buy_btn);
         $this->view->assign('mPred', $mPred);
@@ -219,6 +232,11 @@ class Analyst extends Frontend
                     $v->per = true;
                 }else{
                     $v->per = false;
+                }
+                if($v->starttime > time()){
+                    $v->eventstatus = "<span class='text-gray'>未開賽</span>";
+                }else{
+                    $v->eventstatus = "<span class='text-orange'>已開賽</span>";
                 }
                 $v->score_str = "<span class='text-info'>".$v->guests_score."&nbsp;</span><br><span class='text-info'>".$v->master_score."&nbsp;</span>";
                 $v->event_str = "<span class=''>".$v->guests."</span><br><span class='text-info'>".$v->master."</span><span class='text-danger'>(主)</span>";
