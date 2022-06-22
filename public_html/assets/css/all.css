@@ -476,6 +476,26 @@ footer.footer{
   border: 2px #005d9b solid;
 } 
 
+.check_style .radio label.dis,
+.check_style .checkbox label.dis,
+.check_style a.dis{
+    color: #afb6bb;
+    background: #fff;
+    box-shadow: 1px 1px 1px #afb6bb;
+    border: 2px #afb6bb solid;
+} 
+
+.check_style .radio label.dis.active,
+.check_style .checkbox label.dis.active,
+.check_style a.dis.active,
+.check_style a.dis:hover{
+    color: #fff;
+    background: #606060;
+    box-shadow: 1px 1px 1px #606060;
+    border: 2px #606060 solid;
+} 
+
+
 .flex_box{
     display: flex!important;
 }

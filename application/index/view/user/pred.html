@@ -1,0 +1,65 @@
+
+<div id="content-container" class="container">
+    <div class="row">
+        <div class="col-md-3">
+            {include file="common/sidenav" /}
+        </div>
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h2 class="page-header">我要預測</h2>
+                    {if $mEventcategory}
+                        <div class="check_style">
+                            {foreach $mEventcategory as $v}
+                            <a href="{:url('/index/user/pred')}?cat={$v->id}&sdate={$sdate}" class="{if $v->id == $cat_id} active {/if}{if !$v->e_id} dis {/if}">{$v->title}</a>
+                            {/foreach}
+                        </div>
+                    {/if}
+                    <hr>
+                    <div class="check_style">
+                        {foreach $datelist as $k=>$v}
+                        <a href="{:url('/index/user/pred')}?cat={$cat_id}&sdate={$k}" class="{if $k == $sdate}active{/if}">{$v}</a>
+                        {/foreach}
+                    </div>
+                    <hr>
+                    <div class="table-row">
+                        <table class="table pred_list">
+                            <thead>
+                                <tr>
+                                    <th width="100px">比賽時間</th>
+                                    <th style="text-align: center;">狀態</th>
+                                    <th style="text-align: right;">比分</th>
+                                    <th>隊伍</th>
+                                    <th>讓分</th>
+                                    <th>大小</th>
+                                    <th width="100px">預測</th>
+                                    <th>結果</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {if $mEvent}
+                                {foreach $mEvent as $v}
+                                <tr>
+                                    <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                                    <td style="text-align: center;">{$v->eventstatus}</td>
+                                    <td style="text-align: right;">{$v->score_str}</td>
+                                    <td>{$v->event_str}</td>
+                                    <td>{$v->refund}</td>
+                                    <td>{$v->bigscore}</td>
+                                    <td>{$v->pred_str}</td>
+                                    <td>{$v->comply_str}</td>
+                                </tr>
+                                {/foreach}
+                                {else/}
+                                    <tr>
+                                        <td colspan="5">此分類尚無賽事</td>
+                                    </tr>
+                                {/if}
+                            <tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

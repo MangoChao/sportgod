@@ -108,7 +108,7 @@ class Analyst extends Frontend
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
         ->distinct(true)
         ->field("ec.*")
-        ->where("ec.status = 1")->order('ec.id')->find();
+        ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
         $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
         $cat_id = $this->request->request('cat', $mEventcategory->id);
         $starttime_start = $sdate;
@@ -124,7 +124,7 @@ class Analyst extends Frontend
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
         ->distinct(true)
         ->field("ec.*")
-        ->where("ec.status = 1")->order('ec.id')->select();
+        ->where("ec.status = 1")->order('ec.id')->group('ec.id')->select();
         $this->view->assign('mEventcategory', $mEventcategory);
         
         $datelist = [];

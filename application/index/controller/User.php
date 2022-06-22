@@ -213,6 +213,76 @@ class User extends Frontend
         $this->view->assign('title', '儲值點數');
         return $this->view->fetch();
     }
+    
+    public function pred()
+    {
+        $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
+        $edate = strtotime(date('Y-m-d',$sdate).' +1 day');
+        $this->view->assign('sdate', $sdate);
+
+        
+        // $mEventcategory = model('Eventcategory')->where('status = 1')->find();
+        $mEventcategory = model('Eventcategory')->alias('ec')
+        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate, "LEFT")
+        ->distinct(true)
+        ->field("ec.*, e.id as e_id")
+        ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
+        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $this->view->assign('cat_id', $cat_id);
+        
+        // $mEventcategory = model('Eventcategory')->where('status = 1')->select();
+        $mEventcategory = model('Eventcategory')->alias('ec')
+        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate, "LEFT")
+        ->distinct(true)
+        ->field("ec.*, e.id as e_id")
+        ->where("ec.status = 1")->order('ec.id')->group('ec.id')->select();
+        $this->view->assign('mEventcategory', $mEventcategory);
+        
+        $datelist = [];
+        $weekStr =  ['日', '一', '二', '三', '四', '五', '六'];
+        $time = strtotime(date('Y-m-d'));
+        $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
+        $time = strtotime(date('Y-m-d').' +1 day');
+        $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
+        $this->view->assign('datelist', $datelist);
+
+        $mEvent = model('Event')->where("starttime > ".$sdate." AND starttime < ".$edate." AND event_category_id = ".$cat_id)->select();
+        if($mEvent){
+            foreach($mEvent as $v){
+                $v->score_str = "<span class='text-info'>".$v->guests_score."&nbsp;</span><br><span class='text-info'>".$v->master_score."&nbsp;</span>";
+                $v->event_str = "<span class=''>".$v->guests."</span><br><span class='text-info'>".$v->master."</span><span class='text-danger'>(主)</span>";
+                if($v->guests_refund != ''){
+                    $refund = $v->guests_refund;
+                    if(strpos($refund, '-') !== false){
+                        $refund = str_replace('-','+',trim($refund));
+                    }else{
+                        $refund = str_replace('+','-',trim($refund));
+                    }
+                    $v->refund = "主場&nbsp;受讓<br><span class='text-info'>".$refund."</span>";
+                }else{
+                    $refund = $v->master_refund;
+                    if(strpos($refund, '-') !== false){
+                        $refund = str_replace('-','+',trim($refund));
+                    }else{
+                        $refund = str_replace('+','-',trim($refund));
+                    }
+                    $v->refund = "主場&nbsp;讓分<br><span class='text-info'>".$v->master_refund."</span>";
+                }
+                if($v->starttime > time()){
+                    $v->eventstatus = "<span class='text-gray'>未開賽</span>";
+                }else{
+                    $v->eventstatus = "<span class='text-orange'>已開賽</span>";
+                }
+
+                $v->pred_str = "";
+                $v->comply_str = "";
+            }
+        }
+        $this->view->assign('mEvent', $mEvent);
+
+        $this->view->assign('title', '我要預測');
+        return $this->view->fetch();
+    }
 
     /**
      * 注册会员
