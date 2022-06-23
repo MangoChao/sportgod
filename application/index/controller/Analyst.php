@@ -11,7 +11,6 @@ class Analyst extends Frontend
 
     protected $noNeedLogin = '*';
     protected $noNeedRight = '*';
-    protected $noNeedMerchant = '*';
     protected $layout = 'base';
 
     public function _initialize()

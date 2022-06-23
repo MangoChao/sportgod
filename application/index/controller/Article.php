@@ -11,7 +11,6 @@ class Article extends Frontend
 
     protected $noNeedLogin = '*';
     protected $noNeedRight = '*';
-    protected $noNeedMerchant = '*';
     protected $layout = 'base';
 
     //文章列表

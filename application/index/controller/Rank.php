@@ -10,7 +10,6 @@ class Rank extends Frontend
 
     protected $noNeedLogin = '*';
     protected $noNeedRight = '*';
-    protected $noNeedMerchant = '*';
     protected $layout = 'base';
 
     public function index()

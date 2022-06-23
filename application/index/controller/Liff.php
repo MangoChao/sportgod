@@ -13,7 +13,6 @@ class Liff extends Frontend
 
     protected $noNeedLogin = '*';
     protected $noNeedRight = '*';
-    protected $noNeedMerchant = '*';
     protected $layout = 'liff';
 
     public function _initialize()

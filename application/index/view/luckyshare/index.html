@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="m_panel">
+                <h2>好運分享
+                    <a class="btn" href="{:url('/index/luckyshare/add')}">我要分享</a>
+                </h2>
+                <ul class="article_list luckyshare_list">
+                    {foreach $mLuckyshare as $v}
+                    <li>
+                        <div class="left_box">
+                            <div class="lucky_img" style="background-image: url({$v->img});"></div>
+                        </div>
+                        <div class="center_box">
+                            <p>{:nl2br($v->content)}</p>
+                        </div>
+                        <div class="avatar_box">
+                            <div class="avatar_img" style="background-image: url({$v->avatar});"></div>
+                        </div>
+                        <div class="right_box">
+                            <div>{$v->nickname}</div>
+                            <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                        </div>
+                    </li>
+                    {/foreach}
+                </ul>
+                <div class="page">
+                    {$pagelist}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+        </div>
+    </div>
+</div>

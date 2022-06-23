@@ -1,0 +1,37 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="luckyshare_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/luckyshare/add')}">
+                <div class="form-group">
+                    <label for="img" class="control-label col-xs-12 col-sm-2">好運照片:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <label class="">
+                            <input id="img"  class="form-control" size="50" name="img" type="hidden" placeholder="" value="">
+                            <button type="button" class="btn btn-danger faupload btn_faupload" data-input-id="img" data-mimetype="image/jpeg,image/png,image/jpg" data-multiple="false" data-preview-id="p-img">上傳照片</button>
+                        </label>
+                        <ul class="row list-inline faupload-preview" id="p-img"></ul>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content" class="control-label col-xs-12 col-sm-2">說明:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <textarea  class="form-control" data-rule="required" name="content"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hide" class="control-label col-xs-12 col-sm-2">匿名:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        {:build_radios('row[hide]', ['0'=> '否', '1'=> '是'])}
+                    </div>
+                </div>
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <button type="submit" class="btn btn-success btn-embossed disabled">分享</button>
+                        <button type="reset" class="btn btn-default btn-embossed">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

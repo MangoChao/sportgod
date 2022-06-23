@@ -113,10 +113,10 @@ footer.footer{
 }
 
 .m_panel h2{ 
-    border-bottom: 3px #e5fbff solid;
+    border-bottom: 1px #ababab solid;
     margin: 0;
     font-weight: bold;
-    padding: 15px;
+    padding: 15px 15px 10px;
 }
 
 h2>a{ 
@@ -672,4 +672,23 @@ a.btn_buy_pred:link:active{
 }
 .user_pred_list td label{
     line-height: 22px;
+}
+
+
+.lucky_img{
+    width: 300px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 15px;
+}
+
+.article_list.luckyshare_list li>div.center_box p{
+    line-height: 24px;
+    font-size: 16px;
+}
+.article_list.luckyshare_list li>div.right_box{
+    width: 290px;
 }
