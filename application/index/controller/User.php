@@ -217,7 +217,7 @@ class User extends Frontend
     public function pred()
     {
         $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
-        $edate = strtotime(date('Y-m-d',$sdate).' +1 day');
+        $edate = strtotime(date('Y-m-d', $sdate).' +1 day');
         $this->view->assign('sdate', $sdate);
 
         
@@ -227,7 +227,9 @@ class User extends Frontend
         ->distinct(true)
         ->field("ec.*, e.id as e_id")
         ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
-        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $eid = 0;
+        if($mEventcategory) $eid = $mEventcategory->id;
+        $cat_id = $this->request->request('cat', $eid);
         $this->view->assign('cat_id', $cat_id);
         
         // $mEventcategory = model('Eventcategory')->where('status = 1')->select();

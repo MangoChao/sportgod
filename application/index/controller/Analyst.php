@@ -109,8 +109,9 @@ class Analyst extends Frontend
         ->distinct(true)
         ->field("ec.*")
         ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
+        if($mEventcategory) $eid = $mEventcategory->id;
         $sdate = $this->request->request('sdate', strtotime(date('Y-m-d')));
-        $cat_id = $this->request->request('cat', $mEventcategory->id);
+        $cat_id = $this->request->request('cat', $eid);
         $starttime_start = $sdate;
         $starttime_end = strtotime(date('Y-m-d',$sdate).' +1 day');
         
