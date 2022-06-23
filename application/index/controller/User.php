@@ -248,6 +248,8 @@ class User extends Frontend
         $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
         $this->view->assign('datelist', $datelist);
 
+        $predBtn = false;
+        $checktime = false;
         $mEvent = model('Event')->where("starttime > ".$sdate." AND starttime < ".$edate." AND event_category_id = ".$cat_id)->select();
         if($mEvent){
             foreach($mEvent as $v){
@@ -255,6 +257,7 @@ class User extends Frontend
                 $v->event_str = "<span class=''>".$v->guests."</span><br><span class='text-info'>".$v->master."</span><span class='text-danger'>(主)</span>";
                 
                 if($v->starttime > time()){
+                    $checktime = true;
                     $v->eventstatus = "<span class='text-gray'>未開賽</span>";
                     if($v->guests_refund != ''){
                         $v->refund = "<label data-id='refund_".$v->id."' for='refund_0_".$v->id."'>客場 <span class='text-info'>".$v->guests_refund."</span></label><br><label data-id='refund_".$v->id."' for='refund_1_".$v->id."'>主場 </label>";
@@ -281,7 +284,11 @@ class User extends Frontend
                 $v->comply_str = "";
             }
         }
+        if($checktime){
+            $predBtn = true;
+        }
         $this->view->assign('mEvent', $mEvent);
+        $this->view->assign('predBtn', $predBtn);
 
         $this->view->assign('title', '我要預測');
         return $this->view->fetch();
