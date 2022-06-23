@@ -248,6 +248,21 @@ class User extends Frontend
         $datelist[$time] = date('m/d', $time).'&nbsp;('.$weekStr[date('w', $time)].')';
         $this->view->assign('datelist', $datelist);
 
+        $mAnalyst = model('Analyst')->where('user_id = '.$this->auth->id)->find();
+        if(!$mAnalyst){
+            $params = [
+                'user_id' => $this->auth->id,
+                'analyst_name' => $this->auth->nickname,
+                'avatar' => $this->auth->avatar,
+                'status' => 1,
+                'admin_id' => 0,
+                'autopred' => 0,
+                'free' => 1,
+            ];
+            $mAnalyst = model('Analyst')::create($params);
+        }
+        $this->view->assign('analyst_id', $mAnalyst->id);
+
         $predBtn = false;
         $checktime = false;
         $mEvent = model('Event')->where("starttime > ".$sdate." AND starttime < ".$edate." AND event_category_id = ".$cat_id)->select();

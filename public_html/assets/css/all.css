@@ -119,9 +119,9 @@ footer.footer{
     padding: 15px;
 }
 
-.m_panel h2 a{ 
+h2>a{ 
     background-color: #71ace6;
-    color: #fff;
+    color: #fff!important;
     font-size: 14px;
     float: right;
     margin-top: -4px;
