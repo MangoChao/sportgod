@@ -22,42 +22,42 @@
                         {/foreach}
                     </div>
                     <hr>
-                    <div class="table-row">
-                        <table class="table pred_list">
-                            <thead>
-                                <tr>
-                                    <th width="100px">比賽時間</th>
-                                    <th style="text-align: center;">狀態</th>
-                                    <th style="text-align: right;">比分</th>
-                                    <th>隊伍</th>
-                                    <th>讓分</th>
-                                    <th>大小</th>
-                                    <th width="100px">預測</th>
-                                    <th>結果</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {if $mEvent}
-                                {foreach $mEvent as $v}
-                                <tr>
-                                    <td>{$v->starttime|date='Y/m/d H:i',###}</td>
-                                    <td style="text-align: center;">{$v->eventstatus}</td>
-                                    <td style="text-align: right;">{$v->score_str}</td>
-                                    <td>{$v->event_str}</td>
-                                    <td>{$v->refund}</td>
-                                    <td>{$v->bigscore}</td>
-                                    <td>{$v->pred_str}</td>
-                                    <td>{$v->comply_str}</td>
-                                </tr>
-                                {/foreach}
-                                {else/}
+                    <form id="pred_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url($site_url.api.'/user/pred')}">
+                        {:token()}
+                        <div class="table-row">
+                            <table class="table pred_list user_pred_list">
+                                <thead>
                                     <tr>
-                                        <td colspan="5">此分類尚無賽事</td>
+                                        <th width="100px" style="text-align: center;">比賽時間</th>
+                                        <th>隊伍</th>
+                                        <th>讓分</th>
+                                        <th>大小</th>
                                     </tr>
-                                {/if}
-                            <tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {if $mEvent}
+                                    {foreach $mEvent as $v}
+                                    <tr>
+                                        <td style="text-align: center;">{$v->starttime|date='H:i',###}<br>{$v->eventstatus}</td>
+                                        <td>{$v->event_str}</td>
+                                        <td>{$v->refund}</td>
+                                        <td>{$v->bigs}</td>
+                                    </tr>
+                                    {/foreach}
+                                    {else/}
+                                        <tr>
+                                            <td colspan="5">此分類尚無賽事</td>
+                                        </tr>
+                                    {/if}
+                                <tbody>
+                            </table>
+                        </div>
+                        {if $mEvent}
+                            <div style="text-align: center;">
+                                <a href="javascript:;" class="btn btn_buy_pred" onclick="$('#pred_form').submit()">送出預測</a>
+                            </div>
+                        {/if}
+                    </form>
                 </div>
             </div>
         </div>

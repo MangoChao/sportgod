@@ -223,7 +223,7 @@ class User extends Frontend
         
         // $mEventcategory = model('Eventcategory')->where('status = 1')->find();
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate, "LEFT")
+        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate)
         ->distinct(true)
         ->field("ec.*, e.id as e_id")
         ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
@@ -251,27 +251,28 @@ class User extends Frontend
             foreach($mEvent as $v){
                 $v->score_str = "<span class='text-info'>".$v->guests_score."&nbsp;</span><br><span class='text-info'>".$v->master_score."&nbsp;</span>";
                 $v->event_str = "<span class=''>".$v->guests."</span><br><span class='text-info'>".$v->master."</span><span class='text-danger'>(主)</span>";
-                if($v->guests_refund != ''){
-                    $refund = $v->guests_refund;
-                    if(strpos($refund, '-') !== false){
-                        $refund = str_replace('-','+',trim($refund));
-                    }else{
-                        $refund = str_replace('+','-',trim($refund));
-                    }
-                    $v->refund = "主場&nbsp;受讓<br><span class='text-info'>".$refund."</span>";
-                }else{
-                    $refund = $v->master_refund;
-                    if(strpos($refund, '-') !== false){
-                        $refund = str_replace('-','+',trim($refund));
-                    }else{
-                        $refund = str_replace('+','-',trim($refund));
-                    }
-                    $v->refund = "主場&nbsp;讓分<br><span class='text-info'>".$v->master_refund."</span>";
-                }
+                
                 if($v->starttime > time()){
                     $v->eventstatus = "<span class='text-gray'>未開賽</span>";
+                    if($v->guests_refund != ''){
+                        $v->refund = "<label data-id='refund_".$v->id."' for='refund_0_".$v->id."'>客場 <span class='text-info'>".$v->guests_refund."</span></label><br><label data-id='refund_".$v->id."' for='refund_1_".$v->id."'>主場 </label>";
+                    }else{
+                        $v->refund = "<label data-id='refund_".$v->id."' for='refund_0_".$v->id."'>客場 </label><br><label data-id='refund_".$v->id."' for='refund_1_".$v->id."'>主場 <span class='text-info'>".$v->master_refund."</span></label>";
+                    }
+                    $v->refund .= "<input type='radio' id='refund_0_".$v->id."' name='refund[".$v->id."]' value='0'><input type='radio' id='refund_1_".$v->id."' name='refund[".$v->id."]' value='1'>";
+                    $v->refund = "<div class='pred_radio'>".$v->refund."</div>";
+                    
+                    $v->bigs = "<label data-id='bigs_".$v->id."' for='bigs_1_".$v->id."'>大分 <span class='text-info'>".$v->bigscore."</span></label><br><label data-id='bigs_".$v->id."' for='bigs_0_".$v->id."'>小分 </label>";
+                    $v->bigs .= "<input type='radio' id='bigs_1_".$v->id."' name='bigs[".$v->id."]' value='1'><input type='radio' id='bigs_0_".$v->id."' name='bigs[".$v->id."]' value='0'>";
+                    $v->bigs = "<div class='pred_radio'>".$v->bigs."</div>";    
                 }else{
                     $v->eventstatus = "<span class='text-orange'>已開賽</span>";
+                    if($v->guests_refund != ''){
+                        $v->refund = "客場 <span class='text-info'>".$v->guests_refund."</span><br>主場";
+                    }else{
+                        $v->refund = "客場 <br>主場 <span class='text-info'>".$v->master_refund."</span>";
+                    }
+                    $v->bigs = "大分 <span class='text-info'>".$v->bigscore."</span><br>小分";
                 }
 
                 $v->pred_str = "";

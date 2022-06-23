@@ -13,7 +13,7 @@
                 {if $count > 0}
                     <ul class="analyst_list">
                         {foreach $mAnalyst as $v}
-                        <li><a href="{:url('/index/analyst/profile/id/'.$v->id.'/pt/1')}">
+                        <li><a href="{:url('/index/analyst/profile/id/'.$v->id.'/pt/1')}?cat={$cat_id}">
                             <div class="photoframe">
                                 <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                             </div>

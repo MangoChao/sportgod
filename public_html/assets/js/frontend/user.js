@@ -19,6 +19,23 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         article: function () {
 
         },
+        pred: function () {
+            $(document).on("click", ".pred_radio label", function (e) {
+                let id = $(this).data('id');
+                let afor = $(this).attr('for');
+                $('[data-id="'+id+'"]').removeClass('active');
+                if($('#'+afor).prop("checked")){
+                    $('#'+afor).attr("checked",false); 
+                    e.preventDefault();
+                }else{
+                    $(this).addClass('active');
+                }
+            });
+
+            Form.api.bindevent($("#pred_form"), function (data) {
+                // location.href = Config.url.furl+"/index/article";
+            });
+        },
         buypoint: function () {
             $(document).on("click", ".btn_butpoint", function () {
                 let id = $(this).data('id');

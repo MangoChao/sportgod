@@ -630,3 +630,46 @@ a.btn_buy_pred:link:active{
     font-style: italic;
     color: #a7985b;
 }
+
+.pred_radio label{
+    cursor: pointer;
+    background: -webkit-linear-gradient(bottom,#f3f3f3 00%,#fdfcfc  51%,#fff  51%,#fefefe 99%);
+    background: -moz-linear-gradient(bottom,#f3f3f3  00%,#fdfcfc  51%,#fff  51%,#fefefe 99%);
+    background: -o-linear-gradient(bottom,#f3f3f3  00%,#fdfcfc  51%,#fff  51%,#fefefe 99%);
+    background: -ms-linear-gradient(bottom,#f3f3f3  00%,#fdfcfc  51%,#fff  51%,#fefefe 99%);
+    background: -linear-gradient(bottom,#f3f3f3  00%,#fdfcfc  51%,#fff  51%,#fefefe 99%);
+    border: 1px #ccc solid;
+    border-radius: 3px;
+    width: 80%;
+    padding: 3px 12px;
+}
+.pred_radio label:hover{
+    background: -webkit-linear-gradient(bottom,#caf37d 00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -moz-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -o-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -ms-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+}
+.pred_radio label.active,
+.pred_radio label:active{
+    -moz-box-shadow: inset 0 0 3px 0 #000000;
+    -webkit-box-shadow: inset 0 0 3px 0 #000000;
+    box-shadow: inset 0 0 3px 0 #000000;
+    background: -webkit-linear-gradient(bottom,#caf37d 00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -moz-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -o-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -ms-linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+    background: -linear-gradient(bottom,#caf37d  00%,#f2f9e4  51%,#f2f9e4  51%,#caf37d 99%);
+}
+.pred_radio input[type="radio"],
+.pred_radio input[type="radio"],
+.pred_radio input[type="checkbox"],
+.pred_radio input[type="checkbox"]{
+    display: none;
+}
+.user_pred_list td{
+    line-height: 33px!important;
+}
+.user_pred_list td label{
+    line-height: 22px;
+}

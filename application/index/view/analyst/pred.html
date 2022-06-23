@@ -31,7 +31,7 @@
             {if $mPred}
             {foreach $mPred as $v}
             <tr>
-                <td>{$v->starttime|date='Y/m/d H:i',###}</td>
+                <td>{$v->starttime|date='H:i',###}</td>
                 <td style="text-align: center;">{$v->eventstatus}</td>
                 <td style="text-align: right;">{$v->score_str}</td>
                 <td>{$v->event_str}</td>
