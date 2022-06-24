@@ -1,13 +1,13 @@
 <div class="container">
-    <div class="row">
-        <div class="col-sm-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
             <form id="luckyshare_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/luckyshare/add')}">
                 <div class="form-group">
                     <label for="img" class="control-label col-xs-12 col-sm-2">好運照片:</label>
                     <div class="col-xs-12 col-sm-8">
                         <label class="">
                             <input id="img"  class="form-control" size="50" name="img" type="hidden" placeholder="" value="">
-                            <button type="button" class="btn btn-danger faupload btn_faupload" data-input-id="img" data-mimetype="image/jpeg,image/png,image/jpg" data-multiple="false" data-preview-id="p-img">上傳照片</button>
+                            <button type="button" class="btn btn-warning faupload btn_faupload" data-input-id="img" data-mimetype="image/jpeg,image/png,image/jpg" data-multiple="false" data-preview-id="p-img">上傳照片</button>
                         </label>
                         <ul class="row list-inline faupload-preview" id="p-img"></ul>
                     </div>

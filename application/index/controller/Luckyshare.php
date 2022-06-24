@@ -18,7 +18,7 @@ class Luckyshare extends Frontend
         $mLuckyshare = model('Luckyshare')->alias('ls')
         ->join("user u","u.id = ls.user_id")
         ->field("ls.*, u.nickname, u.avatar")
-        ->where('ls.status = 1')->order('ls.id','asc')->paginate(20, false, $this->paginate_config);
+        ->where('ls.status = 1')->order('ls.id','desc')->paginate(20, false, $this->paginate_config);
         $count = $mLuckyshare->total();
         $pagelist = $mLuckyshare->render();
 
