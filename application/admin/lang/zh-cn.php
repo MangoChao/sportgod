@@ -219,4 +219,5 @@ return [
     'free 1' => '免費',
     'point' => '點數',
     'price' => '價格',
+    'Avatar' => '頭像', 
 ];

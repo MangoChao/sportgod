@@ -26,8 +26,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true},
-                        {field: 'analyst_name', title: __('名稱'), operate: 'LIKE', sortable: true, align: 'left'},
-                        {field: 'pred_cat', title: '預測類別', align: 'left', operate:false, formatter: Table.api.formatter.label},
+                        {field: 'user.username', title: __('會員帳號'), operate: 'LIKE', sortable: true, align: 'left'},
+                        {field: 'analyst_name', title: __('暱稱'), operate: 'LIKE', sortable: true, align: 'left'},
+                        {field: 'pred_cat', title: '自動預測類別', align: 'left', operate:false, formatter: Table.api.formatter.label},
                         {field: 'autopred', title: __('自動預測'), formatter: Controller.api.formatter.autopred, searchList: {1: __('autopred 1'), 0: __('autopred 0')}},
                         {field: 'free', title: __('收費'), formatter: Controller.api.formatter.free, searchList: {0: __('free 0'), 1: __('free 1')}},
                         // {field: 'autopred_count', title: __('自動預測上限'), operate: 'LIKE', sortable: true},

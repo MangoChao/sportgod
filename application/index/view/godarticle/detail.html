@@ -1,0 +1,65 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="m_panel">
+                <div class="article_main">
+                    <div class="left_box">
+                        <div class="avatar_img" style="background-image: url({$mArticle->avatar});"></div>
+                        <div>{$mArticle->nickname}</div>
+                        <div>{$mArticle->createtime|date='Y/m/d H:i',###}</div>
+                    </div>
+                    <div class="right_box">
+                        <div class="a_header">
+                            <h2>{$mArticle->title}</h2>
+                            <div class="fav_box">
+                                <span><span id="fav_count">{$mArticle->fav}</span>人收藏</span>
+                                <a class="btn btn_set_fav" data-id="{$mArticle->id}" href="javascript:;">{if !$hasfav}收藏文章{else/}取消收藏{/if}</a>
+                                {if $user && $user->id == $mArticle->user_id}
+                                <a class="btn btn_edit" href="{:url('/index/user/editarticle/id/'.$mArticle->id)}">編輯文章</a>
+                                {/if}
+                            </div>
+                        </div>
+                        <div class="article_img_box">
+                            <img src="{$mArticle->img}" />
+                        </div>
+                        <div class="article_content_box">
+                            {$mArticle->content}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="m_panel">
+                <div class="article_msg">
+                    <h4>{$mArticle->msg_count} 則留言</h4>
+                    <div class="article_msg_box">
+                        {foreach $mArticlemsg as $v}
+                            <div class="article_main">
+                                <div class="left_box">
+                                    <div class="avatar_img" style="background-image: url({$v->avatar});"></div>
+                                    <div>{$v->nickname}</div>
+                                    <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                                </div>
+                                <div class="right_box">
+                                    <div class="article_content_box">
+                                        {$v->msg}
+                                    </div>
+                                </div>
+                            </div>
+                        {/foreach}
+                    </div>
+                    <div class="add_article_msg_box">
+                        <h5>我要留言</h5>
+                        <form id="add_msg_form">
+                            <input type="hidden" id="article_id" value="{$mArticle->id}"/>
+                            <textarea id="msg_content" class="form-control editor" name="msg_content"></textarea>
+                            <br>
+                            <a class="btn btn-info" id="btn_add_msg" href="javascript:;">留言</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+        </div>
+    </div>
+</div>

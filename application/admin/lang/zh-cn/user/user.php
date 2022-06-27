@@ -7,7 +7,7 @@ return [
     'Nickname' => '暱稱', 
     'Password' => '密碼', 
     'Salt' => '密碼鹽', 
-    'Email' => '電子郵箱', 
+    'email' => '信箱', 
     'Mobile' => '手機', 
     'Avatar' => '頭像', 
     'Gender' => '性別', 
@@ -35,4 +35,7 @@ return [
     'Nickname already exist' => '暱稱已經存在', 
     'Email already exist' => '信箱已經存在', 
     'Mobile already exist' => '手機已經存在', 
+    'isgod' => '神人', 
+    'isgod 0' => '否', 
+    'isgod 1' => '是', 
 ];

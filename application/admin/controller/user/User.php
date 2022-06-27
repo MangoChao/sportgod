@@ -46,7 +46,7 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $list = $this->model
-                ->with('service')
+                ->with(['service'])
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
@@ -199,6 +199,14 @@ class User extends Backend
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
+                    
+                    $mAnalyst = model('Analyst')->where("user_id = ".$ids)->find();
+                    if($mAnalyst){
+                        $mAnalyst->avatar = $row->avatar;
+                        $mAnalyst->analyst_name = $row->nickname;
+                        $mAnalyst->save();
+                    }
+
                     $this->success();
                 } else {
                     $this->error(__('No rows were updated'));

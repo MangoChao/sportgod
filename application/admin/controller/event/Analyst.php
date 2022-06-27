@@ -21,7 +21,7 @@ class Analyst extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('analyst');
+        $this->model = model('Analyst');
         $mFields = $this->model->getQuery()->getTableInfo('', 'fields');
         $this->searchFields = implode(',',$mFields);
     }
@@ -40,10 +40,12 @@ class Analyst extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
+            ->with(['user'])
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
             $list = $this->model
+            ->with(['user'])
                 ->where($where)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
@@ -203,6 +205,12 @@ class Analyst extends Backend
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
+                    $mUser = model('User')->get($row->user_id);
+                    if($mUser){
+                        $mUser->avatar = $row->avatar;
+                        $mUser->nickname = $row->analyst_name;
+                        $mUser->save();
+                    }
                     
                     model('Analysttoeventcategory')->where('analyst_id = '.$ids)->delete();
 
