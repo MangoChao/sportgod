@@ -41,11 +41,11 @@ class Baccarat extends Api
 
         if($ACID != ''){
             Log::notice('產生欠款');
-            $params = [
-                'user_id' => $mUser->id,
-                'pred_id' => $mUsertopred->pred_id
-            ];
-            model('Usertopred')::create($params);
+            // $params = [
+            //     'user_id' => $mUser->id,
+            //     'pred_id' => $mUsertopred->pred_id
+            // ];
+            // model('Usertopred')::create($params);
         }
         
         $this->success('請求成功');
@@ -64,7 +64,7 @@ class Baccarat extends Api
         if(!$debt > 0){
             $this->error('debt必須大於0');
         }
-        $mBaccarat = model('Baccarat')->where("code = ".$code)->find();
+        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
             if($mBaccarat->status == 1){
                 $ordernum = 'BR'.date('YmdHis');
@@ -93,7 +93,10 @@ class Baccarat extends Api
     public function check()
     {
         $code = $this->request->request('code', '');
-        $mBaccarat = model('Baccarat')->where("code = ".$code)->find();
+        if($code == ''){
+            $this->error('缺少參數');
+        }
+        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
             if($mBaccarat->status == 1){
                 $this->success('已結清帳號');
