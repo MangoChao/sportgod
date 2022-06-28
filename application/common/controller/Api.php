@@ -365,7 +365,7 @@ class Api
     {
         $request = $this->request->request();
         $p = [
-            'request' => json_decode($request),
+            'request' => json_encode($request),
             'ip' => $this->request->ip(),
         ];
         model('Requestlog')::create($p);

@@ -21,28 +21,8 @@ class Baccarat extends Api
         $this->requestLog();
     }
     
-    // public function index()
-    // {
-    //     $url = "https://sportgod.cc/api/baccarat/debt";
-    //     $postData = [
-    //         'code' => 'TESTCODE',
-    //         'debt' => '15000',
-    //     ];
-    //     $r = curl_post($url, $postData);
-    //     Log::notice($r);
-    //     // $this->success('請求成功');
-    // }
-    
     public function notify()
     {
-        // array (
-        //     'Ordernum' => 'BR20220629021240',
-        //     'ACTCode' => '40722062902766',
-        //     'bkid' => '8220000196890003312',
-        //     'Total' => '110',
-        //     'Status' => '0000',
-        //     'PoliceReport' => '0',
-        //   )
 
         $request = $this->request->request();
         $Ordernum = $this->request->request('Ordernum', '');
@@ -76,7 +56,7 @@ class Baccarat extends Api
         }
         
         $p = [
-            'result' => json_decode($request),
+            'result' => json_encode($request),
             'baccarat_id' => $baccarat_id,
             'Ordernum' => $Ordernum,
             'ACTCode' => $ACTCode,
