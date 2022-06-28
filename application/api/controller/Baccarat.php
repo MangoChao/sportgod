@@ -18,7 +18,7 @@ class Baccarat extends Api
     {
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'Baccarat']);
-        // $this->getRichMenu();
+        $this->requestLog();
     }
     
     // public function index()
@@ -35,42 +35,59 @@ class Baccarat extends Api
     
     public function notify()
     {
-        Log::notice($this->request->request());
+        // array (
+        //     'Ordernum' => 'BR20220629021240',
+        //     'ACTCode' => '40722062902766',
+        //     'bkid' => '8220000196890003312',
+        //     'Total' => '110',
+        //     'Status' => '0000',
+        //     'PoliceReport' => '0',
+        //   )
+
+        $request = $this->request->request();
         $Ordernum = $this->request->request('Ordernum', '');
-        $ACID = $this->request->request('ACID', '');
+        $ACTCode = $this->request->request('ACTCode', '');
+        $bkid = $this->request->request('bkid', '');
         $Total = $this->request->request('Total', '');
-        $Bank1 = $this->request->request('Bank1', '');
-        $QRCode = $this->request->request('QRCode', '');
-
-        if($ACID != ''){
-            $mBaccarat = model('Baccarat')->where("ordernum = '".$Ordernum."' AND debt = ".$Total)->find();
-            if($mBaccarat){
-                Log::notice('產生欠款');
-                $mBaccarat->ACTCode = $ACID;
-                $mBaccarat->Bank1 = $Bank1;
-                $mBaccarat->QRCode = $QRCode;
-                $mBaccarat->save();
-                $this->success('已產生欠款',['debt' => $Total, 'ACID' => $ACID, 'Bank1' => $Bank1, 'QRCode' => $QRCode]);
+        $Status = $this->request->request('Status', '');
+        $PoliceReport = $this->request->request('PoliceReport', '');
+        $baccarat_id = 0;
+        $msg = '';
+        if($this->request->ip() == '203.66.45.226'){
+            if($Status == '0000'){
+                $mBaccarat = model('Baccarat')->where("ordernum = '".$Ordernum."' AND ACTCode = ".$ACTCode." AND debt = ".$Total." AND status = 0 AND take = 1")->find();
+                if($mBaccarat){
+                    $baccarat_id = $mBaccarat->id;
+                    $mBaccarat->status = 1;
+                    $mBaccarat->save();
+                    Log::notice('銷帳成功');
+                    $msg = "銷帳成功";
+                }else{
+                    Log::notice('查無訂單');
+                    $msg = "查無訂單";
+                }
             }else{
-                Log::notice('查無訂單');
-                $this->error('查無訂單');
+                Log::notice('狀態不正確,銷帳失敗');
+                $msg = "狀態不正確,銷帳失敗";
             }
-            Log::notice('產生欠款');
-            // $params = [
-            //     'user_id' => $mUser->id,
-            //     'pred_id' => $mUsertopred->pred_id
-            // ];
-            // model('Baccarat')::create($params);
-            $this->success('請求成功');
-        }
-
-        
-        if($this->request->ip() != '203.66.45.226'){
+        }else{
             Log::notice('非法ip');
-            $this->error('系統異常');
+            $msg = "非法ip";
         }
         
-        $this->success('請求成功');
+        $p = [
+            'result' => json_decode($request),
+            'baccarat_id' => $baccarat_id,
+            'Ordernum' => $Ordernum,
+            'ACTCode' => $ACTCode,
+            'bkid' => $bkid,
+            'Total' => $Total,
+            'Status' => $Status,
+            'PoliceReport' => $PoliceReport,
+            'msg' => $msg,
+            'ip' => $this->request->ip(),
+        ];
+        model('Baccaratlog')::create($p);
     }
 
     public function debt()

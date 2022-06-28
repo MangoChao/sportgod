@@ -359,4 +359,16 @@ class Api
             Log::notice("[".__METHOD__."] 查無用戶 id:".$id);
         }
     }
+
+    
+    public function requestLog()
+    {
+        $request = $this->request->request();
+        $p = [
+            'request' => json_decode($request),
+            'ip' => $this->request->ip(),
+        ];
+        model('Requestlog')::create($p);
+        Log::notice($request);
+    }
 }
