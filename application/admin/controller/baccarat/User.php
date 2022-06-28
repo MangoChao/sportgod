@@ -9,6 +9,7 @@ use think\Db;
 use think\exception\PDOException;
 use think\exception\ValidateException;
 use Exception;
+use fast\Random;
 
 
 class User extends Backend
@@ -101,6 +102,11 @@ class User extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        do{
+            $code = Random::alnum(6);
+            $check = $this->model->where("code ='".$code."'")->find();
+        }while($check === false);
+        $this->view->assign("code", $code);
         return $this->view->fetch();
     }
     
