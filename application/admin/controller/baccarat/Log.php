@@ -11,7 +11,7 @@ use think\exception\ValidateException;
 use Exception;
 
 
-class Log extends Backend
+class Baccaratlog extends Backend
 {
 
     protected $relationSearch = true;

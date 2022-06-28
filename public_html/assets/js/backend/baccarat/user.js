@@ -78,7 +78,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     return '<span class="text-' + color + '"><i class="fa fa-circle"></i> ' + valueArr[value] + '</span>';
                 },
                 checkout_link: function (value, row, index) {
-                    return '<a href="' + row.checkout_link + '" target="_blank" class="label bg-green">打開付款單</a>';
+                    if(row.ordernum){
+                        return '<a href="' + row.checkout_link + '" target="_blank" class="label bg-green">打開付款單</a>';
+                    }else{
+                        return '-';
+                    }
                 },
             }
         }

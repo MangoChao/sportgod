@@ -20,7 +20,6 @@ class Baccarat extends Frontend
 
     public function checkout($order = '')
     {
-        Log::notice($this->request->request());
         $Ordernum = $this->request->request('Ordernum', '');
         $ACID = $this->request->request('ACID', '');
         $Total = $this->request->request('Total', '');

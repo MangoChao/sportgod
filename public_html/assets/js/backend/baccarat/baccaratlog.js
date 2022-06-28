@@ -5,7 +5,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'baccarat/log/index',
+                    index_url: 'baccarat/baccaratlog/index',
                     table: 'baccarat_log',
                 }
             });
