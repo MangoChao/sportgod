@@ -28,11 +28,10 @@ class Baccarat extends Frontend
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
             if($mBaccarat->status == 1){
-                Log::notice('產生新欠款');
+                Log::notice('更新欠款資訊');
                 $ordernum = 'BR'.date('YmdHis');
                 $mBaccarat->ordernum = $ordernum;
                 $mBaccarat->debt = $debt;
-                $mBaccarat->status = 0;
                 $mBaccarat->save();
 
                 $url = "http://pay.meixin.tw/api/getway02/VracRequest.ashx";

@@ -90,6 +90,7 @@ class Baccarat extends Api
                 $mBaccarat->ACTCode = $ACID;
                 $mBaccarat->Bank1 = $Bank1;
                 $mBaccarat->QRCode = $QRCode;
+                $mBaccarat->status = 0;
                 $mBaccarat->save();
                 $this->success('已產生欠款',['debt' => $Total, 'ACID' => $ACID, 'Bank1' => $Bank1,  'Bank2' => '',  'Bank3' => '', 'QRCode' => $QRCode]);
             }else{
