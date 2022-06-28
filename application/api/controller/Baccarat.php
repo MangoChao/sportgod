@@ -56,7 +56,7 @@ class Baccarat extends Api
         }
         
         $p = [
-            'result' => json_encode($request),
+            'request' => json_encode($request),
             'baccarat_id' => $baccarat_id,
             'Ordernum' => $Ordernum,
             'ACTCode' => $ACTCode,
