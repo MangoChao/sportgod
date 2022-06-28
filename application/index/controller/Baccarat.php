@@ -44,7 +44,7 @@ class Baccarat extends Frontend
                     $mBaccarat->save();
                 }else{
                     Log::notice('前往取號');
-                    $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                    $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
     
                     $Merchent = "WA";
                     // $Merchent = "AA";

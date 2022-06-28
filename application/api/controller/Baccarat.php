@@ -72,7 +72,7 @@ class Baccarat extends Api
         
         $this->success('請求成功');
     }
-    
+
     public function debt()
     {
         $code = $this->request->request('code', '');
@@ -96,10 +96,10 @@ class Baccarat extends Api
                 $mBaccarat->status = 0;
                 $mBaccarat->take = 0;
                 $mBaccarat->save();
-                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
             }else{
-                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
@@ -118,7 +118,7 @@ class Baccarat extends Api
             if($mBaccarat->status == 1){
                 $this->success('已結清帳號');
             }else{
-                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
