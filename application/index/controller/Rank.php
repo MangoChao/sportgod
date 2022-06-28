@@ -5,7 +5,7 @@ namespace app\index\controller;
 use app\common\controller\Frontend;
 use think\Log;
 
-class Rank_ extends Frontend
+class Rank extends Frontend
 {
 
     protected $noNeedLogin = '*';

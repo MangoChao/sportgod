@@ -11,6 +11,7 @@ class Baccarat extends Frontend
     protected $noNeedLogin = '*';
     protected $noNeedRight = '*';
     protected $layout = 'baccarat';
+    protected $check_sysadminlogin = false;
 
     public function _initialize()
     {

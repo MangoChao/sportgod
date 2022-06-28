@@ -47,9 +47,15 @@ class Frontend extends Controller
     protected $site_url = null;
     protected $def_avatar = "";
     protected $paginate_config = [];
+    protected $check_sysadminlogin = true;
 
     public function _initialize()
     {
+        
+        if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
+            return '';
+        }
+
         //移除HTML标签
         $this->request->filter('trim,strip_tags,htmlspecialchars');
         $modulename = $this->request->module();
@@ -225,5 +231,5 @@ class Frontend extends Controller
             Log::notice("[".__METHOD__."] 查無用戶 id:".$id);
         }
     }
-    
+
 }
