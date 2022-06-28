@@ -39,6 +39,7 @@ class Baccarat extends Api
                 if($mBaccarat){
                     $baccarat_id = $mBaccarat->id;
                     $mBaccarat->status = 1;
+                    $mBaccarat->repay += $Total;
                     $mBaccarat->save();
                     Log::notice('銷帳成功');
                     $msg = "銷帳成功";
