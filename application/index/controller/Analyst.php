@@ -6,7 +6,7 @@ use app\common\controller\Frontend;
 use think\Log;
 use fast\Random;
 
-class Analyst extends Frontend
+class Analyst_ extends Frontend
 {
 
     protected $noNeedLogin = '*';
