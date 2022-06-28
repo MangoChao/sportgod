@@ -72,35 +72,39 @@ class Baccarat extends Api
         
         $this->success('請求成功');
     }
-
     
-    public function creatdebt()
+    public function debt()
     {
-        Log::notice($this->request->request());
-        $Ordernum = $this->request->request('Ordernum', '');
-        $ACID = $this->request->request('ACID', '');
-        $Total = $this->request->request('Total', '');
-        $Bank1 = $this->request->request('Bank1', '');
-        $QRCode = $this->request->request('QRCode', '');
-
-        if($ACID != ''){
-            $mBaccarat = model('Baccarat')->where("ordernum = '".$Ordernum."' AND debt = ".$Total)->find();
-            if($mBaccarat){
-                Log::notice('確認產生欠款');
-                $mBaccarat->ACTCode = $ACID;
-                $mBaccarat->Bank1 = $Bank1;
-                $mBaccarat->QRCode = $QRCode;
+        $code = $this->request->request('code', '');
+        $debt = $this->request->request('debt', '');
+        if($code == '' || $debt == ''){
+            $this->error('缺少參數');
+        }
+        if(!is_numeric($debt)){
+            $this->error('debt必須是數字');
+        }
+        if(!$debt > 0){
+            $this->error('debt必須大於0');
+        }
+        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
+        if($mBaccarat){
+            if($mBaccarat->status == 1){
+                Log::notice('更新欠款資訊');
+                $ordernum = 'BR'.date('YmdHis');
+                $mBaccarat->ordernum = $ordernum;
+                $mBaccarat->debt = $debt;
                 $mBaccarat->status = 0;
+                $mBaccarat->take = 0;
                 $mBaccarat->save();
-                $this->success('已產生欠款',['debt' => $Total, 'ACID' => $ACID, 'Bank1' => $Bank1,  'Bank2' => '',  'Bank3' => '', 'QRCode' => $QRCode]);
+                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
             }else{
-                Log::notice('查無訂單');
-                $this->error('查無訂單');
+                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
-            $this->error('系統異常');
+            $this->error('代碼無效');
         }
-        // $this->error('尚未結清',['ordernum' => $mBaccarat->ordernum, 'debt' => $mBaccarat->debt, 'ACTCode' => $mBaccarat->ACTCode]);
     }
 
     public function check()
@@ -114,7 +118,8 @@ class Baccarat extends Api
             if($mBaccarat->status == 1){
                 $this->success('已結清帳號');
             }else{
-                $this->error('尚未結清',['ordernum' => $mBaccarat->ordernum, 'debt' => $mBaccarat->debt, 'ACTCode' => $mBaccarat->ACTCode]);
+                $checkout_link = $this->site_url['furl']."/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
             $this->error('代碼無效');

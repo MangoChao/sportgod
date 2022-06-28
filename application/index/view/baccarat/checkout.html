@@ -1,0 +1,59 @@
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h2 class="page-header">結帳單</h2>
+            <div class="table-row">
+                <table class="table">
+                    <tbody>
+                        {if $mBaccarat}
+                        <tr>
+                            <td>訂單編號</td>
+                            <td>{$mBaccarat->ordernum}</td>
+                        </tr>
+                        <tr>
+                            <td>開通代碼</td>
+                            <td>{$mBaccarat->code}</td>
+                        </tr>
+                        <tr>
+                            <td>匯款金額</td>
+                            <td>{$mBaccarat->debt}</td>
+                        </tr>
+                        <tr>
+                            <td>匯款帳號</td>
+                            <td>{$mBaccarat->ACTCode}</td>
+                        </tr>
+                        <tr>
+                            <td>銀行名稱</td>
+                            <td>{$mBaccarat->Bank1}</td>
+                        </tr>
+                        <tr>
+                            <td>分行代碼</td>
+                            <td>{$mBaccarat->Bank2}</td>
+                        </tr>
+                        <tr>
+                            <td>其他</td>
+                            <td>{$mBaccarat->Bank3}</td>
+                        </tr>
+                        <tr>
+                            <td>行動支付</td>
+                            <td>{if $mBaccarat->QRCode == 'none'}無{else/}{$mBaccarat->QRCode}{/if}</td>
+                        </tr>
+                        <tr>
+                            <td>創建時間</td>
+                            <td>{$mBaccarat->updatetime|date='Y-m-d H:i',###}</td>
+                        </tr>
+                        <tr>
+                            <td>狀態</td>
+                            <td>{if $mBaccarat->status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
+                        </tr>
+                        {else/}
+                            <tr>
+                                <td colspan="2">查無訂單</td>
+                            </tr>
+                        {/if}
+                    <tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
