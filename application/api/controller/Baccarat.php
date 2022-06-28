@@ -21,10 +21,17 @@ class Baccarat extends Api
         // $this->getRichMenu();
     }
     
-    public function index()
-    {
-        $this->success('請求成功');
-    }
+    // public function index()
+    // {
+    //     $url = "https://sportgod.cc/api/baccarat/debt";
+    //     $postData = [
+    //         'code' => 'TESTCODE',
+    //         'debt' => '15000',
+    //     ];
+    //     $r = curl_post($url, $postData);
+    //     Log::notice($r);
+    //     // $this->success('請求成功');
+    // }
     
     public function notify()
     {
@@ -69,19 +76,29 @@ class Baccarat extends Api
             if($mBaccarat->status == 1){
                 $ordernum = 'BR'.date('YmdHis');
                 $url = "http://pay.meixin.tw/api/getway02/VracRequest.ashx";
-                $postData = [
-                    'Merchent' => 'AA',
-                    'OrderID' => $ordernum,
-                    'Total' => $debt,
-                    'Product' => '服務',
-                    'Name' => '葉加勒',
-                    'MSG' => '',
-                    'ReAUrl' => $this->site_url['api']."/baccarat/notify",
-                    'ReBUrl' => $this->site_url['api']."/baccarat/notify",
-                ];
-                $r = curl_post($url, $postData);
-                Log::notice($r);
-                $this->success('已產生欠款',['ordernum' => $ordernum, 'debt' => $debt, 'ACTCode' => '']);
+                $url .= "?Merchent=AA";
+                $url .= "&OrderID=".$ordernum;
+                $url .= "&Total=".$debt;
+                $url .= "&Product=服務";
+                $url .= "&Name=葉加勒";
+                $url .= "&MSG=";
+                $url .= "&ReAUrl=".urlencode($this->site_url['api']."/baccarat/notify");
+                $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
+                $this->redirect($url);
+                // $postData = [
+                //     'Merchent' => 'AA',
+                //     'OrderID' => $ordernum,
+                //     'Total' => $debt,
+                //     'Product' => '服務',
+                //     'Name' => '葉加勒',
+                //     'MSG' => '',
+                //     'ReAUrl' => $this->site_url['api']."/baccarat/notify",
+                //     'ReBUrl' => $this->site_url['api']."/baccarat/notify",
+                // ];
+                // $r = curl_post($url, $postData);
+                // echo $r;
+
+                // $this->success('已產生欠款',['ordernum' => $ordernum, 'debt' => $debt, 'ACTCode' => '']);
             }else{
                 $this->error('尚未結清',['ordernum' => $mBaccarat->ordernum, 'debt' => $mBaccarat->debt, 'ACTCode' => $mBaccarat->ACTCode]);
             }
