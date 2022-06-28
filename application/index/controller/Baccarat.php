@@ -16,6 +16,11 @@ class Baccarat extends Frontend
     {
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'Baccarat']);
+        Log::notice($this->site_url['api']."/baccarat/notify");
+    }
+    public function index()
+    {
+
     }
 
     public function checkout($order = '')

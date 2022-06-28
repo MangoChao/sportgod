@@ -56,11 +56,11 @@ class Baccarat extends Api
                 $this->error('查無訂單');
             }
             Log::notice('產生欠款');
-            $params = [
-                'user_id' => $mUser->id,
-                'pred_id' => $mUsertopred->pred_id
-            ];
-            model('Baccarat')::create($params);
+            // $params = [
+            //     'user_id' => $mUser->id,
+            //     'pred_id' => $mUsertopred->pred_id
+            // ];
+            // model('Baccarat')::create($params);
             $this->success('請求成功');
         }
 
