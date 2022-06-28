@@ -17,13 +17,13 @@ class Baccarat extends Frontend
         $code = $this->request->request('code', '');
         $debt = $this->request->request('debt', '');
         if($code == '' || $debt == ''){
-            echo '{"code":0,"msg":"缺少參數","time":"'.time().'","data":null}';
+            return '{"code":0,"msg":"缺少參數","time":"'.time().'","data":null}';
         }
         if(!is_numeric($debt)){
-            echo '{"code":0,"msg":"debt必須是數字","time":"'.time().'","data":null}';
+            return '{"code":0,"msg":"debt必須是數字","time":"'.time().'","data":null}';
         }
         if(!$debt > 0){
-            echo '{"code":0,"msg":"debt必須大於0","time":"'.time().'","data":null}';
+            return '{"code":0,"msg":"debt必須大於0","time":"'.time().'","data":null}';
         }
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
@@ -46,10 +46,10 @@ class Baccarat extends Frontend
                 $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
                 $this->redirect($url);
             }else{
-                echo '{"code":0,"msg":"尚未結清","time":"'.time().'","data":{"debt":"'.$mBaccarat->debt.'","ACID":"'.$mBaccarat->ACID.'","Bank1":"'.$mBaccarat->Bank1.'","QRCode":"'.$mBaccarat->QRCode.'"}}';
+                return '{"code":0,"msg":"尚未結清","time":"'.time().'","data":{"debt":"'.$mBaccarat->debt.'","ACID":"'.$mBaccarat->ACID.'","Bank1":"'.$mBaccarat->Bank1.'","QRCode":"'.$mBaccarat->QRCode.'"}}';
             }
         }else{
-            echo '{"code":0,"msg":"代碼無效","time":"'.time().'","data":null}';
+            return '{"code":0,"msg":"代碼無效","time":"'.time().'","data":null}';
         }
     }
 
