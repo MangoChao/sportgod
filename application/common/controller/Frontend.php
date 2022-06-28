@@ -53,7 +53,7 @@ class Frontend extends Controller
     {
         
         if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
-            return '';
+            exit;
         }
 
         //移除HTML标签
