@@ -5,7 +5,7 @@ namespace app\index\controller;
 use app\common\controller\Frontend;
 use think\Log;
 
-class baccarat extends Frontend
+class Baccarat extends Frontend
 {
 
     protected $noNeedLogin = '*';
