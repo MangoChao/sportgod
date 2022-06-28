@@ -46,7 +46,7 @@ class Baccarat extends Frontend
                 $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
                 $this->redirect($url);
             }else{
-                return '{"code":0,"msg":"尚未結清","time":"'.time().'","data":{"debt":"'.$mBaccarat->debt.'","ACID":"'.$mBaccarat->ACID.'","Bank1":"'.$mBaccarat->Bank1.'","QRCode":"'.$mBaccarat->QRCode.'"}}';
+                return '{"code":0,"msg":"尚未結清","time":"'.time().'","data":{"debt":"'.$mBaccarat->debt.'","ACID":"'.$mBaccarat->ACTCode.'","Bank1":"'.$mBaccarat->Bank1.'","QRCode":"'.$mBaccarat->QRCode.'"}}';
             }
         }else{
             return '{"code":0,"msg":"代碼無效","time":"'.time().'","data":null}';
