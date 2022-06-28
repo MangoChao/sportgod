@@ -103,7 +103,7 @@ class User extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         do{
-            $code = Random::alnum(6);
+            $code = strtoupper(Random::alnum(6));
             $check = $this->model->where("code ='".$code."'")->find();
         }while($check === false);
         $this->view->assign("code", $code);
