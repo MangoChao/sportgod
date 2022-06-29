@@ -15,9 +15,12 @@
                         <li><a href="{:url('index/user/pred')}" class="user_btn text_btn">我要預測</a></li>
                         <li><a href="{:url('index/user/buypoint')}" class="user_btn text_btn">儲值</a></li>
                         {if $user}
+                            {if $user->isgod == 1}
+                            <li><a href="{:url('index/user/addgodarticle')}" class="user_btn text_btn">刊登專欄</a></li>
+                            {/if}
                         <li><a href="{:url('index/user/notify')}" class="user_btn {if $isnotify > 0}active{/if}"><i class="fa fa-bell"></i></a></li>
                         <li><a href="{:url('index/user/profile')}" class="user_btn active"><i class="fa fa-user-circle-o"></i></a></li>
-                        {else /}
+                        {else/}
                         <li><a href="{:url('index/user/notify')}" class="user_btn"><i class="fa fa-bell"></i></a></li>
                         <li><a href="{:url('user/login')}" class="user_btn"><i class="fa fa-user-circle-o"></i></a></li>
                         {/if}

@@ -1,5 +1,5 @@
 body{
-    padding-top: 135px;
+    padding-top: 130px;
     background-color: #dfdfdf;
 }
 
@@ -63,6 +63,7 @@ a.user_btn.active{
 
 footer.footer{
     background: #22262e;
+    margin: 0;
 }
 
 .fb_like{
@@ -112,14 +113,14 @@ footer.footer{
     box-shadow: 1px 1px 1px 0 rgb(34 38 46 / 10%);
 }
 
-.m_panel h2{ 
+.m_panel h2:not(.title){ 
     border-bottom: 1px #ababab solid;
     margin: 0;
     font-weight: bold;
     padding: 15px 15px 10px;
 }
 
-h2>a{ 
+h2:not(.title)>a{ 
     background-color: #71ace6;
     color: #fff!important;
     font-size: 14px;
@@ -234,7 +235,7 @@ h2>a{
     padding: 0;
     display: flex;
 }
-.article_main .right_box .a_header h2{
+.article_main .right_box .a_header h2:not(.title){
     border: 0;
     width: 100%;
 }
@@ -287,21 +288,23 @@ h2>a{
     min-height: auto;
 }
 .user-section{
-    background-color: #c1f5fd;
+    background-color: #fff;
     border-radius: 10px;
     overflow: hidden;
+    margin: 50px auto 50px 70px;
+    width: 600px;
 }
 .login-section .logon-tab > a{
-    color: #e5fbff;
-    background-color: #71ace6;
+    color: #ab9258;
     font-weight: bold;
 }
 .login-section .logon-tab > a:hover{
     background-color: #1f449b;
+    color: #fff;
 }
 .login-section .logon-tab > a.active{
-    background-color: #c1f5fd;
-    color: #71ace6;
+    background-color: #ffffff;
+    color: #1464c4;
 }
 .btn-primary{
     color: #fff;
@@ -589,11 +592,13 @@ a.btn_buy_pred:link:active{
 .navbar-inverse .navbar-nav > li > a.user_btn.text_btn{
     font-size: 20px;
     line-height: 31px;
-    color: #a7985b;
+    color: #19409b;
+    letter-spacing: -2px;
+    font-weight: bold;
 }
 .navbar-inverse .navbar-nav > li > a.user_btn.text_btn:hover{
-    color: #897a41!important;
-    font-weight: bold;
+    
+    font-size: 24px;
 }
 
 .point_item>a.btn{
@@ -691,4 +696,25 @@ a.btn_buy_pred:link:active{
 }
 .article_list.luckyshare_list li>div.right_box{
     width: 290px;
+}
+main.content{
+    background-image: url('/assets/img/login_bg.jpg');
+}
+
+button.toast-close-button{
+    display: none;
+}
+.toast-top-center{
+    top:40%;
+}
+#toast-container.toast-bottom-center>div, #toast-container.toast-top-center>div{
+    text-align: center;
+    font-size: 26px;
+    line-height: 37px;
+    background-image: none!important;
+    width: 100%;
+    padding: 15px;
+}
+.toast-success {
+    background-color: #005d9b;
 }

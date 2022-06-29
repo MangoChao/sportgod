@@ -162,7 +162,12 @@ class User extends Frontend
         return $this->view->fetch();
     }
 
-    
+    //刊登神人專欄
+    public function addgodarticle($cid = 0)
+    {
+        return $this->view->fetch();
+    }
+
     //發表文章
     public function addarticle($cid = 0)
     {
