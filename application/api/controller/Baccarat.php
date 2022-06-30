@@ -24,9 +24,23 @@ class Baccarat extends Api
     public function checkout($order = '')
     {
         $mBaccarat = model('Baccarat')->where("ordernum = '".$order."'")->find();
-        if($mBaccarat){
+        if($mBaccarat AND $order != ''){
             $mBaccarat->status = 1;
             $mBaccarat->save();
+            return "已銷帳";
+        }else{
+            return "查無訂單";
+        }
+    }
+
+    public function checkoutall()
+    {
+        $mBaccarat = model('Baccarat')->where("status = 0")->select();
+        if($mBaccarat){
+            foreach($mBaccarat as $v){
+                $v->status = 1;
+                $v->save();
+            }
             return "已銷帳";
         }else{
             return "查無訂單";
