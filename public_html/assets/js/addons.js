@@ -180,7 +180,7 @@ define([], function () {
                     items: [
                         'undo', 'redo', 'justifyleft', 'justifycenter', 'justifyright',
                         'justifyfull', 'clearhtml', 'formatblock', 'fontname', 'fontsize', 'forecolor', 'hilitecolor', 'bold',
-                        'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', 'link', 'unlink'
+                        'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', 'link', 'unlink', 'image'
                     ],
                     afterCreate: function () {
                         var self = this;

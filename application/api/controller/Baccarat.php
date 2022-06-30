@@ -20,6 +20,18 @@ class Baccarat extends Api
         Log::init(['type' => 'File', 'log_name' => 'Baccarat']);
         $this->requestLog();
     }
+
+    public function checkout($order = '')
+    {
+        $mBaccarat = model('Baccarat')->where("ordernum = '".$order."'")->find();
+        if($mBaccarat){
+            $mBaccarat->status = 1;
+            $mBaccarat->save();
+            return "已銷帳";
+        }else{
+            return "查無訂單";
+        }
+    }
     
     public function notify()
     {
