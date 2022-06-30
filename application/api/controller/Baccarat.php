@@ -9,7 +9,6 @@ use think\Exception;
 use think\Config;
 use think\exception\PDOException;
 use think\exception\ValidateException;
-use think\Exception;
 
 class Baccarat extends Api
 {
