@@ -74,7 +74,7 @@ class Baccarat extends Api
                 'amount' => $amount,
             ];
             if($sign == $this->signStr($signData, $this->key)){
-                $mBaccarat = model('Baccarat')->where("ordernum = '".$outTradeNo."' AND tradeNo = ".$tradeNo." AND debt = ".$amount." AND status = 0 AND take = 1")->find();
+                $mBaccarat = model('Baccarat')->where("ordernum = '".$outTradeNo."' AND tradeNo = '".$tradeNo."' AND debt = ".$amount." AND status = 0 AND take = 1")->find();
                 if($mBaccarat){
                     $baccarat_id = $mBaccarat->id;
                     try{
