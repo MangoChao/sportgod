@@ -20,19 +20,11 @@
                         </tr>
                         <tr>
                             <td>匯款帳號</td>
-                            <td>{$mBaccarat->ACTCode}</td>
+                            <td>{$mBaccarat->virtualAccount}</td>
                         </tr>
                         <tr>
-                            <td>銀行名稱</td>
-                            <td>{$mBaccarat->Bank1}</td>
-                        </tr>
-                        <tr>
-                            <td>分行代碼</td>
-                            <td>{$mBaccarat->Bank2}</td>
-                        </tr>
-                        <tr>
-                            <td>行動支付</td>
-                            <td>{if $mBaccarat->QRCode == 'none'}無{else/}{$mBaccarat->QRCode}{/if}</td>
+                            <td>銀行代碼</td>
+                            <td>{$mBaccarat->virtualBankNo}</td>
                         </tr>
                         <tr>
                             <td>創建時間</td>

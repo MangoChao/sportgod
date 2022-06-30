@@ -32,34 +32,34 @@ class Baccarat extends Frontend
         if($Ordernum != '') $order = $Ordernum;
         $mBaccarat = model('Baccarat')->where("ordernum = '".$order."'")->find();
         if($mBaccarat){
-            if($mBaccarat->take == 0){
-                if($ACID != ''){
-                    Log::notice('取號');
-                    $mBaccarat->take = 1;
-                    $mBaccarat->ACTCode = $ACID;
-                    $mBaccarat->Bank1 = $Bank1;
-                    $mBaccarat->Bank2 = $Bank2;
-                    $mBaccarat->Bank3 = $Bank3;
-                    $mBaccarat->QRCode = $QRCode;
-                    $mBaccarat->save();
-                }else{
-                    Log::notice('前往取號');
-                    $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+            // if($mBaccarat->take == 0){
+                // if($ACID != ''){
+                //     Log::notice('取號');
+                //     $mBaccarat->take = 1;
+                //     $mBaccarat->ACTCode = $ACID;
+                //     $mBaccarat->Bank1 = $Bank1;
+                //     $mBaccarat->Bank2 = $Bank2;
+                //     $mBaccarat->Bank3 = $Bank3;
+                //     $mBaccarat->QRCode = $QRCode;
+                //     $mBaccarat->save();
+                // }else{
+                //     Log::notice('前往取號');
+                //     $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
     
-                    $Merchent = "WA";
-                    // $Merchent = "AA";
-                    $url = "http://pay.meixin.tw/api/getway02/VracRequest.ashx";
-                    $url .= "?Merchent=".$Merchent;
-                    $url .= "&OrderID=".$mBaccarat->ordernum;
-                    $url .= "&Total=".$mBaccarat->debt;
-                    $url .= "&Product=服務";
-                    $url .= "&Name=葉加勒";
-                    $url .= "&MSG=";
-                    $url .= "&ReAUrl=".urlencode($checkout_link);
-                    $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
-                    $this->redirect($url);
-                }
-            }
+                //     $Merchent = "WA";
+                //     // $Merchent = "AA";
+                //     $url = "http://pay.meixin.tw/api/getway02/VracRequest.ashx";
+                //     $url .= "?Merchent=".$Merchent;
+                //     $url .= "&OrderID=".$mBaccarat->ordernum;
+                //     $url .= "&Total=".$mBaccarat->debt;
+                //     $url .= "&Product=服務";
+                //     $url .= "&Name=葉加勒";
+                //     $url .= "&MSG=";
+                //     $url .= "&ReAUrl=".urlencode($checkout_link);
+                //     $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
+                //     $this->redirect($url);
+                // }
+            // }
         }
         $this->view->assign('mBaccarat', $mBaccarat);
         return $this->view->fetch();

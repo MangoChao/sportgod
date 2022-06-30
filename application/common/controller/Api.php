@@ -371,4 +371,21 @@ class Api
         model('Requestlog')::create($p);
         Log::notice($request);
     }
+
+    
+    public function signStr($data, $key)
+    {
+        ksort($data);
+        $str = "";
+        foreach($data as $k => $v){
+            $str .= $k.$v;
+        }
+        return md5(base64_encode($str).$key);
+    }
+    
+    public function sign($data, $key)
+    {
+        $data['sign'] = $this->signStr($data, $key);
+        return $data;
+    }
 }
