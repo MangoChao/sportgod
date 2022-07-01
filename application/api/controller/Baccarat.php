@@ -83,18 +83,18 @@ class Baccarat extends Api
                             'outTradeNo' => $outTradeNo,
                             'merchantNo' => $merchantNo,
                         ];
-                        $this->sign($postData, $key);
+                        $postData = $this->sign($postData, $this->key);
     
                         $r = curl_post($url, $postData);
                         $result = json_decode($r, true);
                         if($result){
                             if($result['code'] == 1){
                                 $signData = [
-                                    'outTradeNo' => $outTradeNo,
-                                    'tradeNo' => $tradeNo,
-                                    'merchantNo' => $merchantNo,
-                                    'tradeStatus' => $tradeStatus,
-                                    'amount' => $amount,
+                                    'outTradeNo' => $result['outTradeNo']??'',
+                                    'tradeNo' => $result['tradeNo']??'',
+                                    'tradeStatus' => $result['tradeStatus']??'',
+                                    'amount' => $result['amount']??'',
+                                    'payTime' => $result['payTime']??'',
                                 ];
                                 if($result['sign'] == $this->signStr($signData, $this->key)){
                                     if($result['tradeStatus'] == 2){
@@ -109,6 +109,9 @@ class Baccarat extends Api
                                     }
                                 }else{
                                     Log::notice('查單驗簽失敗');
+                                    Log::notice('對方:'.$result['sign']);
+                                    Log::notice('我方:'.$this->signStr($signData, $this->key));
+                                    Log::notice($signData);
                                     $msg = "查單驗簽失敗";
                                 }
                             }else{
@@ -159,6 +162,100 @@ class Baccarat extends Api
         return $msg;
     }
 
+    public function debt()
+    {
+        $code = $this->request->request('code', '');
+        $debt = $this->request->request('debt', '');
+        if($code == '' || $debt == ''){
+            $this->error('缺少參數');
+        }
+        if(!is_numeric($debt)){
+            $this->error('debt必須是數字');
+        }
+        if(!$debt > 500){
+            $this->error('debt必須大於500');
+        }
+        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
+        if($mBaccarat){
+            if($mBaccarat->status == 1){
+                Log::notice('更新欠款資訊');
+                $ordernum = 'BR'.date('YmdHis');
+                $mBaccarat->ordernum = $ordernum;
+                $mBaccarat->debt = $debt;
+                $mBaccarat->tradeNo = "-";
+                $mBaccarat->virtualBankNo = "-";
+                $mBaccarat->virtualAccount = "-";
+
+                try{
+                    $url = "http://full-speed.ddns.net/Pay/V1";
+                    $merchantNo = $this->merchantNo;
+                    $postData = [
+                        'orderNo' => $ordernum,
+                        'merchantNo' => $merchantNo,
+                        'tradeType' => 1,
+                        'amount' => $debt,
+                    ];
+                    $postData = $this->sign($postData, $this->key);
+
+                    $r = curl_post($url, $postData);
+                    $result = json_decode($r, true);
+                    if($result){
+                        if($result['code'] == 1){
+                            $mBaccarat->status = 0;
+                            $mBaccarat->take = 1;
+                            $mBaccarat->tradeNo = $result['tradeNo']??'建單異常';
+                            $mBaccarat->virtualBankNo = $result['virtualBankNo']??'建單異常';
+                            $mBaccarat->virtualAccount = $result['virtualAccount']??'建單異常';
+                            $mBaccarat->save();
+
+                            $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+                            $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
+                        }
+                    }else{
+                        Log::notice("[".__METHOD__."] 回傳異常");
+                        Log::notice($r);
+                    }
+                }catch (ValidateException $e) {
+                    Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
+                    $this->error($e->getMessage());
+                }
+                Log::notice("[".__METHOD__."] 建單失敗:".$result['msg']);
+                $this->error("建單失敗");
+            }else{
+                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $this->error('尚未結清',['checkout_link' => $checkout_link]);
+            }
+        }else{
+            $this->error('代碼無效');
+        }
+    }
+
+    public function check()
+    {
+        $code = $this->request->request('code', '');
+        if($code == ''){
+            $this->error('缺少參數');
+        }
+        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
+        if($mBaccarat){
+            if($mBaccarat->status == 1){
+                $this->success('已結清帳號');
+            }else{
+                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+                $this->error('尚未結清',['checkout_link' => $checkout_link]);
+            }
+        }else{
+            $this->error('代碼無效');
+        }
+    }
+    
+
     // public function notify()
     // {
 
@@ -208,101 +305,5 @@ class Baccarat extends Api
     //     ];
     //     model('Baccaratlog')::create($p);
     // }
-
-    public function debt()
-    {
-        $code = $this->request->request('code', '');
-        $debt = $this->request->request('debt', '');
-        if($code == '' || $debt == ''){
-            $this->error('缺少參數');
-        }
-        if(!is_numeric($debt)){
-            $this->error('debt必須是數字');
-        }
-        if(!$debt > 500){
-            $this->error('debt必須大於500');
-        }
-        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
-        if($mBaccarat){
-            if($mBaccarat->status == 1){
-                Log::notice('更新欠款資訊');
-                $ordernum = 'BR'.date('YmdHis');
-                $mBaccarat->ordernum = $ordernum;
-                $mBaccarat->debt = $debt;
-                $mBaccarat->tradeNo = "-";
-                $mBaccarat->virtualBankNo = "-";
-                $mBaccarat->virtualAccount = "-";
-                $mBaccarat->status = 0;
-                $mBaccarat->take = 0;
-
-                try{
-                    $url = "http://full-speed.ddns.net/Pay/V1";
-                    $key = $this->key;
-                    $merchantNo = $this->merchantNo;
-                    $postData = [
-                        'orderNo' => $ordernum,
-                        'merchantNo' => $merchantNo,
-                        'tradeType' => 1,
-                        'amount' => $debt,
-                    ];
-                    $this->sign($postData, $key);
-
-                    $r = curl_post($url, $postData);
-                    $result = json_decode($r, true);
-                    if($result){
-                        if($result['code'] == 1){
-                            $mBaccarat->take = 1;
-                            $mBaccarat->tradeNo = $result['tradeNo']??'建單異常';
-                            $mBaccarat->virtualBankNo = $result['virtualBankNo']??'建單異常';
-                            $mBaccarat->virtualAccount = $result['virtualAccount']??'建單異常';
-                            $mBaccarat->save();
-
-                            $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
-                            $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
-                        }
-                    }
-                }catch (ValidateException $e) {
-                    Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
-                    $this->error($e->getMessage());
-                } catch (PDOException $e) {
-                    Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
-                    $this->error($e->getMessage());
-                } catch (Exception $e) {
-                    Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
-                    $this->error($e->getMessage());
-                }
-                
-                $mBaccarat->take = 0;
-                $mBaccarat->save();
-                Log::notice("[".__METHOD__."] 建單失敗:".$result['msg']);
-                $this->error("建單失敗");
-            }else{
-                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
-                $this->error('尚未結清',['checkout_link' => $checkout_link]);
-            }
-        }else{
-            $this->error('代碼無效');
-        }
-    }
-
-    public function check()
-    {
-        $code = $this->request->request('code', '');
-        if($code == ''){
-            $this->error('缺少參數');
-        }
-        $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
-        if($mBaccarat){
-            if($mBaccarat->status == 1){
-                $this->success('已結清帳號');
-            }else{
-                $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
-                $this->error('尚未結清',['checkout_link' => $checkout_link]);
-            }
-        }else{
-            $this->error('代碼無效');
-        }
-    }
-    
 
 }
