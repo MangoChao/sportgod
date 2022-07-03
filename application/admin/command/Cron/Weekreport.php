@@ -24,7 +24,7 @@ class Weekreport extends Command
 {
     protected $taskName = '周結算';
     protected $site = [];
-    protected $gameurl = "https://ag.bl568.net";
+    protected $gameurl = "https://ag.bl868.net";
 
     protected function configure(){
         $this->setName('Weekreport')->setDescription("周結算");

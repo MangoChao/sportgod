@@ -25,7 +25,7 @@ class Dayreport extends Command
 {
     protected $taskName = '日結算';
     protected $site = [];
-    protected $gameurl = "https://ag.bl568.net";
+    protected $gameurl = "https://ag.bl868.net";
 
     protected function configure(){
         $this->setName('Dayreport')->setDescription("日結算");

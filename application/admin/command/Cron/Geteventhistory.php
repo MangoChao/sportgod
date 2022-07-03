@@ -20,7 +20,7 @@ class Geteventhistory extends Command
 {
     protected $taskName = '抓取比分';
     protected $site = [];
-    protected $gameurl = "https://ag.bl568.net";
+    protected $gameurl = "https://ag.bl868.net";
 
     protected function configure(){
         $this->setName('Geteventhistory')->setDescription("抓取比分");
