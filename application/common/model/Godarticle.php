@@ -11,7 +11,7 @@ class Godarticle extends Model
 {
 
     // 表名,不含前缀
-    protected $name = 'god_article';
+    protected $name = 'godarticle';
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = 'int';
     // 定义时间戳字段名

@@ -163,8 +163,18 @@ class User extends Frontend
     }
 
     //刊登神人專欄
-    public function addgodarticle($cid = 0)
+    public function addgodarticle()
     {
+        $catlist = [
+            '0' => '請選擇分類'
+        ];
+        $mArticlecat = model('Articlecat')->where("type = 1 AND status = 1")->order("weigh")->select();
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
+                $catlist[$v->id] = $v->cat_name;
+            }
+        }
+        $this->view->assign('catlist', $catlist);
         return $this->view->fetch();
     }
 

@@ -1,0 +1,10 @@
+.article_full{
+    background-color: #fff;
+}
+.article_full h1{
+    color: #333;
+    font-size: 36px;
+    margin: 0;
+    margin-bottom: 10px;
+    font-family: 微軟正黑體, Quicksand, Arial, sans-serif;
+}

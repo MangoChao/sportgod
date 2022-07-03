@@ -10,11 +10,6 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         index: function () {
 
         },
-        addarticle: function () {
-            Form.api.bindevent($("#addgodarticle_form"), function (data) {
-                location.href = Config.url.furl+"/index/godarticle";
-            });
-        },
         detail: function () {
             // Form.api.bindevent($("#add_msg_form"));
 

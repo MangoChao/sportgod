@@ -3,36 +3,41 @@
     <div class="m_panel">
         <section id="featured_lish">
             <div class="container">
+                {foreach $mGodarticle as $v}
                 <div class="row item">
                     <div class="col-md-6">
                         <div class="panel-default">
-                            <a href="https://www.sportsv.net/articles/95376">
+                            <a href="{:url('/index/godarticle/detail/id/'.$v->id)}"">
                                 <div class="fill"
-                                    style="background-image:url(https://img.sportsv.net/img/article/cover/6/95376/fit-TVKqjNl5Wl-555x285.jpg);">
+                                    style="background-image:url({$v->cover_img});">
                                 </div>
                             </a>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="panel-content">
-                            <div class="date">2022/06/21</div>
+                            <div class="date">{$v->createtime|date='Y/m/d',###}</div>
                             <h2 class="title">
-                                <a href="https://www.sportsv.net/articles/95376">
-                                    一人撐起整條打線，準名人堂球星大回春－Miguel Cabrera的重新綻放
+                                <a href="{:url('/index/godarticle/detail/id/'.$v->id)}"">
+                                    {$v->title}
                                 </a>
                             </h2>
                             <div class="author">
-                                <a href="#" class="author_name">爪迷傑森</a>
+                                <a href="#" class="author_name">{$v->nickname}</a>
                             </div>
                             <div id="tags">
                                 <ul class="tagcloud-list">
                                     <li>
-                                        <a href="#" class="tag-link hide">DetroitTigers</a>
+                                        <a href="#" class="tag-link hide">標籤</a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+                </div>
+                {/foreach}
+                <div class="page">
+                    {$pagelist}
                 </div>
             </div>
         </section>

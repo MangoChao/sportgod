@@ -71,6 +71,11 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 }
             });
         },
+        addgodarticle: function () {
+            Form.api.bindevent($("#addgodarticle_form"), function (data) {
+                location.href = Config.url.furl+"/index/godarticle";
+            });
+        },
         editarticle: function () {
             Form.api.bindevent($("#editarticle_form"), function (data) {
                 console.log(data);

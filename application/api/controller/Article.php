@@ -18,6 +18,50 @@ class Article extends Api
         parent::_initialize();
     }
     
+    //發布專欄
+    public function addgodarticle()
+    {
+        $id = $this->request->request('id', 0);
+        $cat_id = $this->request->request('cat_id', 0);
+        $title = $this->request->request('title', '', 'trim');
+        $cover_img = $this->request->request('cover_img', '');
+        $content = $this->request->request('content', '', 'trim');
+        
+        $mUser = model('User')->get($this->auth->id);
+        if(!$mUser){
+            $this->error('查無用戶, 請重新登入');
+        }
+        if($mUser->status == 0){
+            $this->error('你已被停用');
+        }
+
+        if($mUser->isgod == 0){
+            $this->error('你不是神人');
+        }
+
+        if($cat_id == 0){
+            $this->error('必須選擇分類');
+        }
+        if($title == ''){
+            $this->error('標題不能為空');
+        }
+        if($content == ''){
+            $this->error('內容不能為空');
+        }
+
+        $params = [
+            'cat_id' => $cat_id,
+            'title' => $title,
+            'cover_img' => $cover_img,
+            'content' => $content,
+            'user_id' => $this->auth->id,
+        ];
+
+        $mGodarticle = model('Godarticle')::create($params);
+
+        $this->success('發佈成功');
+    }
+    
     //發布文章
     public function addarticle()
     {

@@ -1,65 +1,99 @@
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="m_panel">
-                <div class="article_main">
-                    <div class="left_box">
-                        <div class="avatar_img" style="background-image: url({$mArticle->avatar});"></div>
-                        <div>{$mArticle->nickname}</div>
-                        <div>{$mArticle->createtime|date='Y/m/d H:i',###}</div>
-                    </div>
-                    <div class="right_box">
-                        <div class="a_header">
-                            <h2>{$mArticle->title}</h2>
-                            <div class="fav_box">
-                                <span><span id="fav_count">{$mArticle->fav}</span>人收藏</span>
-                                <a class="btn btn_set_fav" data-id="{$mArticle->id}" href="javascript:;">{if !$hasfav}收藏文章{else/}取消收藏{/if}</a>
-                                {if $user && $user->id == $mArticle->user_id}
-                                <a class="btn btn_edit" href="{:url('/index/user/editarticle/id/'.$mArticle->id)}">編輯文章</a>
-                                {/if}
+<div class="article_full">
+    <header class="article_hero">
+        <div class="panel-default">
+            <div class="fill bg-blur"><img class="lazy" src="{$mGodarticle->cover_img}" width="100%" height="100%"></div>
+            <div class="mask"></div>
+        </div>
+
+        <div class="narrative">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="panel-default">
+                            <div class="fill"><img src="{$mGodarticle->cover_img}">
+                            </div>
+                            <div class="mask"></div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="infon">
+                                <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>
+                            </div>
+                            <h1>{$mGodarticle->title}</h1>
+                            <p></p>
+                            <div class="infon">
+                                <div class="author_name">作者：<a href="#">{$mGodarticle->nickname}</a></div>
+                            </div>
+                            <div class="article-share">
+                                <ul>
+                                    <li class="as-fb">
+                                        <iframe
+                                            src="https://www.facebook.com/plugins/like.php?href={:url('/index/godarticle/detail/id/'.$mGodarticle->id)}&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=true&amp;height=21&amp;appId=535408187578330"
+                                            scrolling="no" frameborder="0"
+                                            style="border:none; overflow:hidden; width:135px; height:21px;"
+                                            allowtransparency="true"></iframe>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="article_img_box">
-                            <img src="{$mArticle->img}" />
-                        </div>
-                        <div class="article_content_box">
-                            {$mArticle->content}
-                        </div>
+
                     </div>
                 </div>
             </div>
-            <div class="m_panel">
-                <div class="article_msg">
-                    <h4>{$mArticle->msg_count} 則留言</h4>
-                    <div class="article_msg_box">
-                        {foreach $mArticlemsg as $v}
-                            <div class="article_main">
-                                <div class="left_box">
-                                    <div class="avatar_img" style="background-image: url({$v->avatar});"></div>
-                                    <div>{$v->nickname}</div>
-                                    <div>{$v->createtime|date='Y/m/d H:i',###}</div>
-                                </div>
-                                <div class="right_box">
-                                    <div class="article_content_box">
-                                        {$v->msg}
+        </div>
+    </header>
+    <div id="article_top"></div>
+    <section class="article">
+        <div class="container relative">
+            <div class="row">
+
+                <div class="col-md-1 article_comment">
+                    <div class="toolbox">
+                        <a href="#" class="js-sub " id="article-collection-btn">
+
+                            <i class="fa fas fa-bookmark fa-2x"> <span>收藏</span></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="article-content">
+                                {$mGodarticle->content}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="author_card">
+                                <div class="author_default">
+                                    <div class="author_pic">
+                                        <a href="#">
+                                            <img src="{$mGodarticle->avatar}" width="100%" alt="{$mGodarticle->nickname}">
+                                        </a>
+                                    </div>
+                                    <div class="author_infon">
+                                        <h4 class="name">{$mGodarticle->nickname}</h4>
                                     </div>
                                 </div>
+                                <div class="author_featured">
+                                    <div class="title">最新文章</div>
+                                    <ul class="item">
+
+                                        <li><a href="https://www.sportsv.net/articles/95579">控球有潘威倫水準、指叉像羅力？從「洋將變本土」的高塩將樹有機會打中職嗎？</a>
+                                        </li>
+
+                                        <li><a href="https://www.sportsv.net/articles/94625">好不容易上2A卻被釋出？林凱威會是中職一軍守護神人選嗎？</a>
+                                        </li>
+
+                                        <li><a href="https://www.sportsv.net/articles/95559">2022中職測試會分析：曾品洋飆最快153！台大「學霸」左投頻頻被點名</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        {/foreach}
-                    </div>
-                    <div class="add_article_msg_box">
-                        <h5>我要留言</h5>
-                        <form id="add_msg_form">
-                            <input type="hidden" id="article_id" value="{$mArticle->id}"/>
-                            <textarea id="msg_content" class="form-control editor" name="msg_content"></textarea>
-                            <br>
-                            <a class="btn btn-info" id="btn_add_msg" href="javascript:;">留言</a>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
-        </div>
-    </div>
+    </section>
 </div>
