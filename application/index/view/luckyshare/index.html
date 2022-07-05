@@ -8,8 +8,9 @@
                 <ul class="article_list luckyshare_list">
                     {foreach $mLuckyshare as $v}
                     <li>
-                        <div class="left_box">
-                            <div class="lucky_img" style="background-image: url({$v->img});"></div>
+                        <div class="left_box layer_img_box">
+                            <div class="lucky_img" layer-src="{$v->img}" style="background-image: url({$v->img});"></div>
+                            <img layer-pid="{$v->id}" layer-src="{$v->img}" src="{$v->img}" alt="{$v->nickname} {$v->createtime|date='Y/m/d',###}">
                         </div>
                         <div class="center_box">
                             <p>{:nl2br($v->content)}</p>
@@ -19,7 +20,7 @@
                         </div>
                         <div class="right_box">
                             <div>{$v->nickname}</div>
-                            <div>{$v->createtime|date='Y/m/d H:i',###}</div>
+                            <div>{$v->createtime|date='Y/m/d',###}</div>
                         </div>
                     </li>
                     {/foreach}

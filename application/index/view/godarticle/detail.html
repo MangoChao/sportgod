@@ -26,11 +26,7 @@
                             <div class="article-share">
                                 <ul>
                                     <li class="as-fb">
-                                        <iframe
-                                            src="https://www.facebook.com/plugins/like.php?href={:url('/index/godarticle/detail/id/'.$mGodarticle->id)}&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=true&amp;height=21&amp;appId=535408187578330"
-                                            scrolling="no" frameborder="0"
-                                            style="border:none; overflow:hidden; width:135px; height:21px;"
-                                            allowtransparency="true"></iframe>
+                                        <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
                                     </li>
                                 </ul>
                             </div>
@@ -48,9 +44,11 @@
 
                 <div class="col-md-1 article_comment">
                     <div class="toolbox">
-                        <a href="#" class="js-sub " id="article-collection-btn">
-
+                        <a href="#">
                             <i class="fa fas fa-bookmark fa-2x"> <span>收藏</span></i>
+                        </a>
+                        <a href="#">
+                            <i class="fa fas fa-dollar fa-2x"> <span>贊助</span></i>
                         </a>
                     </div>
                 </div>

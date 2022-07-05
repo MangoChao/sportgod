@@ -707,6 +707,7 @@ a.btn_buy_pred:link:active{
 main.content{
     padding: 0;
     background-image: url('/assets/img/login_bg.jpg');
+    overflow: unset;
 }
 main.content>.container{
     margin: 15px auto;
@@ -728,4 +729,22 @@ button.toast-close-button{
 }
 .toast-success {
     background-color: #005d9b;
+}
+.layer_img_box{
+    position: relative;
+    cursor: pointer;
+}
+.layer_img_box img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+.layui-layer-iconext{
+    transition: none;
+}
+.article_comment{
+    top:140px;
 }
