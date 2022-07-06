@@ -4,7 +4,7 @@ return [
     'name' => '運動神人',
     'beian' => '',
     'cdnurl' => '',
-    'version' => '1.0.0',
+    'version' => '1.1.0',
     'timezone' => 'Asia/Shanghai',
     'forbiddenip' => '',
     'languages' => [
@@ -33,8 +33,13 @@ return [
     'mail_verify_type' => '2',
     'mail_from' => '10000@qq.com',
     'url' => [
-        'furl' => 'http://xp.sportgod.com',
+        'furl' => 'http://xp.sportgod.com/',
         'api' => 'http://xp.sportgod.com/api',
         'burl' => 'http://xp.sportgod.com/backend.php',
     ],
+    'luserid' => 'yx50002',
+    'lpassword' => 'abc789',
+    'line_channel_access_token' => 'CrQ7y3pmj8BnGrWmPXMEfxrdM5JjToSv01SqiQesu5BjH2M7OdD2YGfNYc0oiPl+JH7QyXdYMqpDVIn4OjdavmNL8Pwp+PHGkAAMXgwYKd/2PghqncTFd7CMr09Y1lWNF75kGbOCWHpcFwDOkWXW9AdB04t89/1O/w1cDnyilFU=',
+    'line_channel_secret' => 'bf569008305baac174cc387983d7a28a',
+    'liffid' => '1655920207-qnWPdp08',
 ];

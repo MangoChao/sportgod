@@ -148,6 +148,8 @@ h2:not(.title)>a{
 .article_list li>div.center_box a{
     font-size: 20px;
     color: #6d6d6d;
+    display: block;
+    height: 100%;
 }
 .article_list li>div.center_box a:hover{
     color: #1f449b!important;
@@ -161,13 +163,15 @@ h2:not(.title)>a{
     display: block;
 }
 .article_list li>div.right_box{
-    width: 200px;
-    padding: 17px 10px;
+    width: 230px;
+    padding: 11px 10px;
 }
 .article_list li h3{
     margin: 0;
     display: inline-block;
-    vertical-align: middle;
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.1;
 }
 .page{
     text-align: center;
@@ -205,12 +209,12 @@ h2:not(.title)>a{
     height: 50px;
     background-size: cover;
     background-position: center;
-    display: inline-block;
+    display: inline-block!important;
     vertical-align: middle;
     border-radius: 50px;
 }
 .article_main{
-    display: flex;
+    display: flex!important;
     border-bottom: 1px #e5fbff solid;
 }
 .article_main .avatar_img{
@@ -227,11 +231,11 @@ h2:not(.title)>a{
 }
 .article_main .right_box{
     width: 100%;
-    border-left: 1px #e5fbff  solid;
+    /* border-left: 1px #3d35bb  solid; */
     min-height: 500px;
 }
 .article_main .right_box .a_header{
-    border-bottom:1px #e5fbff  solid ;
+    border-bottom: 1px #ccc solid;
     padding: 0;
     display: flex;
 }
@@ -277,19 +281,22 @@ h2:not(.title)>a{
     font-weight: bold;
     padding: 15px;
     margin: 0;
-    border-bottom: 3px #e5fbff solid;
+    line-height: 1.1;
+    border-bottom: 1px #ccc solid;
+    display: block;
 }
 .article_msg .add_article_msg_box{
     padding: 15px;
 }
 .article_msg h5{
+    background: none;
     margin: 0;
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
 }
 .article_msg_box{
-    border-bottom: 3px #e5fbff solid;
+    border-bottom: 1px #ccc solid;
 }
 .article_msg_box .article_main .right_box{
     min-height: auto;
@@ -747,4 +754,34 @@ button.toast-close-button{
 }
 .article_comment{
     top:140px;
+}
+a.btn-warning:visited{
+    color: #fff;
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+a.btn-info:visited{
+    color: #fff;
+    background-color: #3498db;
+    border-color: #3498db;
+}
+a.btn-danger:visited{
+    color: #fff;
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-xs, .btn-group-xs > .btn{
+    padding: 1px 5px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 2px;
+}
+.right_box .btn{
+    float: right;
+    margin-left: 5px;
+}
+.status_box{
+    line-height: 50px;
+    text-align: center;
 }

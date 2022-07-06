@@ -5,11 +5,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'frontend/article/index',
-                    add_url: 'frontend/article/add',
-                    edit_url: 'frontend/article/edit',
-                    del_url: 'frontend/article/del',
-                    table: 'article',
+                    index_url: 'frontend/godarticle/index',
+                    add_url: 'frontend/godarticle/add',
+                    edit_url: 'frontend/godarticle/edit',
+                    del_url: 'frontend/godarticle/del',
+                    table: 'godarticle',
                 }
             });
 
@@ -28,7 +28,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'title', title: __('title'), operate: 'LIKE', align: 'left'},
                         {field: 'fav', title: __('fav'), operate: 'LIKE'},
                         {field: 'user.nickname', title: __('user_name'), operate: 'LIKE'},
-                        {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1'), 2: __('Status 2')}},
+                        {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1'), 2: __('Status 2'), 3: __('Status 3')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
@@ -51,8 +51,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             },
             formatter:{
                 status: function (value, row, index, custom) {
-                    var colorArr = {'0':'gray','1':'success','2':'danger'};
-                    var valueArr = {'0':__('Status 0'),'1':__('Status 1'),'2':__('Status 2')};
+                    var colorArr = {'0':'orange','1':'success','2':'danger','3':'gray'};
+                    var valueArr = {'0':__('Status 0'),'1':__('Status 1'),'2':__('Status 2'),'3':__('Status 3')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }

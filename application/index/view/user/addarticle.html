@@ -1,6 +1,7 @@
 <div class="container">
-    <div class="row">
-        <div class="col-sm-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <br>
             <form id="addarticle_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/article/addarticle')}">
                 <input type="hidden" name="id" value=""/>
                 <input type="hidden" name="cid" value="{$cid}"/>
@@ -14,16 +15,6 @@
                     <label for="title" class="control-label col-xs-12 col-sm-2">標題:</label>
                     <div class="col-xs-12 col-sm-8">
                         <input type="text" class="form-control" id="title" name="title" value="" data-rule="required" placeholder="" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="img" class="control-label col-xs-12 col-sm-2">照片:</label>
-                    <div class="col-xs-12 col-sm-8">
-                        <label class="">
-                            <input id="img"  class="form-control" size="50" name="img" type="hidden" placeholder="" value="">
-                            <button type="button" class="btn btn-danger faupload btn_faupload" data-input-id="img" data-mimetype="image/jpeg,image/png,image/jpg" data-multiple="false" data-preview-id="p-img">上傳照片</button>
-                        </label>
-                        <ul class="row list-inline faupload-preview" id="p-img"></ul>
                     </div>
                 </div>
                 <div class="form-group">

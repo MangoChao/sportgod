@@ -100,7 +100,7 @@ class User extends Frontend
     public function favorites($page = 1)
     {
         $mArticle = model('Article')->alias('a')
-        ->join("article_fav af","af.article_id = a.id AND af.user_id = ".$this->auth->id)
+        ->join("article_fav af","af.article_id = a.id AND af.type = 1 AND af.user_id = ".$this->auth->id)
         ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
@@ -109,6 +109,7 @@ class User extends Frontend
         
         if($mArticle){
             foreach($mArticle as $v){
+                if(!$v->avatar) $v->avatar = $this->def_avatar;
                 if($v->user_id == 0){
                     $v->nickname = "管理員";
                     $v->avatar = model('User')->getAvatarAttr('');
@@ -130,6 +131,33 @@ class User extends Frontend
         return $this->view->fetch();
     }
     
+    public function favoritesg($page = 1)
+    {
+        $mArticle = model('Godarticle')->alias('a')
+        ->join("article_fav af","af.article_id = a.id AND af.type = 2 AND af.user_id = ".$this->auth->id)
+        ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->field('a.*, ac.cat_name, u.nickname, u.avatar')
+        ->where("a.status = 1 ")->order('a.updatetime','desc')->group('a.id')->paginate(15);
+        
+        if($mArticle){
+            foreach($mArticle as $v){
+                if(!$v->avatar) $v->avatar = $this->def_avatar;
+            }
+        }
+
+        $count = $mArticle->total();
+        $pagelist = $mArticle->render();
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mArticle', $mArticle);
+
+        $this->view->assign('title', '收藏的專欄');
+        return $this->view->fetch();
+    }
+    
     public function article($page = 1)
     {
         $mArticle = model('Article')->alias('a')
@@ -137,7 +165,7 @@ class User extends Frontend
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->join("article_msg am","a.id = am.article_id AND am.status = 1","LEFT")
         ->field('a.*, ac.cat_name, u.nickname, u.avatar, count(am.id) as msg_count')
-        ->where("a.status = 1 AND a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(15);
+        ->where("a.status <> 0 AND a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(15);
         
         if($mArticle){
             foreach($mArticle as $v){
@@ -146,6 +174,13 @@ class User extends Frontend
                     $v->avatar = model('User')->getAvatarAttr('');
                 }else{
                     $v->avatar = model('User')->getAvatarAttr($v->avatar);
+                }
+                if($v->status == 0){
+                    $v->status_str = "<span class='text-gray'>隱藏</span>";
+                }elseif($v->status == 2){
+                    $v->status_str = "<span class='text-gray'>已刪除</span>";
+                }else{
+                    $v->status_str = "";
                 }
             }
         }
@@ -159,6 +194,42 @@ class User extends Frontend
         $this->view->assign('mArticle', $mArticle);
 
         $this->view->assign('title', '發表的文章');
+        return $this->view->fetch();
+    }
+    
+    public function godarticle($page = 1)
+    {
+        $mArticle = model('Godarticle')->alias('a')
+        ->join("user u","u.id = a.user_id ")
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->field('a.*, ac.cat_name, u.nickname, u.avatar')
+        ->where("a.user_id = ".$this->auth->id)->order('a.updatetime','desc')->group('a.id')->paginate(15);
+        
+        if($mArticle){
+            foreach($mArticle as $v){
+                if(!$v->avatar) $v->avatar = $this->def_avatar;
+                
+                if($v->status == 0){
+                    $v->status_str = "<span class='text-orange'>審核中</span>";
+                }elseif($v->status == 2){
+                    $v->status_str = "<span class='text-danger'>拒絕刊登</span>";
+                }elseif($v->status == 3){
+                    $v->status_str = "<span class='text-gray'>已刪除</span>";
+                }else{
+                    $v->status_str = "";
+                }
+            }
+        }
+
+        $count = $mArticle->total();
+        $pagelist = $mArticle->render();
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mArticle', $mArticle);
+
+        $this->view->assign('title', '發表的專欄');
         return $this->view->fetch();
     }
 
@@ -202,6 +273,28 @@ class User extends Frontend
         $mArticle = model('Article')->where("id = ".$id." AND status = 1 AND user_id = ".$this->auth->id)->find();
         if(!$mArticle){
             $this->redirect('/index/article');
+        }
+        
+        $catlist = [
+            '0' => '請選擇分類'
+        ];
+        $mArticlecat = model('Articlecat')->where("type = 1 AND status = 1")->order("weigh")->select();
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
+                $catlist[$v->id] = $v->cat_name;
+            }
+        }
+
+        $this->view->assign('mArticle', $mArticle);
+        $this->view->assign('catlist', $catlist);
+        return $this->view->fetch();
+    }
+
+    public function editgodarticle($id = 0)
+    {
+        $mArticle = model('Godarticle')->where("id = ".$id." AND status = 1 AND user_id = ".$this->auth->id)->find();
+        if(!$mArticle){
+            $this->redirect('/index/godarticle');
         }
         
         $catlist = [

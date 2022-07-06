@@ -18,9 +18,19 @@ class Godarticle extends Model
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
 
+    public function getStatusList()
+    {
+        return ['0' => __('Status 0'), '1' => __('Status 1'), '2' => __('Status 2'), '3' => __('Status 3')];
+    }
+
     public function user()
     {
         return $this->belongsTo('User', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+    public function cat()
+    {
+        return $this->belongsTo('Articlecat', 'cat_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
     
 }

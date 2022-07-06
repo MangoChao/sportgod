@@ -7,24 +7,21 @@
         <div class="col-md-9">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <h2 class="page-header">發表的文章</h2>
+                    <h2 class="page-header">發表的專欄</h2>
                     <ul class="article_list">
                         {if sizeof($mArticle)>0}
                             {foreach $mArticle as $v}
                             <li>
                                 <div class="left_box">
-                                    <a class="btn btn-xs btn-warning" target="_blank" href="{:url('/index/article/index/cid/'.$v->cat_id)}">{$v->cat_name}</a>
+                                    <a class="btn btn-xs btn-warning" target="_blank" href="#">{$v->cat_name}</a>
                                 </div>
                                 <div class="center_box">
-                                    <a href="{:url('/index/article/detail/id/'.$v->id)}"><h3>{$v->title}</h3></a>
-                                </div>
-                                <div class="msgc_box">
-                                    <b>{$v->msg_count}</b>留言
+                                    <a href="{:url('/index/godarticle/detail/id/'.$v->id)}"><h3>{$v->title}</h3></a>
                                 </div>
                                 <div class="right_box">
                                     {if $v->status == 1}
                                     <a class="btn btn-danger btn_del" data-id="{$v->id}" href="javascript:;">刪除</a>
-                                    <a class="btn btn-info" href="{:url('/index/user/editarticle/id/'.$v->id)}">編輯</a>
+                                    <a class="btn btn-info" href="{:url('/index/user/editgodarticle/id/'.$v->id)}">編輯</a>
                                     {else/}
                                     <div class="status_box">{$v->status_str}</div>
                                     {/if}

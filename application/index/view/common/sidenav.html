@@ -6,6 +6,10 @@
         <li class="list-group-item {:check_nav_active('user/notify')}"> <a href="{:url('user/notify')}">通知</a> </li>
         <li class="list-group-item {:check_nav_active('user/favorites')}"> <a href="{:url('user/favorites')}">收藏的文章</a> </li>
         <li class="list-group-item {:check_nav_active('user/article')}"> <a href="{:url('user/article')}">發表的文章</a> </li>
+        <li class="list-group-item {:check_nav_active('user/favoritesg')}"> <a href="{:url('user/favoritesg')}">收藏的專欄</a> </li>
+        {if $user->isgod}
+        <li class="list-group-item {:check_nav_active('user/godarticle')}"> <a href="{:url('user/godarticle')}">發表的專欄</a> </li>
+        {/if}
         <li class="list-group-item {:check_nav_active('user/pred')}"> <a href="{:url('user/pred')}">我要預測</a> </li>
         <li class="list-group-item {:check_nav_active('user/buypoint')}"> <a href="{:url('user/buypoint')}">儲值點數</a> </li>
         <li class="list-group-item {:check_nav_active('user/logout')}"> <a href="{:url('user/logout')}">登出</a> </li>

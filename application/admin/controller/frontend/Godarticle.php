@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 
 
-class Article extends Backend
+class Godarticle extends Backend
 {
 
     protected $noNeedRight = ['*'];
@@ -26,7 +26,7 @@ class Article extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('Article');
+        $this->model = model('Godarticle');
         $mFields = $this->model->getQuery()->getTableInfo('', 'fields');
         $this->searchFields = implode(',',$mFields);
         $this->view->assign("statusList", $this->model->getStatusList());
@@ -165,7 +165,6 @@ class Article extends Backend
                 }
                 if ($result !== false) {
 
-                    model('Articleread')->where("article_id = ".$ids)->delete();
                     $this->success();
                 } else {
                     $this->error(__('No rows were updated'));

@@ -2,9 +2,8 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <br>
-            <form id="editarticle_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/article/editarticle')}">
+            <form id="editgodarticle_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/article/editgodarticle')}">
                 <input type="hidden" name="id" value="{$mArticle->id}"/>
-                <input type="hidden" name="cid" value=""/>
                 <div class="form-group">
                     <label for="title" class="control-label col-xs-12 col-sm-2">分類:</label>
                     <div class="col-xs-12 col-sm-8">
@@ -18,7 +17,17 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="content" class="control-label col-xs-12 col-sm-2">內容:</label>
+                    <label for="cover_img" class="control-label col-xs-12 col-sm-2">封面:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <label class="">
+                            <input id="cover_img"  class="form-control" size="50" name="cover_img" type="hidden" placeholder="" value="{$mArticle->cover_img}">
+                            <button type="button" class="btn btn-danger faupload btn_faupload" data-input-id="cover_img" data-mimetype="image/jpeg,image/png,image/jpg" data-multiple="false" data-preview-id="p-cover_img">上傳照片</button>
+                        </label>
+                        <ul class="row list-inline faupload-preview" id="p-cover_img"></ul>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content" class="control-label col-xs-12 col-sm-2">內文:</label>
                     <div class="col-xs-12 col-sm-8">
                         <textarea  class="form-control editor" data-rule="required" name="content">{$mArticle->content}</textarea>
                     </div>

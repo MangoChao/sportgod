@@ -369,7 +369,7 @@ class Api
             'ip' => $this->request->ip(),
         ];
         model('Requestlog')::create($p);
-        Log::notice($request);
+        // Log::notice($request);
     }
 
     

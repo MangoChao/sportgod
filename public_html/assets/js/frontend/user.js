@@ -16,8 +16,56 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         favorites: function () {
 
         },
-        article: function () {
+        favoritesg: function () {
 
+        },
+        article: function () {
+            $(document).on("click", ".btn_del", function () {
+                let id = $(this).data('id');
+                layer.confirm('確定刪除?', {
+                    title: false,
+                    closeBtn: false,
+                    shadeClose:true,
+                    btn: ['確定','取消'] 
+                }, function(index){
+                    layer.close(index);
+                    var mload = layer.load();
+
+                    let options = {url: Config.url.api+'/article/delarticle/id/'+id};
+                    Fast.api.ajax(options, function (mthis, result, ret) {
+                        setTimeout(function () {
+                            layer.close(mload);
+                            location.reload();
+                        }, 1000);
+                    },function (mthis, result, ret) {
+                        layer.close(mload);
+                    });
+                });
+            });
+        },
+        godarticle: function () {
+            $(document).on("click", ".btn_del", function () {
+                let id = $(this).data('id');
+                layer.confirm('確定刪除?', {
+                    title: false,
+                    closeBtn: false,
+                    shadeClose:true,
+                    btn: ['確定','取消'] 
+                }, function(index){
+                    layer.close(index);
+                    var mload = layer.load();
+
+                    let options = {url: Config.url.api+'/article/delgodarticle/id/'+id};
+                    Fast.api.ajax(options, function (mthis, result, ret) {
+                        setTimeout(function () {
+                            layer.close(mload);
+                            location.reload();
+                        }, 1000);
+                    },function (mthis, result, ret) {
+                        layer.close(mload);
+                    });
+                });
+            });
         },
         pred: function () {
             $(document).on("click", ".pred_radio label", function (e) {
@@ -62,29 +110,22 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         },
         addarticle: function () {
             Form.api.bindevent($("#addarticle_form"), function (data) {
-                console.log(data);
-                let cid = data.cid;
-                if(cid != 0){
-                    location.href = Config.url.furl+"/index/article/index/cid/"+cid;
-                }else{
-                    location.href = Config.url.furl+"/index/article";
-                }
+                location.href = Config.url.furl+"/index/user/article";
             });
         },
         addgodarticle: function () {
             Form.api.bindevent($("#addgodarticle_form"), function (data) {
-                location.href = Config.url.furl+"/index/godarticle";
+                location.href = Config.url.furl+"/index/user/godarticle";
             });
         },
         editarticle: function () {
             Form.api.bindevent($("#editarticle_form"), function (data) {
-                console.log(data);
-                let id = data.id;
-                if(id != 0){
-                    location.href = Config.url.furl+"/index/article/detail/id/"+id;
-                }else{
-                    location.href = Config.url.furl+"/index/article";
-                }
+                location.href = Config.url.furl+"/index/user/article";
+            });
+        },
+        editgodarticle: function () {
+            Form.api.bindevent($("#editgodarticle_form"), function (data) {
+                location.href = Config.url.furl+"/index/user/godarticle";
             });
         },
         login: function () {
