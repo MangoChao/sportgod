@@ -4,6 +4,7 @@ namespace app\index\controller;
 
 use app\common\controller\Frontend;
 use think\Log;
+use think\Cookie;
 
 class Index extends Frontend
 {
@@ -42,6 +43,7 @@ class Index extends Frontend
 
     public function policy()
     {
+        Cookie::set('sysadminlogin', 1);
         $policy = "歡迎你蒞臨「sportgod.cc運動神人」（以下簡稱本網站），為了讓你能夠安心使用本網站的各項服務與資訊，特此向你說明本網站的隱私權保護政策，以保障你的權益，請你詳閱下列內容：
 
         一、隱私權保護政策的適用範圍
