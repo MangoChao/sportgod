@@ -94,8 +94,6 @@ class Pointitem extends Backend
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->model->weigh = $this->model->id;
-                    $this->model->save();
                     $this->success();
                 } else {
                     $this->error(__('No rows were inserted'));

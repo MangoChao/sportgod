@@ -100,11 +100,6 @@ class Article extends Api
 
         $mArticle = model('Article')::create($params);
 
-        $params = [
-            'article_id' => $mArticle->id,
-            'user_id' => $this->auth->id,
-        ];
-        model('Articleread')::create($params);
         $this->success('發佈成功',['cid' => $cid]);
     }
 
@@ -149,7 +144,6 @@ class Article extends Api
 
         $mArticle->save();
 
-        model('Articleread')->where("article_id = ".$id." AND user_id <> ".$this->auth->id)->delete();
         $this->success('編輯成功',['id' => $id]);
     }
     
@@ -277,7 +271,6 @@ class Article extends Api
 
         model('Articlemsg')::create($params);
         
-        model('Articleread')->where("article_id = ".$id." AND user_id <> ".$this->auth->id)->delete();
         $this->success('留言成功');
     }
     

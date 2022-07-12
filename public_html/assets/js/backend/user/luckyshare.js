@@ -27,7 +27,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true, visible: false},
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'img', title: '照片', events: Table.api.events.image, formatter: Table.api.formatter.images, operate: false},
-                        {field: 'content', title: __('內容'), formatter: Controller.api.formatter.content, operate: false},
+                        {field: 'content', title: __('內容'), operate: false, align: 'left'},
                         {field: 'user.nickname', title: __('會員暱稱'), operate: 'LIKE'},
                         {field: 'hide', title: __('匿名'), formatter: Controller.api.formatter.hide, searchList: {0: __('hide 0'), 1: __('hide 1')}},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('Status 0'), 1: __('Status 1'), 2: __('Status 2')}},
