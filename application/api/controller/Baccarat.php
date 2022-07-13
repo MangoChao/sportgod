@@ -256,6 +256,80 @@ class Baccarat extends Api
     }
     
 
+    public function check2()
+    {
+        try{
+            $token = $this->request->request('d', '');
+            $jwt = new \app\common\library\Jwt;
+            $getPayload = $jwt->verifyToken($token);
+            $msg = "";
+            $iat = time();
+            if($getPayload){
+                $code = $getPayload['code']??"";
+                $exp = $getPayload['exp']??0;
+                $uid = $getPayload['uid']??"";
+                $act = $getPayload['act']??0;
+                $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
+                if($mBaccarat AND $code != "" AND $uid != ""){
+                    if($mBaccarat->locked == 1){
+                        $msg = "代號已被鎖定";
+                        $response_code = 0;
+                    }else{
+                        if(!$mBaccarat->uid){
+                            $mBaccarat->uid = $uid;
+                        }
+                        if($mBaccarat->uid != $uid){
+                            $mBaccarat->locked = 1; //鎖定
+                            $msg = "識別碼異常,鎖定代號";
+                            $response_code = 0;
+                        }else{
+                            if($mBaccarat->act == 1 AND ($mBaccarat->last_act_date + 600) <= $iat){
+                                //超時
+                                $mBaccarat->locked = 1; //鎖定
+                                $msg = "檢查逾時,鎖定代號";
+                                $response_code = 0;
+                            }else{
+                                $mBaccarat->act = $act;
+                                $mBaccarat->last_act_date = $iat;
+                                $msg = "檢查通過,已更新檢查時間";
+                                $response_code = 1;
+                            }
+                        }
+                        $mBaccarat->save();
+                    }
+                }else{
+                    $msg = "解碼異常";
+                    $response_code = 0;
+                }
+            }else{
+                $msg = "代號無效";
+                $response_code = 0;
+            }
+
+            $exps = 60;
+            $exp = $iat + $exps;
+            $rPayload = [
+                'iat' => $iat,
+                'exp' => $exp,
+                'exps' => $exps,
+                'code' => $code,
+                'response_code' => $response_code,
+                'msg' => $msg,
+            ];
+            $rToken = $jwt->getToken($rPayload);
+            $this->success('正常回傳', ['d' => $rToken]);
+        }catch (ValidateException $e) {
+            Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
+            $this->error($e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
+            $this->error($e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
+            $this->error($e->getMessage());
+        }
+    }
+
     // public function notify()
     // {
 
