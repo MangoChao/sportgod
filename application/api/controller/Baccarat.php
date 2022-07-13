@@ -267,6 +267,7 @@ class Baccarat extends Api
             $jwt = new \app\common\library\Jwt;
             $getPayload = $jwt->verifyToken($token);
             $msg = "";
+            $code = "";
             $iat = time();
             if($getPayload){
                 $code = $getPayload['code']??"";
@@ -302,11 +303,11 @@ class Baccarat extends Api
                         $mBaccarat->save();
                     }
                 }else{
-                    $msg = "解碼異常";
+                    $msg = "代號無效";
                     $response_code = 0;
                 }
             }else{
-                $msg = "代號無效";
+                $msg = "解碼異常";
                 $response_code = 0;
             }
 
