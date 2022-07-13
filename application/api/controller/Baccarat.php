@@ -245,7 +245,11 @@ class Baccarat extends Api
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
             if($mBaccarat->status == 1){
-                $this->success('已結清帳號');
+                if($mBaccarat->locked == 1){
+                    $this->error('代號已被鎖定');
+                }else{
+                    $this->success('已結清帳號');
+                }
             }else{
                 $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->error('尚未結清',['checkout_link' => $checkout_link]);
