@@ -791,3 +791,42 @@ a.btn-danger:visited{
 .footer_bottom a:link:hover{
     color: #fff;
 }
+#notify_box{
+    position: absolute;
+    background: #fff;
+    border: 1px #ccc solid;
+    box-shadow: 1px 1px 1px 0 rgb(34 38 46 / 10%);
+    width: 280px;
+    top: 90%;
+    right: 0;
+    display: none;
+}
+.notifylist a{
+    display: block;
+    padding: 5px 10px;
+}
+.notifylist a:not(:last-child){
+    border-bottom: 1px #ccc solid;
+}
+.notifylist a div.title{
+    font-size: 18px;
+    color: #000;
+    font-weight: bold;
+}
+.notifylist a div.cont{
+    color: #484747;
+}
+
+/* .shade_div{
+    position: fixed;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 999999;
+    display: none;
+}
+#notify_box{
+    z-index: 9999999;
+} */

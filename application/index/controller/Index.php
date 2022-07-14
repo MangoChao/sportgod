@@ -92,6 +92,13 @@ class Index extends Frontend
     
     public function notifylistlayer()
     {
+        if ($this->auth->isLogin()) {
+            $mUsernotify = model('Usernotify')
+            ->where("user_id = ".$this->auth->id." AND `read` = 0")->order('id','desc')->select();
+        }else{
+            $mUsernotify = false;
+        }
+        $this->view->assign('mUsernotify', $mUsernotify);
         return $this->view->fetch('common/notifylistlayer');
     }
 }

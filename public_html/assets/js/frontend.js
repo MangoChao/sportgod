@@ -100,31 +100,37 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
             $(document).on("click", ".sidebar-toggle", function () {
                 $("body").toggleClass("sidebar-open");
             });
-            
+
+            $(document).click(function(){
+                $('#notify_box').hide();
+            });
             $(document).on("click", ".btn_notify", function () {
                 var mload = layer.load();
                 let options = {
                     url: Config.url.furl+'/index/index/notifylistlayer', 
                     success: function (ret) {
-                        var op_box = layer.open({
-                            type: 1,
-                            shadeClose: true,
-                            title: false,
-                            content : ret,
-                            area : ['600px','auto'],
-                            offset: 'rt',
-                            closeBtn: 0,
-                            shade: '0',
-                            skin:'notifylistlayer',
-                            anim: 7,
-                            id:'notifylistlayer',
-                            btn: false
-                        });
+                        $("#notify_box").html(ret);
+                        $("#notify_box").show();
+                        // $(".shade_div").show();
+                        // var op_box = layer.open({
+                        //     type: 1,
+                        //     shadeClose: true,
+                        //     title: false,
+                        //     content : ret,
+                        //     area : ['600px','auto'],
+                        //     offset: 'rt',
+                        //     closeBtn: 0,
+                        //     shade: '0',
+                        //     skin:'notifylistlayer',
+                        //     anim: 7,
+                        //     id:'notifylistlayer',
+                        //     btn: false
+                        // });
 
-                        let layerheight = $('.notifylistlayer').height();
-                        if(layerheight > $( window ).height()){
-                            $('.notifylistlayer').addClass('ohide');
-                        }
+                        // let layerheight = $('.notifylistlayer').height();
+                        // if(layerheight > $( window ).height()){
+                        //     $('.notifylistlayer').addClass('ohide');
+                        // }
                         layer.close(mload);
                     },
                     error: function (ret) {
