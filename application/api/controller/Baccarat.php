@@ -268,10 +268,12 @@ class Baccarat extends Api
             $getPayload = $jwt->verifyToken($token);
             $msg = "";
             $code = "";
+            $exps = 60;
             $iat = time();
             if($getPayload){
                 $code = $getPayload['code']??"";
                 $exp = $getPayload['exp']??0;
+                $exps = $getPayload['exps']??60;
                 $uid = $getPayload['uid']??"";
                 $act = $getPayload['act']??0;
                 $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
@@ -311,7 +313,6 @@ class Baccarat extends Api
                 $response_code = 0;
             }
 
-            $exps = 60;
             $exp = $iat + $exps;
             $rPayload = [
                 'iat' => $iat,
