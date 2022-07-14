@@ -89,4 +89,9 @@ class Index extends Frontend
         $this->view->assign('policy', $policy);
         return $this->view->fetch();
     }
+    
+    public function notifylistlayer()
+    {
+        return $this->view->fetch('common/notifylistlayer');
+    }
 }

@@ -1,0 +1,26 @@
+ {__NOLAYOUT__} 
+<div class="layerbox notifylist">
+    <table class="table notifylist_table">
+        <thead style="background-color: #116801;">
+            <tr><th colspan="5">－後天即將發送－</th></tr>
+        </thead>
+        <tbody>
+            {if $mNotify2}
+                {foreach $mNotify2 as $v}
+                    <tr>
+                        <td style="width: 100px;"><div class="ellipsistext"><a href="{:url('/index/merchant/editcustomer/id/'.$v->cid)}?tag=tagnotify">{$v->cust_name}</a></div></td>
+                        <td><div class="ellipsistext">{$v->con}</div></td>
+                        <td style="width: 50px;">{$v->linesms}</td>
+                        <td class="text-right" style="position: relative">
+                            <input type="text" class="form-control datetimepicker datetimepicker_hide definitetime_text" data-nid="{$v->id}" data-olddate="{$v->definitetime}" data-date-format="YYYY-MM-DD" value="{$v->definitetime}" >
+                            <a href="javascript:;" class="text-success btn_edittime" data-id="{$v->id}"><i class="fa fa-calendar"></i></a>
+                        </td>
+                        <td class="text-right" style="padding-right: 20px;"><a href="javascript:;" class="text-danger btn_notify_cancel_layer" data-id="{$v->id}"><i class="fa fa-trash-o"></i></a></td>
+                    </tr>
+                {/foreach}
+            {else/}
+            <tr><td colspan="5">無通知</td></tr>
+            {/if}
+        </tbody>
+    </table>
+</div>

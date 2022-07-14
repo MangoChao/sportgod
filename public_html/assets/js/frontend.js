@@ -101,25 +101,38 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                 $("body").toggleClass("sidebar-open");
             });
             
-            if(Config.notice_end && Config.notice_linegroup){
-                layer.open({
-                    title:'提醒',
-                    content : 'LINE群即將用完,<br>服務時間即將到期',
-                    btn: ['確定'] 
-                });
-            }else if(Config.notice_linegroup){
-                layer.open({
-                    title:'提醒',
-                    content : 'LINE群即將用完',
-                    btn: ['確定'] 
-                });
-            }else if(Config.notice_end){
-                layer.open({
-                    title:'提醒',
-                    content : '服務時間即將到期',
-                    btn: ['確定'] 
-                });
-            }
+            $(document).on("click", ".btn_notify", function () {
+                var mload = layer.load();
+                let options = {
+                    url: Config.url.furl+'/index/index/notifylistlayer', 
+                    success: function (ret) {
+                        var op_box = layer.open({
+                            type: 1,
+                            shadeClose: true,
+                            title: false,
+                            content : ret,
+                            area : ['600px','auto'],
+                            offset: 'rt',
+                            closeBtn: 0,
+                            shade: '0',
+                            skin:'notifylistlayer',
+                            anim: 7,
+                            id:'notifylistlayer',
+                            btn: false
+                        });
+
+                        let layerheight = $('.notifylistlayer').height();
+                        if(layerheight > $( window ).height()){
+                            $('.notifylistlayer').addClass('ohide');
+                        }
+                        layer.close(mload);
+                    },
+                    error: function (ret) {
+                        Layer.msg(ret.msg);
+                    }
+                };
+                $.ajax(options);
+            });
         }
     };
     Frontend.api = $.extend(Fast.api, Frontend.api);

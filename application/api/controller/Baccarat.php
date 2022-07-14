@@ -39,15 +39,15 @@ class Baccarat extends Api
 
     public function checkoutall()
     {
-        $mBaccarat = model('Baccarat')->where("status = 0")->select();
+        $mBaccarat = model('Baccarat')->where("locked = 1")->select();
         if($mBaccarat){
             foreach($mBaccarat as $v){
-                $v->status = 1;
+                $v->locked = 0;
                 $v->save();
             }
-            return "已銷帳";
+            return "已解鎖";
         }else{
-            return "查無訂單";
+            return "查無鎖定";
         }
     }
     
