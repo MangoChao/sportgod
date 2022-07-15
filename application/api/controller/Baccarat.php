@@ -291,7 +291,7 @@ class Baccarat extends Api
                             $msg = "識別碼異常,鎖定代號";
                             $response_code = 0;
                         }else{
-                            if($mBaccarat->act == 1 AND ($mBaccarat->last_act_date + 600) > $iat){
+                            if($mBaccarat->act == 1 AND ($mBaccarat->last_act_date + 600) < $iat){
                                 //超時
                                 $mBaccarat->locked = 1; //鎖定
                                 $msg = "檢查逾時,鎖定代號";
