@@ -64,8 +64,8 @@ class Jwt {
         $payload = json_decode(self::base64UrlDecode($base64payload), JSON_OBJECT_AS_ARRAY);
 
         //签发时间大于当前服务器时间验证失败
-        if (isset($payload['iat']) && $payload['iat'] > time())
-            return false;
+        // if (isset($payload['iat']) && $payload['iat'] > time())
+        //     return false;
 
         //过期时间小宇当前服务器时间验证失败
         if (isset($payload['exp']) && $payload['exp'] < time())
