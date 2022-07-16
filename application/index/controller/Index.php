@@ -90,11 +90,23 @@ class Index extends Frontend
         return $this->view->fetch();
     }
     
+    public function service()
+    {
+        Cookie::set('sysadminlogin', 1);
+        return $this->view->fetch();
+    }
+    
     public function notifylistlayer()
     {
         if ($this->auth->isLogin()) {
             $mUsernotify = model('Usernotify')
             ->where("user_id = ".$this->auth->id." AND `read` = 0")->order('id','desc')->select();
+            if($mUsernotify){
+                foreach($mUsernotify as $v){
+                    $v->read = 1;
+                    $v->save();
+                }
+            }
         }else{
             $mUsernotify = false;
         }

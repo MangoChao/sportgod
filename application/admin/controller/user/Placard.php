@@ -95,6 +95,7 @@ class Placard extends Backend
                     if($mUser){
                         foreach($mUser as $v){
                             $params = [
+                                'url' => 'user/notify',
                                 'title' => $this->model->title,
                                 'content' => $this->model->content,
                                 'placard_id' => $this->model->id,

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => '運動神人',
+    'name' => '大贏家',
     'beian' => '',
     'cdnurl' => '',
     'version' => '1.1.3',

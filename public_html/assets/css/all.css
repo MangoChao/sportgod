@@ -1,5 +1,5 @@
 body{
-    padding-top: 130px;
+    padding-top: 120px;
     background-color: #dfdfdf;
 }
 
@@ -7,7 +7,7 @@ body{
     font-size: 16px;
 }
 .navbar-brand{
-    padding: 15px;
+    padding: 6px;
     height: auto;
 }
 .navbar-brand > img{
@@ -46,6 +46,9 @@ body{
 
 .navbar-inverse .navbar-nav > li > a:hover{
     color: #005d9b!important;
+}
+.navbar-inverse .navbar-nav > li > a.btn_notify:hover{
+    color: #ccc!important;
 }
 a.user_btn.active{
     color: #005d9b!important;
@@ -104,6 +107,9 @@ footer.footer{
     font-size: 18px;
     color: #cbc7c7; 
     margin-bottom: 0;
+}
+.footer_bottom p a{
+    color: #fff!important;
 }
 
 .m_panel{
@@ -830,3 +836,19 @@ a.btn-danger:visited{
 #notify_box{
     z-index: 9999999;
 } */
+
+.service p{
+    font-size: 16px;
+}
+.service>div{
+    padding: 15px;
+}
+.service ul{
+    list-style: disc;
+    padding-left: 25px;
+}
+
+.notifylist p{
+    margin: 0;
+    padding: 10px 15px;
+}

@@ -2,7 +2,7 @@
 <div class="layerbox notifylist">
     {if $mUsernotify}
         {foreach $mUsernotify as $v}
-            <a href="#">
+            <a href="{:url($v->url)}">
                 <div class="title">{$v->title}</div>
                 <div class="cont">{:nl2br($v->content)}</div>
             </a>
