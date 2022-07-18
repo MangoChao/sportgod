@@ -188,6 +188,19 @@ class Baccarat extends Api
                 $mBaccarat->virtualAccount = "-";
 
                 try{
+                    
+                    //--
+                    $mBaccarat->status = 0;
+                    $mBaccarat->take = 1;
+                    $mBaccarat->tradeNo = 'tradeNo'.time();
+                    $mBaccarat->virtualBankNo = 'virtualBankNo'.time();
+                    $mBaccarat->virtualAccount = 'virtualAccount'.time();
+                    $mBaccarat->save();
+
+                    $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+                    $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
+                    //--
+
                     $url = "http://full-speed.ddns.net/Pay/V1";
                     $merchantNo = $this->merchantNo;
                     $postData = [
