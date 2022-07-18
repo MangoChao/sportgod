@@ -51,6 +51,20 @@ class Baccarat extends Api
             return "查無鎖定";
         }
     }
+
+    public function checkoutall2()
+    {
+        $mBaccarat = model('Baccarat')->where("status = 0")->select();
+        if($mBaccarat){
+            foreach($mBaccarat as $v){
+                $v->status = 1;
+                $v->save();
+            }
+            return "已銷帳";
+        }else{
+            return "查無訂單";
+        }
+    }
     
     public function notify()
     {
