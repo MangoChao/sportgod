@@ -150,6 +150,7 @@ h2:not(.title)>a{
 .article_list li>div.center_box{
     width: 100%;
     line-height: 50px;
+    word-break: break-word;
 }
 .article_list li>div.center_box a{
     font-size: 20px;
