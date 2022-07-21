@@ -52,9 +52,9 @@ class Frontend extends Controller
     public function _initialize()
     {
         
-        if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
-            exit;
-        }
+        // if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
+        //     exit;
+        // }
 
         //移除HTML标签
         $this->request->filter('trim,strip_tags,htmlspecialchars');

@@ -783,7 +783,7 @@ a.btn-danger:visited{
     line-height: 1.5;
     border-radius: 2px;
 }
-.right_box .btn{
+.article_list .right_box .btn{
     float: right;
     margin-left: 5px;
 }

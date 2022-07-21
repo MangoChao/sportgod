@@ -410,6 +410,10 @@ class User extends Frontend
             $this->success('你已經登入', $url ? $url : url('user/profile'));
         }
         if ($this->request->isPost()) {
+            $agree = $this->request->post('agree',0);
+            if($agree != 1){
+                $this->error('請同意 服務條款與隱私權政策');
+            }
             $username = $this->request->post('username','');
             $nickname = $this->request->post('nickname','');
             $password = $this->request->post('password','');

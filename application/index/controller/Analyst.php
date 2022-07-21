@@ -102,6 +102,7 @@ class Analyst extends Frontend
     public function pred($id)
     {
         $this->view->assign('id', $id);
+        $eid = 0;
         $mEventcategory = model('Eventcategory')->alias('ec')
         ->join("event e","e.event_category_id = ec.id")
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
