@@ -150,7 +150,7 @@ class Analyst extends Frontend
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
-        ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free")
+        ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free, a.user_id as auid")
         ->where('p.analyst_id = '.$id.' AND e.starttime < '.$starttime_end.' AND e.starttime > '.$starttime_start)->order('e.starttime','desc')->select();
         // $count = $mPred->total();
         // $pagelist = $mPred->render();
@@ -191,7 +191,7 @@ class Analyst extends Frontend
         ->join("event e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
-        ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free")
+        ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free, a.user_id as auid")
         ->where('p.comply <> 0 AND p.analyst_id = '.$id)->order('e.starttime','desc')->paginate(20, false, $this->paginate_config);
         $count = $mHPred->total();
         $pagelist = $mHPred->render();
@@ -249,7 +249,7 @@ class Analyst extends Frontend
                     $v->comply_str = "-";
                 }
                 
-                if($v->free != 1 AND !$v->uta_id AND $v->starttime > time()){
+                if($v->free != 1 AND !$v->uta_id AND $v->starttime > time() AND $v->auid != $this->auth->id){
                     $v->pred_str = "<span class='text-gray'>未購買</span>";
                 }
                 if($v->starttime > time()){
