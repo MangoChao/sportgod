@@ -160,7 +160,8 @@ class Analyst extends Frontend
         // $this->view->assign('pagelist', $pagelist);
         
         $buy_btn = true;
-        if(!$mPred){
+        $mAnalyst = model('Analyst')->where("id = ".$id." AND user_id = ".$user_id)->find();
+        if(!$mPred OR $mAnalyst){
             $buy_btn = false;
         }else{
             $checktime = true;

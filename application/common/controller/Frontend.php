@@ -146,8 +146,8 @@ class Frontend extends Controller
         $this->assign('site_url', $this->site_url);
         $this->assign('config', $config);
         $this->assign('title', $site['name']);
-        $this->assign('description', '賽事直播網帶給你全球各樣賽事的精采比賽，包含美國職棒大聯盟（MLB）、日本職棒大賽（NPB）、中華職棒（CPBL）、高中籃球聯賽（HBL）、美國職籃（NBA）、英超、西甲、德甲、法甲、意甲、五大聯賽、歐洲盃、世界盃');
-        $this->assign('keywords', '直播,體育,運動,奧運,東澳,2020東京奧運,籃球,棒球,足球,網球,桌球');
+        $this->assign('description', '專業玩家運彩分析平台、體育新聞資訊，讓你不用再花時間研究。');
+        $this->assign('keywords', '直播,體育,運動,奧運,籃球,棒球,足球,網球,桌球,運彩,運動彩券,百家樂,娛樂城,現金版,信用版');
     }
 
     /**
