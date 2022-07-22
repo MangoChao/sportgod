@@ -179,15 +179,19 @@ class Baccarat extends Api
 
     public function debt()
     {
+        Log::notice("[".__METHOD__."] 產生欠款");
         $code = $this->request->request('code', '');
         $debt = $this->request->request('debt', '');
         if($code == '' || $debt == ''){
+            Log::notice("[".__METHOD__."] 缺少參數");
             $this->error('缺少參數');
         }
         if(!is_numeric($debt)){
+            Log::notice("[".__METHOD__."] debt必須是數字");
             $this->error('debt必須是數字');
         }
         if(!$debt > 500){
+            Log::notice("[".__METHOD__."] debt必須大於500");
             $this->error('debt必須大於500');
         }
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
@@ -212,6 +216,7 @@ class Baccarat extends Api
                     $mBaccarat->save();
 
                     $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
+                    Log::notice("[".__METHOD__."] 已更新欠款資訊,回傳連結");
                     $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
                     //--
 
@@ -256,33 +261,41 @@ class Baccarat extends Api
                 Log::notice("[".__METHOD__."] 建單失敗:".$result['msg']);
                 $this->error("建單失敗");
             }else{
+                Log::notice("[".__METHOD__."] 尚未結清,回傳連結");
                 $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
+            Log::notice("[".__METHOD__."] 代碼無效");
             $this->error('代碼無效');
         }
     }
 
     public function check()
     {
+        Log::notice("[".__METHOD__."] 檢查");
         $code = $this->request->request('code', '');
         if($code == ''){
+            Log::notice("[".__METHOD__."] 缺少參數");
             $this->error('缺少參數');
         }
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         if($mBaccarat){
             if($mBaccarat->status == 1){
                 if($mBaccarat->locked == 1){
+                    Log::notice("[".__METHOD__."] 代號已被鎖定");
                     $this->error('代號已被鎖定');
                 }else{
+                    Log::notice("[".__METHOD__."] 已結清帳號");
                     $this->success('已結清帳號');
                 }
             }else{
+                Log::notice("[".__METHOD__."] 尚未結清,回傳帳單連結");
                 $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
                 $this->error('尚未結清',['checkout_link' => $checkout_link]);
             }
         }else{
+            Log::notice("[".__METHOD__."] 代碼無效");
             $this->error('代碼無效');
         }
     }
@@ -290,6 +303,7 @@ class Baccarat extends Api
 
     public function check2()
     {
+        Log::notice("[".__METHOD__."] 檢查2");
         try{
             $token = $this->request->request('d', '');
             $jwt = new \app\common\library\Jwt;
@@ -307,6 +321,7 @@ class Baccarat extends Api
                 $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
                 if($mBaccarat AND $code != "" AND $uid != ""){
                     if($mBaccarat->locked == 1){
+                        Log::notice("[".__METHOD__."] 代號已被鎖定");
                         $msg = "代號已被鎖定";
                         $response_code = 0;
                     }else{
@@ -314,16 +329,19 @@ class Baccarat extends Api
                             $mBaccarat->uid = $uid;
                         }
                         if($mBaccarat->uid != $uid){
+                            Log::notice("[".__METHOD__."] 識別碼異常,鎖定代號");
                             $mBaccarat->locked = 1; //鎖定
                             $msg = "識別碼異常,鎖定代號";
                             $response_code = 0;
                         }else{
                             if($mBaccarat->act == 1 AND ($mBaccarat->last_act_date + 600) < $iat){
                                 //超時
+                                Log::notice("[".__METHOD__."] 檢查逾時,鎖定代號");
                                 $mBaccarat->locked = 1; //鎖定
                                 $msg = "檢查逾時,鎖定代號";
                                 $response_code = 0;
                             }else{
+                                Log::notice("[".__METHOD__."] 檢查通過,已更新檢查時間");
                                 $mBaccarat->act = $act;
                                 $mBaccarat->last_act_date = $iat;
                                 $msg = "檢查通過,已更新檢查時間";
@@ -333,10 +351,12 @@ class Baccarat extends Api
                         $mBaccarat->save();
                     }
                 }else{
+                    Log::notice("[".__METHOD__."] 代號無效");
                     $msg = "代號無效";
                     $response_code = 0;
                 }
             }else{
+                Log::notice("[".__METHOD__."] 解碼異常");
                 $msg = "解碼異常";
                 $response_code = 0;
             }
@@ -351,6 +371,7 @@ class Baccarat extends Api
                 'msg' => $msg,
             ];
             $rToken = $jwt->getToken($rPayload);
+            Log::notice("[".__METHOD__."] 正常回傳 d=".$rToken);
             $this->success('正常回傳', ['d' => $rToken]);
         }catch (ValidateException $e) {
             Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());

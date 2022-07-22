@@ -49,7 +49,7 @@ class Config extends Backend
             $siteList[$k]['title'] = $v;
             $siteList[$k]['list'] = [];
         }
-        Log::notice($this->model->all());
+        // Log::notice($this->model->all());
 
         foreach ($this->model->all() as $k => $v) {
             if (!isset($siteList[$v['group']])) {
