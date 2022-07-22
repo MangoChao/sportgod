@@ -96,8 +96,6 @@ class Analyst extends Backend
                 
                 if($params['autopred'] == 1){
                     $params['free'] = 0;
-                }else{
-                    $params['free'] = 1;
                 }
                 $result = false;
                 Db::startTrans();
@@ -178,8 +176,6 @@ class Analyst extends Backend
 
                 if($params['autopred'] == 1){
                     $params['free'] = 0;
-                }else{
-                    $params['free'] = 1;
                 }
 
                 $result = false;

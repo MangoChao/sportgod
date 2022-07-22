@@ -76,14 +76,18 @@ class User extends Backend
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->id;
                 }
-                $mUser = $this->model->get(['code' => $params['code'], 'status' => ['<>',3]]);
-                if($mUser){
-                    $this->error(__('代碼已存在'));
+                if($params['code'] != ""){
+                    $mUser = $this->model->get(['code' => $params['code'], 'status' => ['<>',3]]);
+                    if($mUser){
+                        $this->error(__('代碼已存在'));
+                    }
                 }
 
-                $mUser = $this->model->get(['bid' => $params['bid'], 'status' => ['<>',3]]);
-                if($mUser){
-                    $this->error(__('球版ID已存在'));
+                if($params['bid'] != ""){
+                    $mUser = $this->model->get(['bid' => $params['bid'], 'status' => ['<>',3]]);
+                    if($mUser){
+                        $this->error(__('球版ID已存在'));
+                    }
                 }
                 if($params['nickname'] == '') $params['nickname'] = $params['bid'];
 
@@ -155,13 +159,17 @@ class User extends Backend
             if ($params) {
                 $params = $this->preExcludeFields($params);
 
-                $mUser = $this->model->get(['id' => ['<>',$ids], 'code' => $params['code'], 'status' => ['<>',3]]);
-                if($mUser){
-                    $this->error(__('代碼已存在'));
+                if($params['code'] != ""){
+                    $mUser = $this->model->get(['id' => ['<>',$ids], 'code' => $params['code'], 'status' => ['<>',3]]);
+                    if($mUser){
+                        $this->error(__('代碼已存在'));
+                    }
                 }
-                $mUser = $this->model->get(['id' => ['<>',$ids], 'bid' => $params['bid'], 'status' => ['<>',3]]);
-                if($mUser){
-                    $this->error(__('球版ID已存在'));
+                if($params['bid'] != ""){
+                    $mUser = $this->model->get(['id' => ['<>',$ids], 'bid' => $params['bid'], 'status' => ['<>',3]]);
+                    if($mUser){
+                        $this->error(__('球版ID已存在'));
+                    }
                 }
                 if($params['nickname'] == '') $params['nickname'] = $params['bid'];
 
