@@ -80,8 +80,11 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 }
             });
 
+            let aid = $("#aid").val();
             Form.api.bindevent($("#pred_form"), function (data) {
-                // location.href = Config.url.furl+"/index/article";
+                setTimeout(function () {
+                    location.href = Config.url.furl+"/index/analyst/profile/id/"+aid+"/pt/1";
+                }, 1000);
             });
         },
         buypoint: function () {
