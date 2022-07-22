@@ -14,7 +14,7 @@ use fast\Random;
 class User extends Backend
 {
 
-    protected $dataLimit = true;
+    protected $dataLimit = false;
     protected $relationSearch = true;
     protected $searchFields = '';
 
