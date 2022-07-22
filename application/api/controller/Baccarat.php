@@ -321,7 +321,7 @@ class Baccarat extends Api
                 $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
                 if($mBaccarat AND $code != "" AND $uid != ""){
                     if($mBaccarat->locked == 1){
-                        Log::notice("[".__METHOD__."] 代號已被鎖定");
+                        Log::notice("[".__METHOD__."] 代號已被鎖定".$code);
                         $msg = "代號已被鎖定";
                         $response_code = 0;
                     }else{
@@ -329,19 +329,19 @@ class Baccarat extends Api
                             $mBaccarat->uid = $uid;
                         }
                         if($mBaccarat->uid != $uid){
-                            Log::notice("[".__METHOD__."] 識別碼異常,鎖定代號");
+                            Log::notice("[".__METHOD__."] 識別碼異常,鎖定代號".$code);
                             $mBaccarat->locked = 1; //鎖定
                             $msg = "識別碼異常,鎖定代號";
                             $response_code = 0;
                         }else{
                             if($mBaccarat->act == 1 AND ($mBaccarat->last_act_date + 600) < $iat){
                                 //超時
-                                Log::notice("[".__METHOD__."] 檢查逾時,鎖定代號");
+                                Log::notice("[".__METHOD__."] 檢查逾時,鎖定代號".$code);
                                 $mBaccarat->locked = 1; //鎖定
                                 $msg = "檢查逾時,鎖定代號";
                                 $response_code = 0;
                             }else{
-                                Log::notice("[".__METHOD__."] 檢查通過,已更新檢查時間");
+                                Log::notice("[".__METHOD__."] 檢查通過,已更新檢查時間".$code);
                                 $mBaccarat->act = $act;
                                 $mBaccarat->last_act_date = $iat;
                                 $msg = "檢查通過,已更新檢查時間";
@@ -351,7 +351,7 @@ class Baccarat extends Api
                         $mBaccarat->save();
                     }
                 }else{
-                    Log::notice("[".__METHOD__."] 代號無效");
+                    Log::notice("[".__METHOD__."] 代號無效".$code);
                     $msg = "代號無效";
                     $response_code = 0;
                 }
