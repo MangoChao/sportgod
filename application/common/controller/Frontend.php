@@ -211,7 +211,7 @@ class Frontend extends Controller
                     $mAT = model("Analysttitle")->where("ecid = ".$at->ecid." AND analyst_id = ".$at->analyst_id)->order("type","asc")->find();
                 }
                 if($mAT){
-                    $at->atitle = $at->analyst_name." ".$at->etitle." ".$mAT->title;
+                    $at->atitle = "<span>".$at->analyst_name."</span> ".$at->etitle." ".$mAT->title;
                 }
             }
         }
