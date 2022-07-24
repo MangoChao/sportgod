@@ -63,6 +63,35 @@ class Analyst extends Frontend
         if($count > 0){
             foreach($mAnalyst as $v){
                 if(!$v->avatar) $v->avatar = $this->def_avatar;
+                
+                $v->analysttitle = [];
+                if($cat_id == 0){
+                    $mAnalysttitle = model("Analysttitle")->alias('at')
+                    ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$v->id." AND att.titletype = at.type")
+                    ->join("event_category ec","att.ecid = ec.id")
+                    ->field("at.*, ec.title as etitle")
+                    ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->find();
+                    if(!$mAnalysttitle){
+                        $mAnalysttitle = model("Analysttitle")->alias('at')
+                        ->join("event_category ec","att.ecid = ec.id")
+                        ->field("at.*, ec.title as etitle")
+                        ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->order("at.type","asc")->find();
+                    }
+                    if($mAnalysttitle){
+                        $v->analysttitle[] = $mAnalysttitle->etitle." ".$mAnalysttitle->title;
+                    }
+                }else{
+                    $mAnalysttitle = model("Analysttitle")->alias('at')
+                    ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$v->id." AND att.titletype = at.type")
+                    ->field("at.*")
+                    ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->find();
+                    if(!$mAnalysttitle){
+                        $mAnalysttitle = model("Analysttitle")->where("ecid = ".$cat_id." AND analyst_id = ".$v->id)->order("type","asc")->find();
+                    }
+                    if($mAnalysttitle){
+                        $v->analysttitle[] = $mAnalysttitle->title;
+                    }
+                }
             }
         }
         $this->view->assign('count', $count);
@@ -109,7 +138,6 @@ class Analyst extends Frontend
             if($mAnalysttotitletype){
                 $checked = " AND type = ".$mAnalysttotitletype->titletype;
             }
-            $mAnalysttitle = model("Analysttitle")->where("ecid = ".$cat_id." AND analyst_id = ".$mAnalyst->id." ".$checked)->order("type","asc")->find();
 
             $mAnalysttitle = model("Analysttitle")->alias('at')
             ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$mAnalyst->id." AND att.titletype = at.type")

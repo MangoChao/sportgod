@@ -885,3 +885,15 @@ a.btn-danger:visited{
 .author{
     float: none;
 }
+
+.analysttitle_text{
+    font-size: 22px;
+    line-height: normal;
+    letter-spacing: -1px;
+    text-align: center;
+    width: 140px;
+    margin: 10px auto;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
+}

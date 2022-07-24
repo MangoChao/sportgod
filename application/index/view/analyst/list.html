@@ -15,11 +15,21 @@
                         {foreach $mAnalyst as $v}
                         <li>
                             <a href="{:url('/index/analyst/profile/id/'.$v->id.'/pt/1')}{if $cat_id != 0}?cat={$cat_id}{/if}">
-                            <div class="photoframe">
-                                <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
-                            </div>
-                            <h4>{$v->analyst_name}</h4>
-                        </a></li>
+                                <div class="photoframe">
+                                    <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
+                                </div>
+                                <div>
+                                    <h4>{$v->analyst_name}</h4>
+                                    <div>
+                                        {if $v->analysttitle}
+                                            {foreach $v->analysttitle as $at}
+                                            <span>{$at}</span>
+                                            {/foreach}
+                                        {/if}
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
                         {/foreach}
                     </ul>
                     <div class="page">
