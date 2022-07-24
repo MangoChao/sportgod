@@ -607,7 +607,7 @@ a.btn_buy_pred:link:active{
     font-weight: bold;
     padding: 0 15px;
     margin: 0;
-    line-height: 44px;
+    line-height: 37px;
     font-size: 16px;
 }
 
@@ -894,7 +894,7 @@ a.btn-danger:visited{
     width: 140px;
     margin: 10px auto;
     font-weight: bold;
-    color: #ffffff;
+    color: #f7ff85;
     text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
 }
 
@@ -902,6 +902,12 @@ a.btn-danger:visited{
     padding: 0 15px;
 }
 .analysttitle_box span{
-    padding: 5px;
-    margin-right: 5px;
+    padding: 1px 10px;
+    margin-right: 7px;
+    margin-bottom: 6px;
+    border: 1px #005d9b solid;
+    font-weight: bold;
+    color: #f7ff85;
+    text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
+    display: inline-block;
 }
