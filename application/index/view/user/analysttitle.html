@@ -8,16 +8,25 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <h2 class="page-header">我的稱號</h2>
-                    {if $mAnalysttitle}
+                    {if $mEventcategory}
                     <div class="analyst_title_list">
-                        {foreach $mAnalysttitle as $v}
-                        <a href="javascript:;" class="btn ">
-                            {$v->title}
-                        </a>
+                        {foreach $mEventcategory as $v}
+                        <div>
+                            <h3>{$v->title}</h3>
+                            {if $v->mAnalysttitle}
+                                {foreach $v->mAnalysttitle as $va}
+                                    <a href="javascript:;" class="btn ">
+                                        {$va->title}
+                                    </a>
+                                {/foreach}
+                            {else/}
+                                <p>沒有可用稱號</p>
+                            {/if}
+                        </div>
                         {/foreach}
                     </div>
                     {else/}
-                    <p>沒有可用稱號</p>
+                    <p>沒有開放的預測分類</p>
                     {/if}
                 </div>
             </div>

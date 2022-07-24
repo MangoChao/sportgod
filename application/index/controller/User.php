@@ -66,12 +66,17 @@ class User extends Frontend
 
     public function analysttitle()
     {
-        $mAnalysttitle = false;
+        $mEventcategory = false;
         $mAnalyst = model('Analyst')->where('user_id = '.$this->auth->id)->find();
         if($mAnalyst){
-            $mAnalysttitle = model("Analysttitle")->where("analyst_id = ".$mAnalyst->id)->order("type","asc")->select();
+            $mEventcategory = model("Eventcategory")->where("status = 1")->order("id")->select();
+            if($mEventcategory){
+                foreach($mEventcategory as $v){
+                    $v->mAnalysttitle = model("Analysttitle")->where("ecid = ".$v->id." AND analyst_id = ".$mAnalyst->id)->order("type","asc")->select();
+                }
+            }
         }
-        $this->view->assign('mAnalysttitle', $mAnalysttitle);
+        $this->view->assign('mEventcategory', $mEventcategory);
         $this->view->assign('mAnalyst', $mAnalyst);
         return $this->view->fetch();
     }

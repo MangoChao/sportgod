@@ -37,7 +37,7 @@ class Dayreport extends Command
         $this->site = Config::get("site");
         $this->Eventreport();
         $this->Geteventcat();
-        // $this->Titlereport();
+        $this->Titlereport();
         if(date('w') == 2){
             $this->Weekreport();
         }
@@ -440,7 +440,7 @@ class Dayreport extends Command
             //3.近N場 過N場
             //4.近N日 過N
             //5.近N日 N過N
-            //5.近期過N場
+            //6.近期過N場
 
             $modelAnalyst = new Analyst;
             $mAnalyst = $modelAnalyst->where("status = 1")->select();
@@ -448,16 +448,17 @@ class Dayreport extends Command
             $lmonth = strtotime(date("Y-m-d")." -1 month");
             $mAnalyst = $modelAnalyst->alias('a')
             ->join("pred p","p.analyst_id = a.id")
-            ->field("a.*")
-            ->where("a.status = 1 AND p.createtime > ".$lmonth)->group("a.id")->select();
+            ->join("event e","p.event_id = e.id")
+            ->field("a.*,e.event_category_id")
+            ->where("a.status = 1 AND p.createtime > ".$lmonth)->group("a.id,e.event_category_id")->select();
             if($mAnalyst){
                 foreach($mAnalyst as $v){
-                    Log::notice("[command][Cron][".$func_name."] 處理分析師id:".$v->id);
-                    $this->titleType1($v->id);
-                    $this->titleType2($v->id);
-                    // $this->titleType3($v->id);
-                    // $this->titleType4($v->id);
-                    // $this->titleType5($v->id);
+                    Log::notice("[command][Cron][".$func_name."] 處理分析師:".$v->id." / 分類:".$v->event_category_id);
+                    $this->titleType1($v->id, $v->event_category_id);
+                    $this->titleType2($v->id, $v->event_category_id);
+                    $this->titleType3($v->id, $v->event_category_id);
+                    $this->titleType45($v->id, $v->event_category_id);
+                    $this->titleType6($v->id, $v->event_category_id);
                 }
             }else{
                 Log::notice("[command][Cron][".$func_name."] 沒有有效分析師");
@@ -474,16 +475,16 @@ class Dayreport extends Command
     }
 
     
-    public function titleType1($id)
+    public function titleType1($id, $ecid)
     {
         try{
             $func_name = 'titleType1';
             Log::notice("[command][Cron][".$func_name."] 檢查稱號1");
             $modelPred = new Pred;
             $type = 1;
-            $lmonth = strtotime(date("Y-m-d")." -1 month");
+            $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id")
+            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->order(["e.starttime"=>"desc","p.predtime"=>"desc"])->select();
             if($mPred){
@@ -502,6 +503,7 @@ class Dayreport extends Command
                     $param = [
                         "title" => "連贏".$win."場",
                         "type" => $type,
+                        "ecid" => $ecid,
                         "analyst_id" => $id,
                     ];
                     $modelAnalysttitle::create($param);
@@ -520,17 +522,17 @@ class Dayreport extends Command
         }
     }
     
-    public function titleType2($id)
+    public function titleType2($id, $ecid)
     {
         try{
             $func_name = 'titleType2';
             Log::notice("[command][Cron][".$func_name."] 檢查稱號2");
             $modelPred = new Pred;
             $type = 2;
-            $lmonth = strtotime(date("Y-m-d")." -1 month");
+            $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id")
-            ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount,e.starttime")
+            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->group("FROM_UNIXTIME(e.starttime,'%Y%m%d')")->order(["e.starttime"=>"desc"])->select();
             if($mPred){
                 $win = 0;
@@ -548,6 +550,7 @@ class Dayreport extends Command
                     $param = [
                         "title" => "連贏".$win."天",
                         "type" => $type,
+                        "ecid" => $ecid,
                         "analyst_id" => $id,
                     ];
                     $modelAnalysttitle::create($param);
@@ -556,6 +559,163 @@ class Dayreport extends Command
                 }
             }else{
                 Log::notice("[command][Cron][".$func_name."] 查無預測");
+            }
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
+        }
+    }
+    
+    public function titleType3($id, $ecid)
+    {
+        try{
+            $func_name = 'titleType3';
+            Log::notice("[command][Cron][".$func_name."] 檢查稱號3");
+            $modelPred = new Pred;
+            $type = 3;
+            $lmonth = strtotime(date("Y-m-d")." -30 day");
+            $mPred = $modelPred->alias('p')
+            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->field("p.*")
+            ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->order(["e.starttime"=>"desc","p.predtime"=>"desc"])->select();
+            if($mPred){
+                $win = 0;
+                $baseRate = 0;
+                $title = "";
+                foreach($mPred as $k=>$v){
+                    $c = $k+1;
+                    if($v->comply == 1){
+                        $win++;
+                    }
+                    if($c >= 5){
+                        $rate = round($win/$c*100);
+                        if($rate > $baseRate){
+                            $baseRate = $rate;
+                            $title = "近".$c."場 過".$win."場";
+                        }
+                    }
+                }
+                if($title != ""){
+                    Log::notice("[command][Cron][".$func_name."] ".$title);
+                    $modelAnalysttitle = new Analysttitle;
+
+                    $param = [
+                        "title" => $title,
+                        "type" => $type,
+                        "ecid" => $ecid,
+                        "analyst_id" => $id,
+                    ];
+                    $modelAnalysttitle::create($param);
+                }else{
+                    Log::notice("[command][Cron][".$func_name."] 不符合");
+                }
+            }else{
+                Log::notice("[command][Cron][".$func_name."] 查無預測");
+            }
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
+        }
+    }
+    
+    public function titleType45($id, $ecid)
+    {
+        try{
+            $func_name = 'titleType45';
+            Log::notice("[command][Cron][".$func_name."] 檢查稱號45");
+            $modelPred = new Pred;
+            
+            $lmonth = strtotime(date("Y-m-d")." -30 day");
+            $mPred = $modelPred->alias('p')
+            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount")
+            ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->group("FROM_UNIXTIME(e.starttime,'%Y%m%d')")->order(["e.starttime"=>"desc"])->select();
+            if($mPred){
+                $cWin = 0;
+                $cPcount = 0;
+                $win = 0;
+                $baseRate = 0;
+                $title = "";
+                $title2 = "";
+                foreach($mPred as $k=>$v){
+                    $c = $k+1;
+                    $cWin += $v->win;
+                    $cPcount += $v->pcount;
+                    
+                    if($c >= 5){
+                        $rate = round($cWin/$cPcount*100);
+                        if($rate > $baseRate){
+                            $baseRate = $rate;
+                            $title = "近".$c."日 過".$cWin;
+                            $title2 = "近".$c."日 ".$cPcount."過".$cWin;
+                        }
+                    }
+                }
+                if($title != ""){
+                    Log::notice("[command][Cron][".$func_name."] ".$title2);
+                    $modelAnalysttitle = new Analysttitle;
+
+                    $param = [
+                        "title" => $title,
+                        "type" => 4,
+                        "ecid" => $ecid,
+                        "analyst_id" => $id,
+                    ];
+                    $modelAnalysttitle::create($param);
+                    
+                    $param = [
+                        "title" => $title2,
+                        "type" => 5,
+                        "ecid" => $ecid,
+                        "analyst_id" => $id,
+                    ];
+                    $modelAnalysttitle::create($param);
+                }else{
+                    Log::notice("[command][Cron][".$func_name."] 不符合");
+                }
+            }else{
+                Log::notice("[command][Cron][".$func_name."] 查無預測");
+            }
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
+        }
+    }
+    
+    public function titleType6($id, $ecid)
+    {
+        try{
+            $func_name = 'titleType6';
+            Log::notice("[command][Cron][".$func_name."] 檢查稱號6");
+            $modelPred = new Pred;
+            $type = 6;
+            $lmonth = strtotime(date("Y-m-d")." -30 day");
+            $win = $modelPred->alias('p')
+            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->field("p.*")
+            ->where("p.comply = 1 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->count();
+            if($win > 0){
+                Log::notice("[command][Cron][".$func_name."] 近期過".$win."場");
+                $modelAnalysttitle = new Analysttitle;
+
+                $param = [
+                    "title" => "近期過".$win."場",
+                    "type" => $type,
+                    "ecid" => $ecid,
+                    "analyst_id" => $id,
+                ];
+                $modelAnalysttitle::create($param);
+            }else{
+                Log::notice("[command][Cron][".$func_name."] 不符合");
             }
         } catch (ValidateException $e) {
             Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
