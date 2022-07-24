@@ -199,7 +199,7 @@ class Frontend extends Controller
         ->join("event_category ec","at.ecid = ec.id")
         ->join("analyst a","at.analyst_id = a.id")
         ->field("at.*, ec.title as etitle, a.analyst_name")
-        ->where("a.status = 1")->group("ec.id, at.analyst_id")->limit(4)->orderRaw('RAND()')->select();
+        ->where("a.status = 1")->group("ec.id, at.analyst_id")->limit(3)->orderRaw('RAND()')->select();
         if($baseAnalysttitle){
             foreach($baseAnalysttitle as $at){
                 $at->atitle = "";
