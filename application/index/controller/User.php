@@ -73,8 +73,13 @@ class User extends Frontend
             $mEventcategory = model("Eventcategory")->where("status = 1")->order("id")->select();
             if($mEventcategory){
                 foreach($mEventcategory as $v){
-                    $v->mAnalysttitle = model("Analysttitle")->where("ecid = ".$v->id." AND analyst_id = ".$mAnalyst->id)->order("type","asc")->select();
-                    if($v->mAnalysttitle) $checkAT = true;
+                    $v->mAnalysttitle = model("Analysttitle")->alias('at')
+                    ->join("analyst_to_titletype att","att.ecid = ".$v->id." AND att.analyst_id = ".$mAnalyst->id." AND att.titletype = at.type","LEFT")
+                    ->field('at.*, att.id as attid')
+                    ->where("at.ecid = ".$v->id." AND at.analyst_id = ".$mAnalyst->id)->order("at.type","asc")->select();
+                    if($v->mAnalysttitle){
+                        $checkAT = true;
+                    }
                 }
             }
         }
