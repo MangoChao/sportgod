@@ -1,0 +1,26 @@
+
+<div id="content-container" class="container">
+    <div class="row">
+        <div class="col-md-3">
+            {include file="common/sidenav" /}
+        </div>
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h2 class="page-header">我的稱號</h2>
+                    {if $mAnalysttitle}
+                    <div class="analyst_title_list">
+                        {foreach $mAnalysttitle as $v}
+                        <a href="javascript:;" class="btn ">
+                            {$v->title}
+                        </a>
+                        {/foreach}
+                    </div>
+                    {else/}
+                    <p>沒有可用稱號</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

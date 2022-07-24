@@ -63,6 +63,18 @@ class User extends Frontend
         $this->view->assign('title', '個人首頁');
         return $this->view->fetch();
     }
+
+    public function analysttitle()
+    {
+        $mAnalysttitle = false;
+        $mAnalyst = model('Analyst')->where('user_id = '.$this->auth->id)->find();
+        if($mAnalyst){
+            $mAnalysttitle = model("Analysttitle")->where("analyst_id = ".$mAnalyst->id)->order("type","asc")->select();
+        }
+        $this->view->assign('mAnalysttitle', $mAnalysttitle);
+        $this->view->assign('mAnalyst', $mAnalyst);
+        return $this->view->fetch();
+    }
     
     public function notify($page = 1)
     {
