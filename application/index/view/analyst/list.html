@@ -18,9 +18,9 @@
                                 <div class="photoframe">
                                     <img src="{$v->avatar|cdnurl}" alt="{$v->analyst_name}">
                                 </div>
-                                <div>
+                                <div class="rbox">
                                     <h4>{$v->analyst_name}</h4>
-                                    <div>
+                                    <div class="analysttitle_box">
                                         {if $v->analysttitle}
                                             {foreach $v->analysttitle as $at}
                                             <span>{$at}</span>

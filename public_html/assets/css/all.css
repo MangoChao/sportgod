@@ -897,3 +897,11 @@ a.btn-danger:visited{
     color: #ffffff;
     text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
 }
+
+.analysttitle_box{
+    padding: 0 15px;
+}
+.analysttitle_box span{
+    padding: 5px;
+    margin-right: 5px;
+}

@@ -64,34 +64,40 @@ class Analyst extends Frontend
             foreach($mAnalyst as $v){
                 if(!$v->avatar) $v->avatar = $this->def_avatar;
                 
-                $v->analysttitle = [];
+                $analysttitle = [];
                 if($cat_id == 0){
                     $mAnalysttitle = model("Analysttitle")->alias('at')
-                    ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$v->id." AND att.titletype = at.type")
-                    ->join("event_category ec","att.ecid = ec.id")
+                    ->join("event_category ec","at.ecid = ec.id")
                     ->field("at.*, ec.title as etitle")
-                    ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->find();
-                    if(!$mAnalysttitle){
-                        $mAnalysttitle = model("Analysttitle")->alias('at')
-                        ->join("event_category ec","at.ecid = ec.id")
-                        ->field("at.*, ec.title as etitle")
-                        ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->order("at.type","asc")->find();
-                    }
+                    ->where("at.analyst_id = ".$v->id)->order("at.type","asc")->group("ec.id")->select();
                     if($mAnalysttitle){
-                        $v->analysttitle[] = $mAnalysttitle->etitle." ".$mAnalysttitle->title;
+                        foreach($mAnalysttitle as $at){
+                            $mAT = model("Analysttitle")->alias('at')
+                            ->join("analyst_to_titletype att","att.ecid = at.ecid AND att.analyst_id = at.analyst_id AND att.titletype = at.type")
+                            ->field("at.*")
+                            ->where("at.ecid = ".$at->ecid." AND at.analyst_id = ".$v->id)->find();
+                            if(!$mAT){
+                                $mAT = model("Analysttitle")->where("ecid = ".$at->ecid." AND analyst_id = ".$v->id)->order("type","asc")->find();
+                            }
+                            if($mAT){
+                                $analysttitle[] = $at->etitle." ".$mAT->title;
+                            }
+                        }
                     }
                 }else{
                     $mAnalysttitle = model("Analysttitle")->alias('at')
-                    ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$v->id." AND att.titletype = at.type")
+                    ->join("analyst_to_titletype att","att.ecid = at.ecid AND att.analyst_id = at.analyst_id AND att.titletype = at.type")
                     ->field("at.*")
                     ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->find();
                     if(!$mAnalysttitle){
                         $mAnalysttitle = model("Analysttitle")->where("ecid = ".$cat_id." AND analyst_id = ".$v->id)->order("type","asc")->find();
                     }
                     if($mAnalysttitle){
-                        $v->analysttitle[] = $mAnalysttitle->title;
+                        $analysttitle[] = $mAnalysttitle->title;
                     }
                 }
+
+                $v->analysttitle = $analysttitle;
             }
         }
         $this->view->assign('count', $count);
