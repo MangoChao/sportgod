@@ -870,6 +870,13 @@ a.btn-danger:visited{
     display: -webkit-box!important;
     padding-right: 50px;
 }
+
+.view_content *{
+    line-height: 24px!important;
+    font-size: 12px!important;
+    background: none!important;
+    color: #666!important;
+}
 .author{
     float: none;
 }
