@@ -34,16 +34,16 @@
                 <a href="{:url('/index/godarticle')}">神人專欄</a>
                 <a href="{:url('/index/rank')}">排行榜</a>
                 <a href="{:url('/index/luckyshare')}">好運分享</a>
-                {if $mArticlecat AND 1==0}
-                {foreach $mArticlecat as $cat}
+                {if $baseArticlecat AND 1==0}
+                {foreach $baseArticlecat as $cat}
                 <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>
                 {/foreach}
                 {/if}
             </div>
-            {if $analysttitle}
+            {if $baseAnalysttitle}
             <div class="container">
                 <div class="at_list">
-                    {foreach $analysttitle as $v}
+                    {foreach $baseAnalysttitle as $v}
                     <a class="at_text" href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$v->ecid}">{$v->atitle}</a>
                     {/foreach}
                 </div>

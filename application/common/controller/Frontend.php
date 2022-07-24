@@ -189,19 +189,19 @@ class Frontend extends Controller
 
     protected function assignArticlecat()
     {
-        $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
-        $this->assign('mArticlecat', $mArticlecat);
+        $baseArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
+        $this->assign('baseArticlecat', $baseArticlecat);
     }
 
     protected function assignArticleTitle()
     {
-        $mAnalysttitle = model("Analysttitle")->alias('at')
+        $baseAnalysttitle = model("Analysttitle")->alias('at')
         ->join("event_category ec","at.ecid = ec.id")
         ->join("analyst a","at.analyst_id = a.id")
         ->field("at.*, ec.title as etitle, a.analyst_name")
         ->where("a.status = 1")->group("ec.id, at.analyst_id")->limit(4)->orderRaw('RAND()')->select();
-        if($mAnalysttitle){
-            foreach($mAnalysttitle as $at){
+        if($baseAnalysttitle){
+            foreach($baseAnalysttitle as $at){
                 $at->atitle = "";
                 $mAT = model("Analysttitle")->alias('at')
                 ->join("analyst_to_titletype att","att.ecid = at.ecid AND att.analyst_id = at.analyst_id AND att.titletype = at.type")
@@ -215,7 +215,7 @@ class Frontend extends Controller
                 }
             }
         }
-        $this->assign('mAnalysttitle', $mAnalysttitle);
+        $this->assign('baseAnalysttitle', $baseAnalysttitle);
     }
 
     protected function checkArticleread()
