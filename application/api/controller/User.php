@@ -976,7 +976,7 @@ class User extends Api
 
         
         $rule = [
-            'nickname'  => 'require|length:2,10',
+            'nickname'  => 'require|length:2,8',
             'email'  => 'require|email',
             'mobile'    => 'require|regex:/^09\d{2}-?\d{3}-?\d{3}$/',
             'password'  => $password != ''?'require|length:6,16':'',
@@ -984,7 +984,7 @@ class User extends Api
 
         $msg = [
             'nickname.require' => '暱稱為必填選項',
-            'nickname.length'  => '暱稱必須是2~10個字元',
+            'nickname.length'  => '暱稱必須是2~8個字元',
             'password.require' => '密碼為必填選項',
             'password.length'  => '密碼必須是6~16個字元',
             'mobile.require' => '手機為必填選項',

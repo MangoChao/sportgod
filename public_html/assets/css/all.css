@@ -925,8 +925,8 @@ a.btn-danger:visited{
     display: block;
     width: 100%;
     margin: 0 5px;
-    color: #f7ff85!important;
-    text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
+    color: #19409b!important;
+    font-weight: bold;
 }
 
 .at_text span{

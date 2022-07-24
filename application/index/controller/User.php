@@ -448,7 +448,7 @@ class User extends Frontend
             $token = $this->request->post('__token__');
             $rule = [
                 'username'  => 'require|length:2,10',
-                'nickname'  => 'require|length:2,10',
+                'nickname'  => 'require|length:2,8',
                 'password'  => 'require|length:6,16',
                 'mobile'    => 'require|regex:/^09\d{2}-?\d{3}-?\d{3}$/',
                 'email'  => 'require|email',
@@ -459,7 +459,7 @@ class User extends Frontend
                 'username.require' => '帳號為必填選項',
                 'username.length'  => '帳號必須是2~10個字元',
                 'nickname.require' => '暱稱為必填選項',
-                'nickname.length'  => '暱稱必須是2~10個字元',
+                'nickname.length'  => '暱稱必須是2~8個字元',
                 'password.require' => '密碼為必填選項',
                 'password.length'  => '密碼必須是6~16個字元',
                 'mobile.require' => '手機為必填選項',
