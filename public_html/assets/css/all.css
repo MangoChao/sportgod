@@ -867,5 +867,9 @@ a.btn-danger:visited{
     text-overflow: ellipsis;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    display: -webkit-box;
+    display: -webkit-box!important;
+    padding-right: 50px;
+}
+.author{
+    float: none;
 }
