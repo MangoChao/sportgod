@@ -195,7 +195,6 @@ class Frontend extends Controller
 
     protected function assignArticleTitle()
     {
-        $analysttitle = [];
         $mAnalysttitle = model("Analysttitle")->alias('at')
         ->join("event_category ec","at.ecid = ec.id")
         ->join("analyst a","at.analyst_id = a.id")
@@ -203,6 +202,7 @@ class Frontend extends Controller
         ->where("a.status = 1")->group("ec.id, at.analyst_id")->limit(4)->orderRaw('RAND()')->select();
         if($mAnalysttitle){
             foreach($mAnalysttitle as $at){
+                $at->atitle = "";
                 $mAT = model("Analysttitle")->alias('at')
                 ->join("analyst_to_titletype att","att.ecid = at.ecid AND att.analyst_id = at.analyst_id AND att.titletype = at.type")
                 ->field("at.*")
@@ -211,11 +211,11 @@ class Frontend extends Controller
                     $mAT = model("Analysttitle")->where("ecid = ".$at->ecid." AND analyst_id = ".$at->analyst_id)->order("type","asc")->find();
                 }
                 if($mAT){
-                    $analysttitle[] = $at->analyst_name." ".$at->etitle." ".$mAT->title;
+                    $at->atitle = $at->analyst_name." ".$at->etitle." ".$mAT->title;
                 }
             }
         }
-        $this->assign('analysttitle', $analysttitle);
+        $this->assign('mAnalysttitle', $mAnalysttitle);
     }
 
     protected function checkArticleread()
