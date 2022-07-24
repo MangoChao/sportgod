@@ -433,7 +433,7 @@ class Dayreport extends Command
             
             //刪除稱號
             $modelAnalysttitle = new Analysttitle;
-            $modelAnalysttitle->delete();
+            $modelAnalysttitle->where("id > 0")->delete();
             
             //1.連贏N場
             //2.連贏N天
@@ -454,7 +454,7 @@ class Dayreport extends Command
                 foreach($mAnalyst as $v){
                     Log::notice("[command][Cron][".$func_name."] 處理分析師id:".$v->id);
                     $this->titleType1($v->id);
-                    // $this->titleType2($v->id);
+                    $this->titleType2($v->id);
                     // $this->titleType3($v->id);
                     // $this->titleType4($v->id);
                     // $this->titleType5($v->id);
@@ -476,8 +476,9 @@ class Dayreport extends Command
     
     public function titleType1($id)
     {
-        Log::notice("[command][Cron][".$func_name."] 檢查稱號1");
         try{
+            $func_name = 'titleType1';
+            Log::notice("[command][Cron][".$func_name."] 檢查稱號1");
             $modelPred = new Pred;
             $type = 1;
             $lmonth = strtotime(date("Y-m-d")." -1 month");
@@ -495,6 +496,7 @@ class Dayreport extends Command
                     }
                 }
                 if($win >= 4){
+                    Log::notice("[command][Cron][".$func_name."] 連贏".$win."場");
                     $modelAnalysttitle = new Analysttitle;
 
                     $param = [
@@ -503,6 +505,54 @@ class Dayreport extends Command
                         "analyst_id" => $id,
                     ];
                     $modelAnalysttitle::create($param);
+                }else{
+                    Log::notice("[command][Cron][".$func_name."] 不符合");
+                }
+            }else{
+                Log::notice("[command][Cron][".$func_name."] 查無預測");
+            }
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$func_name."] ValidateException :".$e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$func_name."] PDOException :".$e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
+        }
+    }
+    
+    public function titleType2($id)
+    {
+        try{
+            $func_name = 'titleType2';
+            Log::notice("[command][Cron][".$func_name."] 檢查稱號2");
+            $modelPred = new Pred;
+            $type = 2;
+            $lmonth = strtotime(date("Y-m-d")." -1 month");
+            $mPred = $modelPred->alias('p')
+            ->join("event e","p.event_id = e.id")
+            ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount,e.starttime")
+            ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->group("FROM_UNIXTIME(e.starttime,'%Y%m%d')")->order(["e.starttime"=>"desc"])->select();
+            if($mPred){
+                $win = 0;
+                foreach($mPred as $k=>$v){
+                    if($v->win >= $v->pcount/2){
+                        $win++;
+                    }else{
+                        break;
+                    }
+                }
+                if($win >= 3){
+                    Log::notice("[command][Cron][".$func_name."] 連贏".$win."天");
+                    $modelAnalysttitle = new Analysttitle;
+
+                    $param = [
+                        "title" => "連贏".$win."天",
+                        "type" => $type,
+                        "analyst_id" => $id,
+                    ];
+                    $modelAnalysttitle::create($param);
+                }else{
+                    Log::notice("[command][Cron][".$func_name."] 不符合");
                 }
             }else{
                 Log::notice("[command][Cron][".$func_name."] 查無預測");

@@ -34,7 +34,7 @@
                 <a href="{:url('/index/godarticle')}">神人專欄</a>
                 <a href="{:url('/index/rank')}">排行榜</a>
                 <a href="{:url('/index/luckyshare')}">好運分享</a>
-                {if $mArticlecat}
+                {if $mArticlecat AND 1==0}
                 {foreach $mArticlecat as $cat}
                 <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>
                 {/foreach}

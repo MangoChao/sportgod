@@ -854,3 +854,18 @@ a.btn-danger:visited{
     margin: 0;
     padding: 10px 15px;
 }
+
+#featured_lish .item .panel-content .title a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+}
+.view_content{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+}
