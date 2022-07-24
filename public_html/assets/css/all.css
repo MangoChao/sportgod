@@ -1,5 +1,5 @@
 body{
-    padding-top: 120px;
+    padding-top: 152px;
     background-color: #dfdfdf;
 }
 
@@ -761,7 +761,7 @@ button.toast-close-button{
     transition: none;
 }
 .article_comment{
-    top:140px;
+    top:160px;
 }
 a.btn-warning:visited{
     color: #fff;
@@ -901,6 +901,7 @@ a.btn-danger:visited{
 .analysttitle_box{
     padding: 0 15px;
 }
+
 .analysttitle_box span{
     padding: 1px 10px;
     margin-right: 7px;
@@ -910,4 +911,18 @@ a.btn-danger:visited{
     color: #f7ff85;
     text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
     display: inline-block;
+}
+.at_list{
+    display: flex;
+    width: 100%;
+    padding-bottom: 5px;
+}
+.at_text{
+    text-align: center;
+    border: 1px #ffd900 solid;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: block;
+    width: 100%;
+    margin: 0 5px;
 }

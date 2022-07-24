@@ -135,6 +135,7 @@ class Frontend extends Controller
         $this->LineBot = new LineBot($channel_access_token);
 
         $this->assignArticlecat();
+        $this->assignArticleTitle();
         $this->checkArticleread();
 
         $this->def_avatar = "/assets/img/avatar.png";
@@ -186,11 +187,35 @@ class Frontend extends Controller
         $this->request->token();
     }
 
-    
     protected function assignArticlecat()
     {
         $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
         $this->assign('mArticlecat', $mArticlecat);
+    }
+
+    protected function assignArticleTitle()
+    {
+        $analysttitle = [];
+        $mAnalysttitle = model("Analysttitle")->alias('at')
+        ->join("event_category ec","at.ecid = ec.id")
+        ->join("analyst a","at.analyst_id = a.id")
+        ->field("at.*, ec.title as etitle, a.analyst_name")
+        ->where("a.status = 1")->group("ec.id, at.analyst_id")->limit(4)->orderRaw('RAND()')->select();
+        if($mAnalysttitle){
+            foreach($mAnalysttitle as $at){
+                $mAT = model("Analysttitle")->alias('at')
+                ->join("analyst_to_titletype att","att.ecid = at.ecid AND att.analyst_id = at.analyst_id AND att.titletype = at.type")
+                ->field("at.*")
+                ->where("at.ecid = ".$at->ecid." AND at.analyst_id = ".$at->analyst_id)->find();
+                if(!$mAT){
+                    $mAT = model("Analysttitle")->where("ecid = ".$at->ecid." AND analyst_id = ".$at->analyst_id)->order("type","asc")->find();
+                }
+                if($mAT){
+                    $analysttitle[] = $at->analyst_name." ".$at->etitle." ".$mAT->title;
+                }
+            }
+        }
+        $this->assign('analysttitle', $analysttitle);
     }
 
     protected function checkArticleread()
