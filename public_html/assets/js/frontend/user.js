@@ -19,6 +19,17 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         favoritesg: function () {
 
         },
+        analysttitle: function () {
+            $(document).on("click", ".btn_set_at", function () {
+                $(this).closest(".check_style").find("a").removeClass("active");
+                $(this).addClass("active");
+                let id = $(this).data('id');
+                let options = {url: Config.url.api+'/user/setat/id/'+id};
+                Fast.api.ajax(options, function (mthis, data, ret) {
+                    
+                });
+            });
+        },
         article: function () {
             $(document).on("click", ".btn_del", function () {
                 let id = $(this).data('id');

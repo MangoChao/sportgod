@@ -67,6 +67,35 @@ class User extends Api
             }
         }
     }
+    
+    public function setat($id = null){
+        if(!$this->auth->id){
+            $this->error('請先登入');
+        }
+        $mUser = model('User')->get(['id'=> $this->auth->id, 'status'=> 1]);
+        if(!$mUser){
+            $this->error('無權操作');
+        }
+
+        $mAnalysttitle = model('Analysttitle')->get($id);
+        if(!$mAnalysttitle){
+            $this->error('請重整頁面');
+        }
+
+        $mAnalyst = model('Analyst')->where("id = ".$mAnalysttitle->analyst_id." AND user_id = ".$this->auth->id)->find();
+        if(!$mAnalyst){
+            $this->error('請重整頁面');
+        }
+        model('Analysttotitletype')->where("analyst_id = ".$mAnalysttitle->analyst_id." AND ecid = ".$mAnalysttitle->ecid)->delete();
+        
+        $params = [
+            'analyst_id' => $mAnalysttitle->analyst_id,
+            'ecid' => $mAnalysttitle->ecid,
+            'titletype' => $mAnalysttitle->type
+        ];
+        model('Analysttotitletype')::create($params);
+        $this->success('已套用稱號');
+    }
 
     public function pred(){
         Log::init(['type' => 'File', 'log_name' => 'pred']);

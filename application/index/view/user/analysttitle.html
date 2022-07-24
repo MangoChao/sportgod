@@ -16,7 +16,7 @@
                                     <div class="check_style">
                                         <h3>{$v->title}</h3>
                                         {foreach $v->mAnalysttitle as $va}
-                                            <a href="javascript:;" class="{if $va->attid}active{/if}">
+                                            <a href="javascript:;" data-id="{$va->id}" class="btn_set_at {if $va->attid}active{/if}">
                                                 {$va->title}
                                             </a>
                                         {/foreach}
