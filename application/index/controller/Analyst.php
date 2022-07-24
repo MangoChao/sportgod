@@ -73,7 +73,7 @@ class Analyst extends Frontend
                     ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->find();
                     if(!$mAnalysttitle){
                         $mAnalysttitle = model("Analysttitle")->alias('at')
-                        ->join("event_category ec","att.ecid = ec.id")
+                        ->join("event_category ec","at.ecid = ec.id")
                         ->field("at.*, ec.title as etitle")
                         ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$v->id)->order("at.type","asc")->find();
                     }
