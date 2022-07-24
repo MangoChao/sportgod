@@ -9,22 +9,24 @@
                 <div class="panel-body">
                     <h2 class="page-header">我的稱號</h2>
                     {if $mEventcategory}
-                    <div class="analyst_title_list">
-                        {foreach $mEventcategory as $v}
-                        <div>
-                            <h3>{$v->title}</h3>
-                            {if $v->mAnalysttitle}
-                                {foreach $v->mAnalysttitle as $va}
-                                    <a href="javascript:;" class="btn btn-info">
-                                        {$va->title}
-                                    </a>
+                        <div class="analyst_title_list">
+                            {if $checkAT}
+                                {foreach $mEventcategory as $v}
+                                    {if $v->mAnalysttitle}
+                                    <div>
+                                        <h3>{$v->title}</h3>
+                                        {foreach $v->mAnalysttitle as $va}
+                                            <a href="javascript:;" class="btn btn-info">
+                                                {$va->title}
+                                            </a>
+                                        {/foreach}
+                                    </div>
+                                    {/if}
                                 {/foreach}
                             {else/}
-                                <p>沒有可用稱號</p>
+                                <p>沒有獲得稱號</p>
                             {/if}
                         </div>
-                        {/foreach}
-                    </div>
                     {else/}
                     <p>沒有開放的預測分類</p>
                     {/if}
