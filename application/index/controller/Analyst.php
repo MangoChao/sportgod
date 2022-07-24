@@ -79,6 +79,18 @@ class Analyst extends Frontend
         $this->view->assign('pt', $pt);
         $mAnalyst = model('Analyst')->where("id = ".$id)->find();
         $content = "";
+        $analysttitle = "";
+        
+        $eid = 0;
+        $mEventcategory = model('Eventcategory')->alias('ec')
+        ->join("event e","e.event_category_id = ec.id")
+        ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
+        ->distinct(true)
+        ->field("ec.*")
+        ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
+        if($mEventcategory) $eid = $mEventcategory->id;
+        $cat_id = $this->request->request('cat', $eid);
+
         if($mAnalyst){
             //頭像
             if(!$mAnalyst->avatar) $mAnalyst->avatar = $this->def_avatar;
@@ -91,9 +103,29 @@ class Analyst extends Frontend
             if($pt == 1){
                 $content = $this->pred($id);
             }
+            
+            $checked = "";
+            $mAnalysttotitletype = model("Analysttotitletype")->where("analyst_id = ".$mAnalyst->id." AND ecid = ".$cat_id)->find();
+            if($mAnalysttotitletype){
+                $checked = " AND type = ".$mAnalysttotitletype->titletype;
+            }
+            $mAnalysttitle = model("Analysttitle")->where("ecid = ".$cat_id." AND analyst_id = ".$mAnalyst->id." ".$checked)->order("type","asc")->find();
+
+            $mAnalysttitle = model("Analysttitle")->alias('at')
+            ->join("analyst_to_titletype att","att.ecid = ".$cat_id." AND att.analyst_id = ".$mAnalyst->id." AND att.titletype = at.type")
+            ->field("at.*")
+            ->where("at.ecid = ".$cat_id." AND at.analyst_id = ".$mAnalyst->id)->find();
+            if(!$mAnalysttitle){
+                $mAnalysttitle = model("Analysttitle")->where("ecid = ".$cat_id." AND analyst_id = ".$mAnalyst->id)->order("type","asc")->find();
+            }
+            if($mAnalysttitle){
+                $analysttitle = $mAnalysttitle->title;
+            }
+
         }else{
             $this->redirect('/');
         }
+        $this->view->assign('analysttitle', $analysttitle);
         $this->view->assign('mAnalyst', $mAnalyst);
         $this->view->assign('content', $content);
         return $this->view->fetch();

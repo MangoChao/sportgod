@@ -5,7 +5,8 @@
                 <img src="{$mAnalyst->avatar|cdnurl}">
             </div>
             <p class="memberidname">{$mAnalyst->analyst_name}</p>
-            <ul class="mu">
+            <p class="analysttitle_text">{$analysttitle}</p>
+            <ul class="mu hide">
                 <li class="{if $pt == 1}active{/if}"><a href="{:url('/index/analyst/profile/id/'.$mAnalyst->id.'/pt/1')}">預測</a></li>
             </ul>
         </div>
