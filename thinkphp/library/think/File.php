@@ -269,7 +269,6 @@ class File extends SplFileObject
     public function checkImg()
     {
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
-
         // 如果上传的不是图片，或者是图片而且后缀确实符合图片类型则返回 true
         return !in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) || in_array($this->getImageType($this->filename), [1, 2, 3, 4, 6, 13]);
     }

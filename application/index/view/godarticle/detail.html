@@ -44,7 +44,7 @@
 
                 <div class="col-md-1 article_comment">
                     <div class="toolbox">
-                        <a href="javascript:;" class="btn_set_fav" data-id="{$mGodarticle->id}">
+                        <a href="javascript:;" class="btn_set_fav {if $hasfav}active{/if}" data-id="{$mGodarticle->id}">
                             <i class="fa fas fa-bookmark fa-2x"> <span>收藏</span></i>
                         </a>
                         <a href="javascript:;" class="btn_dotnet" data-id="{$mGodarticle->id}">
@@ -73,20 +73,17 @@
                                         <h4 class="name">{$mGodarticle->nickname}</h4>
                                     </div>
                                 </div>
+                                {if $mGodarticleLast}
                                 <div class="author_featured">
                                     <div class="title">最新文章</div>
                                     <ul class="item">
-
-                                        <li><a href="#">控球有潘威倫水準、指叉像羅力？從「洋將變本土」的高塩將樹有機會打中職嗎？</a>
+                                        {foreach $mGodarticleLast as $v}
+                                        <li><a href="{:url('/index/godarticle/detail/id/'.$v->id)}">{$v->title}</a>
                                         </li>
-
-                                        <li><a href="#">好不容易上2A卻被釋出？林凱威會是中職一軍守護神人選嗎？</a>
-                                        </li>
-
-                                        <li><a href="#">2022中職測試會分析：曾品洋飆最快153！台大「學霸」左投頻頻被點名</a>
-                                        </li>
+                                        {/foreach}
                                     </ul>
                                 </div>
+                                {/if}
                             </div>
                         </div>
                     </div>

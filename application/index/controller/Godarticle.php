@@ -50,23 +50,20 @@ class Godarticle extends Frontend
         }
         if(!$mGodarticle->avatar) $mGodarticle->avatar = $this->def_avatar;
 
-        // $hasfav = false;
-        // if($this->auth->isLogin()){
-        //     $afc = model('Articlefav')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->count();
-        //     if($afc > 0) $hasfav = true;
+        $mGodarticle->user_id;
 
-        //     $ard = model('Articleread')->where("user_id = ".$this->auth->id." AND article_id = ".$id)->count();
-        //     if(!$ard > 0){
-        //         $params = [
-        //             'article_id' => $id,
-        //             'user_id' => $this->auth->id,
-        //         ];
-        //         model('Articleread')::create($params);
-        //         $this->redirect('/index/article/detail/id/'.$id);
-        //     }
-        // }
+        $mGodarticleLast = model('Godarticle')->alias('a')
+        ->field('a.*')
+        ->where("a.status = 1 AND a.id <> ".$id." AND a.user_id = ".$mGodarticle->user_id)->order('a.updatetime','desc')->limit(3)->select();
 
-        // $this->view->assign('hasfav', $hasfav);
+        $hasfav = false;
+        if($this->auth->isLogin()){
+            $afc = model('Articlefav')->where("user_id = ".$this->auth->id." AND type = 2 AND article_id = ".$id)->count();
+            if($afc > 0) $hasfav = true;
+        }
+
+        $this->view->assign('hasfav', $hasfav);
+        $this->view->assign('mGodarticleLast', $mGodarticleLast);
         $this->view->assign('mGodarticle', $mGodarticle);
         return $this->view->fetch();
     }

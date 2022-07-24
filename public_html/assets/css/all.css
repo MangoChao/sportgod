@@ -47,6 +47,7 @@ body{
 .navbar-inverse .navbar-nav > li > a:hover{
     color: #005d9b!important;
 }
+.navbar-inverse .navbar-nav > li > a.btn_notify:focus,
 .navbar-inverse .navbar-nav > li > a.btn_notify:hover{
     color: #ccc!important;
 }
