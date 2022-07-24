@@ -876,6 +876,11 @@ a.btn-danger:visited{
     font-size: 12px!important;
     background: none!important;
     color: #666!important;
+    font-family: "微軟正黑體",Quicksand,Arial,sans-serif!important;
+    margin: 0!important;
+    padding: 0!important;
+    font-style: normal!important;
+    font-weight: normal!important;
 }
 .author{
     float: none;
