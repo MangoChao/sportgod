@@ -15,24 +15,26 @@ class Index extends Frontend
 
     public function index()
     {
-        $mNewArticle = model('Article')->alias('a')
+        $mNewArticle = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.img <> '' ")->order("a.createtime","desc")->limit(8)->select();
+        ->where("a.status = 1 AND a.cover_img <> '' ")->order("a.createtime","desc")->limit(7)->select();
 
-        $mCatArticle = [];
-        $mArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
-        if($mArticlecat){
-            foreach($mArticlecat as $v){
-                $mCatArticle[] = [
-                    'mArticle' => model('Article')->where("status = 1 AND img <> '' AND cat_id = ".$v->id)->order("createtime","desc")->limit(5)->select(),
-                    'cat_name' => $v->cat_name,
-                ];
-            }
-        }
+        //籃球
+        $mArticle1 = model('Godarticle')->alias('a')
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->field('a.*')
+        ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 1")->order("a.createtime","desc")->limit(7)->select();
+
+        //棒球
+        $mArticle2 = model('Godarticle')->alias('a')
+        ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
+        ->field('a.*')
+        ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 3")->order("a.createtime","desc")->limit(7)->select();
 
         $this->view->assign('mNewArticle', $mNewArticle);
-        $this->view->assign('mCatArticle', $mCatArticle);
+        $this->view->assign('mArticle1', $mArticle1);
+        $this->view->assign('mArticle2', $mArticle2);
         return $this->view->fetch();
     }
     
