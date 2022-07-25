@@ -894,8 +894,7 @@ a.btn-danger:visited{
     width: 140px;
     margin: 10px auto;
     font-weight: bold;
-    color: #f7ff85;
-    text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
+    color: #19409b!important;
 }
 
 .analysttitle_box{
@@ -906,10 +905,9 @@ a.btn-danger:visited{
     padding: 1px 10px;
     margin-right: 7px;
     margin-bottom: 6px;
-    border: 1px #005d9b solid;
     font-weight: bold;
-    color: #f7ff85;
-    text-shadow: -1px -1px 0 #005d9b, 1px -1px 0 #005d9b, -1px 1px 0 #005d9b, 1px 1px 0 #005d9b;
+    color: #19409b!important;
+    font-weight: bold;
     display: inline-block;
 }
 .at_list{

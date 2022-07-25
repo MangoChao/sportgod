@@ -69,7 +69,7 @@ class Analyst extends Frontend
                     $mAnalysttitle = model("Analysttitle")->alias('at')
                     ->join("event_category ec","at.ecid = ec.id")
                     ->field("at.*, ec.title as etitle")
-                    ->where("at.analyst_id = ".$v->id)->order("at.type","asc")->group("ec.id")->select();
+                    ->where("at.analyst_id = ".$v->id)->order("at.type","asc")->group("ec.id")->limit(1)->orderRaw('RAND()')->select();
                     if($mAnalysttitle){
                         foreach($mAnalysttitle as $at){
                             $mAT = model("Analysttitle")->alias('at')
