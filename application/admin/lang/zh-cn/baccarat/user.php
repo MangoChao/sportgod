@@ -18,4 +18,7 @@ return [
     'take 0' => '未取號',
     'take 1' => '已取號',
     'checkout_link' => '取號/付款單',
+    'locked' => '鎖定',
+    'locked 0' => '未鎖定',
+    'locked 1' => '已鎖定',
 ];

@@ -132,6 +132,8 @@ class User extends Backend
                 Db::startTrans();
                 try {
 
+                    if($row->locked == 1 AND $params['locked'] == 0) $params['act'] = 0;
+                    
                     $result = $row->allowField(true)->save($params);
                     Db::commit();
                 } catch (ValidateException $e) {
