@@ -18,7 +18,7 @@ class Index extends Frontend
         $mNewArticle = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.cover_img <> '' ")->order("a.createtime","desc")->limit(7)->select();
+        ->where("a.status = 1 AND a.cover_img <> '' ")->order("a.createtime","desc")->limit(8)->select();
 
         //棒球
         $mArticle1 = model('Godarticle')->alias('a')

@@ -10,7 +10,7 @@
                         </a>
                     {/foreach}
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-4 pabox blbox">
                     <h3>熱門文章</h3>
                     {foreach $mNewArticle as $k=>$v}
                     <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
@@ -29,7 +29,7 @@
         {if $mArticle1}
         <div class="col-xs-12 col-sm-6">
             <div class="m_panel banner sub_banner">
-                <div class="col-xs-6">
+                <div class="col-xs-6 pabox">
                     <h3>棒球</h3>
                     {foreach $mArticle1 as $k=>$v}
                     <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
@@ -48,7 +48,7 @@
         {if $mArticle2}
         <div class="col-xs-12 col-sm-6">
             <div class="m_panel banner sub_banner">
-                <div class="col-xs-6">
+                <div class="col-xs-6 pabox">
                     <h3>籃球</h3>
                     {foreach $mArticle2 as $k=>$v}
                     <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>

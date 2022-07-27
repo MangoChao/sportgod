@@ -441,8 +441,9 @@ h2:not(.title)>a{
     left: 0;
     bottom: 0;
     font-size: 30px;
+    line-height: 38px;
     color: #fff;
-    padding: 5px 10px;
+    padding: 15px;
     display: -webkit-box;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -452,6 +453,7 @@ h2:not(.title)>a{
 .m_panel.banner.sub_banner span.s_title{
     -webkit-line-clamp: 3;
     font-size: 16px;
+    line-height: 22px;
 }
 
 #toast-container{
@@ -931,4 +933,18 @@ a.btn-danger:visited{
     color: #140050;
     text-shadow: none;
     font-weight: bold;
+}
+
+.pabox{
+    padding: 8px 15px!important;
+}
+.blbox{
+    background: #1c208a!important;
+    color: #fff!important;
+}
+.blbox a.a_title{
+    color: #fff!important;
+}
+.blbox .m_panel.banner h3{
+    border-bottom: 3px #f9f9f9 solid!important;
 }
