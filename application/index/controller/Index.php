@@ -32,6 +32,28 @@ class Index extends Frontend
         ->field('a.*')
         ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 1")->order("a.createtime","desc")->limit(7)->select();
 
+        //排行
+        $rcid = 0;
+        $mEventcategory = model('Eventcategory')->where('status = 1')->orderRaw('RAND()')->find();
+        if($mEventcategory) $rcid = $mEventcategory->id;
+        
+        $mRank = model('Rank')->where("event_category_id = ".$rcid)->order("id","desc")->find();
+        $mRankcontent = false;
+        if($mRank){
+            $mRankcontent = model('Rankcontent')->alias('rc')
+            ->join("analyst a","a.id = rc.analyst_id")
+            ->field("rc.*, a.analyst_name, a.avatar")
+            ->where('rc.rank_id = '.$mRank->id)->order('rc.rank','asc')->select();
+            if($mRankcontent){
+                foreach($mRankcontent as $v){
+                    if(!$v->avatar) $v->avatar = $this->def_avatar;
+                }
+            }
+        }
+        $this->view->assign('rcid', $rcid);
+        $this->view->assign('mRank', $mRank);
+        $this->view->assign('mRankcontent', $mRankcontent);
+
         $this->view->assign('mNewArticle', $mNewArticle);
         $this->view->assign('mArticle1', $mArticle1);
         $this->view->assign('mArticle2', $mArticle2);

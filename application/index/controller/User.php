@@ -220,7 +220,12 @@ class User extends Frontend
                 if($v->status == 0){
                     $v->status_str = "<span class='text-orange'>審核中</span>";
                 }elseif($v->status == 2){
-                    $v->status_str = "<span class='text-danger'>拒絕刊登<br><span class='text-info'>".$v->reason."</span></span>";
+                    if($v->reason){
+                        $reason = "<br><span class='text-info'>".$v->reason."</span>";
+                    }else{
+                        $reason = "";
+                    }
+                    $v->status_str = "<span class='text-danger'>拒絕刊登".$reason."</span>";
                 }elseif($v->status == 3){
                     $v->status_str = "<span class='text-gray'>已刪除</span>";
                 }else{
