@@ -43,7 +43,7 @@ class Index extends Frontend
             $mRankcontent = model('Rankcontent')->alias('rc')
             ->join("analyst a","a.id = rc.analyst_id")
             ->field("rc.*, a.analyst_name, a.avatar")
-            ->where('rc.rank_id = '.$mRank->id)->order('rc.rank','asc')->select();
+            ->where('rc.rank_id = '.$mRank->id)->order('rc.rank','asc')->limit(8)->select();
             if($mRankcontent){
                 foreach($mRankcontent as $v){
                     if(!$v->avatar) $v->avatar = $this->def_avatar;
