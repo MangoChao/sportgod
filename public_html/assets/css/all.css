@@ -795,6 +795,11 @@ a.btn-danger:visited{
     line-height: 50px;
     text-align: center;
 }
+.status_box span{
+    line-height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
 .footer_bottom a:link{
     color: #cbc7c7;
 }
