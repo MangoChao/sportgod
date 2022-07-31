@@ -33,12 +33,15 @@ class Index extends Frontend
         ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 1")->order("a.createtime","desc")->limit(7)->select();
 
         //排行
-        $rcid = 0;
-        $mEventcategory = model('Eventcategory')->where('status = 1')->orderRaw('RAND()')->find();
-        if($mEventcategory) $rcid = $mEventcategory->id;
-        
         $c = 0;
         do{
+            $rcid = 0;
+            $mECtitle = "";
+            $mEventcategory = model('Eventcategory')->where('status = 1')->orderRaw('RAND()')->find();
+            if($mEventcategory){
+                $rcid = $mEventcategory->id;
+                $mECtitle = $mEventcategory->title;
+            }
             $mRank = model('Rank')->where("event_category_id = ".$rcid)->order("id","desc")->find();
             $mRankcontent = false;
             if($mRank){
@@ -55,6 +58,7 @@ class Index extends Frontend
             $c++;
         }while($c <= 10 AND $mRankcontent === false);
         $this->view->assign('rcid', $rcid);
+        $this->view->assign('mECtitle', $mECtitle);
         $this->view->assign('mRank', $mRank);
         $this->view->assign('mRankcontent', $mRankcontent);
 

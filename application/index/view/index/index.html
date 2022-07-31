@@ -22,13 +22,13 @@
         <div class="col-xs-3">
             <div class="m_panel banner main_banner">
                 <div class="col-xs-12 pabox">
-                <h3>排行榜</h3>
+                <h3>{$mECtitle}排行榜</h3>
                 {if $mRankcontent}
                 {foreach $mRankcontent as $k=>$v}
                     <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$rcid}" class="a_title" >{$v->rank}.{$v->analyst_name}<span>({$v->win}勝-{$v->lose}敗/{$v->winrate}%)</span></a>
                 {/foreach}
                 {else/}
-                <p>暫無排行{$rcid}</p>
+                <p>暫無排行</p>
                 {/if}
                 </div>
             </div>
