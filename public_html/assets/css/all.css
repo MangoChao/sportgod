@@ -953,3 +953,6 @@ a.btn-danger:visited{
 .blbox .m_panel.banner h3{
     border-bottom: 3px #f9f9f9 solid!important;
 }
+.m_panel.banner a.a_title>span{
+    font-size: 14px;
+}

@@ -25,7 +25,7 @@
                 <h3>排行榜</h3>
                 {if $mRankcontent}
                 {foreach $mRankcontent as $k=>$v}
-                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$rcid}" class="a_title" >{$v->rank}.{$v->analyst_name}({$v->win}勝-{$v->lose}敗/{$v->winrate}%)</a>
+                    <a href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$rcid}" class="a_title" >{$v->rank}.{$v->analyst_name}<span>({$v->win}勝-{$v->lose}敗/{$v->winrate}%)</span></a>
                 {/foreach}
                 {else/}
                 <p>暫無排行</p>
