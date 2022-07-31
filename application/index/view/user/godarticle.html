@@ -16,7 +16,13 @@
                                     <a class="btn btn-xs btn-warning" target="_blank" href="#">{$v->cat_name}</a>
                                 </div>
                                 <div class="center_box">
-                                    <a href="{:url('/index/godarticle/detail/id/'.$v->id)}"><h3>{$v->title}</h3></a>
+                                    {if $v->status == 1}
+                                    <a href="{:url('/index/godarticle/detail/id/'.$v->id)}">
+                                        <h3>{$v->title}</h3>
+                                    </a>
+                                    {else/}
+                                    <h3>{$v->title}</h3>
+                                    {/if}
                                 </div>
                                 <div class="right_box">
                                     {if $v->status == 1}

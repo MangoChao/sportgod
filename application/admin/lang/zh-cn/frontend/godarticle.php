@@ -5,5 +5,6 @@ return [
     'Status 1' => '審核通過',
     'Status 2' => '拒絕刊登',
     'Status 3' => '刪除',
-    'cover_img' => '封面'
+    'cover_img' => '封面',
+    'reason' => '理由'
 ];
