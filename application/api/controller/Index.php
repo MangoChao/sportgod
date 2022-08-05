@@ -43,7 +43,7 @@ class Index extends Api
         $p = model("Pred")->group("event_id,analyst_id,pred_type")->having("count(*)>1")->select();
         if($p){
             foreach($p as $v){
-                model("Pred")->where("id <> ".$v->id." AND event_id = ".$v->event_id." AND analyst_id = ".$v->analyst_id." AND pred_type = ".$v->pred_type." ")->delect();
+                model("Pred")->where("id <> ".$v->id." AND event_id = ".$v->event_id." AND analyst_id = ".$v->analyst_id." AND pred_type = ".$v->pred_type." ")->delete();
             }
         }
     }
