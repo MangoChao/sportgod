@@ -220,4 +220,6 @@ return [
     'point' => '點數',
     'price' => '價格',
     'Avatar' => '頭像', 
+    'showhome1' => '開始時間',
+    'showhome2' => '結束時間',
 ];
