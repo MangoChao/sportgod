@@ -47,29 +47,38 @@ class Index extends Api
     //         }
     //     }
     // }
+    public function testnotify()
+    {
+        $post = $this->request->post();
+        Log::notice($post);
+    }
     
-    // public function testapi()
-    // {
-    //     $url = "http://full-speed.ddns.net/Pay/V1";
-    //     $ordernum = 'BR'.date('YmdHis');
-    //     $key = "4ea100306e5c01e3c4ad3c1a1450f2da";
-    //     $merchantNo = "ATA0000000021";
-    //     $postData = [
-    //         'orderNo' => $ordernum,
-    //         'merchantNo' => $merchantNo,
-    //         'tradeType' => 1,
-    //         'amount' => 600,
-    //     ];
-    //     ksort($postData);
-    //     $str = "";
-    //     foreach($postData as $k => $v){
-    //         $str .= $k.$v;
-    //     }
-    //     $postData['sign'] = md5(base64_encode($str).$key);
-
-    //     $r = curl_post($url, $postData);
-    //     Log::notice($r);
-    // }
+    public function testapi()
+    {
+        $url = "https://wwh.zzpayis.com/apijson.php";
+        $orderid = 'BR'.date('YmdHis');
+        $key = "954BF87285XK37NAEKS1CT2Q9RXF7TH5";
+        $shid = "TWBaccarat";
+        $amount = 100;
+        $k = md5(md5($shid.$orderid.$amount).$key);
+        $postData = [
+            'shid' => $shid,
+            'key' => $k,
+            'orderid' => $orderid,
+            'amount' => $amount,
+            'pay' => 'yl',
+            'url' => $this->site_url['api'].'/testnotify',
+            'fkrname' => "",
+        ];
+        // var_dump($postData);
+        $data_string = json_encode($postData);
+        $options = [
+            CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
+        ];
+        $r = curl_post($url, $postData, $options);
+        Log::notice($r);
+        var_dump($r);
+    }
     
     // public function testapi2()
     // {

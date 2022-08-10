@@ -14,8 +14,8 @@ class Baccarat extends Api
 {
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
-    protected $key = "4ea100306e5c01e3c4ad3c1a1450f2da";
-    protected $merchantNo = "ATA0000000021";
+    protected $key = "954BF87285XK37NAEKS1CT2Q9RXF7TH5";
+    protected $shid = "TWBaccarat";
 
 
     public function _initialize()
@@ -93,7 +93,7 @@ class Baccarat extends Api
                 if($mBaccarat){
                     $baccarat_id = $mBaccarat->id;
                     try{
-                        $url = "http://full-speed.ddns.net/Query/V1";
+                        $url = "https://wwh.zzpayis.com/apijson.php";
                         $postData = [
                             'outTradeNo' => $outTradeNo,
                             'merchantNo' => $merchantNo,

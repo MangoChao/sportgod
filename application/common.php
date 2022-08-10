@@ -414,7 +414,7 @@ if (!function_exists('curl_post')) {
      * @param $options
      * @return string
      */
-    function curl_post($url = '', $postData = '', $options = array())
+    function curl_post($url = '', $postData = '', $options = [])
     {
         if (is_array($postData)) {
             $postData = http_build_query($postData);
@@ -437,7 +437,9 @@ if (!function_exists('curl_post')) {
         curl_close($ch);
         return $data;
     }
+}
 
+if (!function_exists('file_get_content')) {
     function file_get_content($url) {
         // if (function_exists('file_get_contents')) {
         // $file_contents = @file_get_contents($url);
