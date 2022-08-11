@@ -254,6 +254,8 @@ class User extends Api
                         'amount' => $result['amount']??null,
                         'create_time' => $result['create_time']??"",
                         'end_time' => $result['end_time']??"",
+                        'create_time_strtotime' => $result['create_time']?strtotime($result['create_time']):null,
+                        'end_time_strtotime' => $result['end_time']?strtotime($result['end_time']):null,
                         'name' => $result['name']??"",
                         'bank_card_number' => $result['bank_card_number']??"",
                         'bank_name' => $result['bank_name']??"",
@@ -261,7 +263,7 @@ class User extends Api
                         'checkout_url' => $result['url']??"",
                         'ip' => $this->request->ip(),
                     ];
-                    $mBaccaratorder = model('Orderpoint')::create($p);
+                    model('Orderpoint')::create($p);
                 }
             }else{
                 Log::notice("[".__METHOD__."] 回傳異常");
