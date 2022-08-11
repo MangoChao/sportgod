@@ -101,6 +101,8 @@ class User extends Backend
 
                 $params['pred2'] = $params['pred'];
 
+                if($params['point'] == "") $params['point'] = 0;
+
                 $result = false;
                 Db::startTrans();
                 try {
@@ -116,6 +118,20 @@ class User extends Backend
 
 
                     $result = $this->model->allowField(true)->save($params);
+                    
+                    if ($result !== false) {
+                        if($params['point'] > 0){
+                            $memo = "[管理員-".$this->auth->nickname."] 新增會員, 設定初始點數";
+                            $p_params = [
+                                'user_id' => $this->model->id,
+                                'amount' => $params['point'],
+                                'before' => 0,
+                                'after' => $params['point'],
+                                'memo' => $memo,
+                            ];
+                            model('Pointlog')::create($p_params);
+                        }
+                    }
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();
@@ -194,6 +210,26 @@ class User extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                         $row->validateFailException(true)->validate($validate);
                     }
+                    
+                    if($row->point != $params['point']){
+                        $amount = $params['point'] - $row->point;
+                        $before = $row->point;
+                        $after = $row->point + $amount;
+                        
+                        $memo = "[管理員-".$this->auth->nickname."] 修改點數";
+                        $p_params = [
+                            'user_id' => $row->id,
+                            'amount' => $amount,
+                            'before' => $before,
+                            'after' => $after,
+                            'memo' => $memo,
+                        ];
+                        model('Pointlog')::create($p_params);
+
+                        
+                        $params['his_point'] = $after;
+                    }
+
                     $result = $row->allowField(true)->save($params);
                     Db::commit();
                 } catch (ValidateException $e) {

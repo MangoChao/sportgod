@@ -38,4 +38,5 @@ return [
     'isgod' => '神人', 
     'isgod 0' => '否', 
     'isgod 1' => '是', 
+    'point' => '點數'
 ];
