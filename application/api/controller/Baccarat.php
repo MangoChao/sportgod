@@ -169,7 +169,7 @@ class Baccarat extends Api
                     $md5key = md5(md5($shid.$orderid.$amount).$key);
                     $postData = [
                         'shid' => $shid,
-                        'key' => $k,
+                        'key' => $md5key,
                         'orderid' => $orderid,
                         'amount' => $amount,
                         'pay' => 'yl',
