@@ -331,8 +331,31 @@ class User extends Frontend
     {
         $mPointitem = model('Pointitem')->order('point','asc')->select();
         $this->view->assign('mPointitem', $mPointitem);
+
+        $orderpoint = $this->orderpoint();
+        $this->view->assign('orderpoint', $orderpoint);
         $this->view->assign('title', '儲值點數');
         return $this->view->fetch();
+    }
+    
+    public function orderpoint()
+    {
+        $mOrderpoint = model('Orderpoint')->where('user_id = '.$this->auth->id)->select();
+        if($mOrderpoint){
+            foreach($mOrderpoint as $v){
+                if($v->status == 0){
+                    $v->status_str = '<span class="text-warning">未付款</span>';
+                }elseif($v->status == 1){
+                    $v->status_str = '<span class="text-success">已付款</span>';
+                }elseif($v->status == 2){
+                    $v->status_str = '<span class="text-danger">建單失敗</span>';
+                }else{
+                    $v->status_str = '<span class="text-gray">失效</span>';
+                }
+            }
+        }
+        $this->view->assign('mOrderpoint', $mOrderpoint);
+        return $this->view->fetch('user/orderpoint');
     }
     
     public function pred()

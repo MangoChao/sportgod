@@ -111,11 +111,21 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                     var mload = layer.load();
 
                     let options = {url: Config.url.api+'/user/buyPoint/id/'+id};
-                    Fast.api.ajax(options, function (mthis, result, ret) {
-                        setTimeout(function () {
-                            layer.close(mload);
-                            location.reload();
-                        }, 1000);
+                    Fast.api.ajax(options, function (mthis, result, ret){
+                        let ajaxop = {
+                            url: Config.url.furl+'/index/user/orderpoint', 
+                            success: function (ret) {
+                                $('#aj_orderpoint').html(ret);
+                            },
+                            error: function (ret) {
+                                Layer.msg(ret.msg);
+                            }
+                        };
+                        $.ajax(ajaxop);
+                        // setTimeout(function () {
+                        //     layer.close(mload);
+                        //     location.reload();
+                        // }, 1000);
                     },function (mthis, result, ret) {
                         layer.close(mload);
                     });

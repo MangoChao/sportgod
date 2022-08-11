@@ -1,0 +1,37 @@
+{__NOLAYOUT__} 
+<div class="table-row">
+    <table class="table pred_list user_pred_list">
+        <thead>
+            <tr>
+                <th width="100px">建單日期</th>
+                <th>訂單編號</th>
+                <th>金額</th>
+                <th>點數</th>
+                <th>繳費期限</th>
+                <th>狀態</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {if $mOrderpoint}
+            {foreach $mOrderpoint as $v}
+            <tr>
+                <td>{$v->create_time_strtotime|date='Y-m-d',###}</td>
+                <td>{$v->order_no}</td>
+                <td>{$v->amount}</td>
+                <td>{$v->point}</td>
+                <td>{$v->end_time_strtotime|date='Y-m-d',###}</td>
+                <td>{$v->status_str}</td>
+                <td>
+                    <a href="javascript:;" class="btn btn-success"><i class="fa fa-reorder"></i></a>
+                </td>
+            </tr>
+            {/foreach}
+            {else/}
+                <tr>
+                    <td colspan="7">尚無訂單</td>
+                </tr>
+            {/if}
+        <tbody>
+    </table>
+</div>
