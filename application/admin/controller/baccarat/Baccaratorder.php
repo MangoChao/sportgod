@@ -11,7 +11,7 @@ use think\exception\ValidateException;
 use Exception;
 
 
-class Baccaratlog extends Backend
+class Baccaratorder extends Backend
 {
 
     protected $relationSearch = true;
@@ -20,7 +20,7 @@ class Baccaratlog extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('Baccaratlog');
+        $this->model = model('Baccaratorder');
     }
 
     /**

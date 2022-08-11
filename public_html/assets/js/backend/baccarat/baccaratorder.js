@@ -5,8 +5,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'baccarat/baccaratlog/index',
-                    table: 'baccarat_log',
+                    index_url: 'baccarat/baccaratorder/index',
+                    table: 'baccarat_order',
                 }
             });
 
@@ -24,14 +24,19 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'baccarat_id', title: __('baccarat_id')},
                         {field: 'baccarat.code', title: __('code')},
                         {field: 'baccarat.remark', title: __('remark')},
-                        {field: 'msg', title: __('msg')},
                         {field: 'ip', title: __('ip')},
-                        {field: 'Ordernum', title: __('Ordernum')},
-                        {field: 'ACTCode', title: __('ACTCode')},
-                        {field: 'bkid', title: __('bkid')},
-                        {field: 'Total', title: __('Total')},
-                        {field: 'Status', title: __('Status')},
-                        {field: 'PoliceReport', title: __("PoliceReport"), searchList: {"0":__('PoliceReport 0'),"1":__('PoliceReport 1')}, formatter: Controller.api.formatter.PoliceReport},
+                        {field: 'order_no', title: __('order_no')},
+                        {field: 'trans_order_no', title: __('trans_order_no')},
+                        {field: 'amount', title: __('amount')},
+                        {field: 'msg', title: __('msg')},
+                        {field: 'create_time', title: __('create_time')},
+                        {field: 'end_time', title: __('end_time')},
+                        {field: 'name', title: __('name')},
+                        {field: 'bank_card_number', title: __('bank_card_number')},
+                        {field: 'bank_name', title: __('bank_name')},
+                        {field: 'bank_zhihang', title: __('bank_zhihang')},
+                        {field: 'checkout_url', title: __('checkout_url'), formatter: Controller.api.formatter.checkout_url},
+                        {field: 'status', title: __("status"), searchList: {"0":__('status 0'),"1":__('status 1'),"2":__('status 2'),"3":__('status 3')}, formatter: Controller.api.formatter.status},
                         {field: 'request', title: __('request'), visible: false},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
@@ -55,14 +60,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 Form.api.bindevent($("form[role=form]"));
             },
             formatter:{
-                PoliceReport: function (value, row, index, custom) {
-                    var colorArr = {'0':'success','1':'danger'};
-                    var valueArr = {'0':__('PoliceReport 0'),'1':__('PoliceReport 1')};
+                status: function (value, row, index, custom) {
+                    var colorArr = {'0':'orange','1':'success','1':'danger','1':'gray'};
+                    var valueArr = {'0':__('status 0'),'1':__('status 1'),'2':__('status 2'),'3':__('status 3')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }
                     var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
                     return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
+                },
+                checkout_url: function (value, row, index) {
+                    if(row.ordernum){
+                        return '<a href="' + row.checkout_link + '" target="_blank" class="label bg-green">金流付款單</a>';
+                    }else{
+                        return '-';
+                    }
                 },
             }
         }

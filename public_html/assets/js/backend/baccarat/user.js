@@ -29,14 +29,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'debt', title: __('debt')},
                         {field: 'repay', title: __('repay')},
                         {field: 'checkout_link', title: __('checkout_link'), formatter: Controller.api.formatter.checkout_link},
-                        {field: 'ordernum', title: __('ordernum')},
-                        {field: 'ACTCode', title: __('ACTCode')},
-                        {field: 'Bank1', title: __('Bank1')},
-                        {field: 'Bank2', title: __('Bank2')},
-                        {field: 'Bank3', title: __('Bank3')},
-                        {field: 'QRCode', title: __('QRCode')},
                         {field: 'take', title: __("take"), searchList: {"0":__('take 0'),"1":__('take 1')}, formatter: Controller.api.formatter.take},
                         {field: 'locked', title: __("locked"), searchList: {"0":__('locked 0'),"1":__('locked 1')}, formatter: Controller.api.formatter.locked},
+                        {field: 'order_status', title: __("order_status"), searchList: {"0":__('order_status 0'),"1":__('order_status 1')}, formatter: Controller.api.formatter.order_status},
                         {field: 'status', title: __("Status"), searchList: {"0":__('Status 0'),"1":__('Status 1')}, formatter: Controller.api.formatter.status},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
@@ -78,6 +73,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
                     return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
                 },
+                order_status: function (value, row, index, custom) {
+                    var colorArr = {'0':'orange','1':'success'};
+                    var valueArr = {'0':__('order_status 0'),'1':__('order_status 1')};
+                    if (typeof custom !== 'undefined') {
+                        colorArr = $.extend(colorArr, custom);
+                    }
+                    var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
+                    return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
+                },
                 status: function (value, row, index, custom) {
                     var colorArr = {'0':'gray','1':'success'};
                     var valueArr = {'0':__('Status 0'),'1':__('Status 1')};
@@ -89,7 +93,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 },
                 checkout_link: function (value, row, index) {
                     if(row.ordernum){
-                        return '<a href="' + row.checkout_link + '" target="_blank" class="label bg-green">打開付款單</a>';
+                        return '<a href="' + row.checkout_link + '" target="_blank" class="label bg-green">付款單</a>';
                     }else{
                         return '-';
                     }

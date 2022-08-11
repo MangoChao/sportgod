@@ -19,49 +19,16 @@ class Baccarat extends Frontend
         Log::init(['type' => 'File', 'log_name' => 'Baccarat']);
     }
 
-    public function checkout($order = '')
+    public function checkout($code = '')
     {
-        $Ordernum = $this->request->request('Ordernum', '');
-        $ACID = $this->request->request('ACID', '');
-        $Total = $this->request->request('Total', '');
-        $Bank1 = $this->request->request('Bank1', '');
-        $Bank2 = $this->request->request('Bank2', '');
-        $Bank3 = $this->request->request('Bank3', '');
-        $QRCode = $this->request->request('QRCode', '');
-
-        if($Ordernum != '') $order = $Ordernum;
-        $mBaccarat = model('Baccarat')->where("ordernum = '".$order."'")->find();
-        if($mBaccarat){
-            // if($mBaccarat->take == 0){
-                // if($ACID != ''){
-                //     Log::notice('取號');
-                //     $mBaccarat->take = 1;
-                //     $mBaccarat->ACTCode = $ACID;
-                //     $mBaccarat->Bank1 = $Bank1;
-                //     $mBaccarat->Bank2 = $Bank2;
-                //     $mBaccarat->Bank3 = $Bank3;
-                //     $mBaccarat->QRCode = $QRCode;
-                //     $mBaccarat->save();
-                // }else{
-                //     Log::notice('前往取號');
-                //     $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$mBaccarat->ordernum;
-    
-                //     $Merchent = "WA";
-                //     // $Merchent = "AA";
-                //     $url = "http://pay.meixin.tw/api/getway02/VracRequest.ashx";
-                //     $url .= "?Merchent=".$Merchent;
-                //     $url .= "&OrderID=".$mBaccarat->ordernum;
-                //     $url .= "&Total=".$mBaccarat->debt;
-                //     $url .= "&Product=服務";
-                //     $url .= "&Name=葉加勒";
-                //     $url .= "&MSG=";
-                //     $url .= "&ReAUrl=".urlencode($checkout_link);
-                //     $url .= "&ReBUrl=".urlencode($this->site_url['api']."/baccarat/notify");
-                //     $this->redirect($url);
-                // }
-            // }
+        $mBaccaratorder = model('Baccarat')->alias('b')
+        ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
+        ->field("bo.*, b.code")
+        ->where("b.code = '".$code."'")->find();
+        if($mBaccaratorder){
+            
         }
-        $this->view->assign('mBaccarat', $mBaccarat);
+        $this->view->assign('mBaccaratorder', $mBaccaratorder);
         return $this->view->fetch();
     }
 

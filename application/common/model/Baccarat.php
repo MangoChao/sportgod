@@ -19,5 +19,11 @@ class Baccarat extends Model
     {
         return ['0' => __('Status 0'), '1' => __('Status 1')];
     }
+
+    
+    public function order()
+    {
+        return $this->belongsTo('Baccaratorder', 'baccarat_order_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
     
 }

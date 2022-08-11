@@ -39,17 +39,19 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
+            ->with(['order'])
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
             $list = $this->model
+            ->with(['order'])
                 ->where($where)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
                 
             foreach ($list as $k => $v) {
-                $v->checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$v->ordernum;
+                $v->checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$v->order->ordernum;
             }
             $result = array("total" => $total, "rows" => $list);
             return json($result);

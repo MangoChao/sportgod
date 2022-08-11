@@ -2,38 +2,42 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <h2 class="page-header">程式服務繳費單</h2>
-            <p class="text-danger">匯款入帳時間約10分鐘<br>服務費入帳成功即可繼續使用</p>
+            <p class="text-danger">若已過了繳費期限,重整頁面即可重新開單</p>
             <div class="table-row">
                 <table class="table">
                     <tbody>
-                        {if $mBaccarat}
+                        {if $mBaccaratorder}
                         <tr>
                             <td>訂單編號</td>
-                            <td>{$mBaccarat->ordernum}</td>
+                            <td>{$mBaccaratorder->order_no}</td>
                         </tr>
                         <tr>
                             <td>開通代碼</td>
-                            <td>{$mBaccarat->code}</td>
+                            <td>{$mBaccaratorder->code}</td>
                         </tr>
                         <tr>
                             <td>匯款金額</td>
-                            <td>{$mBaccarat->debt}</td>
+                            <td>{$mBaccaratorder->amount}</td>
                         </tr>
                         <tr>
                             <td>匯款帳號</td>
-                            <td>{$mBaccarat->virtualAccount}</td>
+                            <td>{$mBaccaratorder->bank_card_number}</td>
                         </tr>
                         <tr>
-                            <td>銀行代碼</td>
-                            <td>{$mBaccarat->virtualBankNo}</td>
+                            <td>銀行</td>
+                            <td>{$mBaccaratorder->bank_name}</td>
                         </tr>
                         <tr>
-                            <td>創建時間</td>
-                            <td>{$mBaccarat->updatetime|date='Y-m-d H:i',###}</td>
+                            <td>開單時間</td>
+                            <td>{$mBaccaratorder->create_time}</td>
+                        </tr>
+                        <tr>
+                            <td>繳費期限</td>
+                            <td>{$mBaccaratorder->end_time}</td>
                         </tr>
                         <tr>
                             <td>狀態</td>
-                            <td>{if $mBaccarat->status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
+                            <td>{if $mBaccaratorder->order_status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
                         </tr>
                         {else/}
                             <tr>
