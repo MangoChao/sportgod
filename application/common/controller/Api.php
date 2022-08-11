@@ -66,6 +66,12 @@ class Api
     protected $responseType = 'json';
 
     protected $site_url = null;
+    
+    protected $payapi_key = "954BF87285XK37NAEKS1CT2Q9RXF7TH5";
+    protected $payapi_shid = "TWBaccarat";
+    protected $payapi_mid = "33";
+    protected $payapi_payurl = "https://wwh.zzpayis.com/apijson.php";
+    protected $payapi_queryurl = "https://www.zzpayis.com/Login/roborderquery";
 
     /**
      * 构造方法

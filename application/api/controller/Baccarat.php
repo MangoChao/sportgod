@@ -14,11 +14,6 @@ class Baccarat extends Api
 {
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
-    protected $key = "954BF87285XK37NAEKS1CT2Q9RXF7TH5";
-    protected $shid = "TWBaccarat";
-    protected $mid = "33";
-    protected $payurl = "https://wwh.zzpayis.com/apijson.php";
-    protected $queryurl = "https://www.zzpayis.com/Login/roborderquery";
 
     public function _initialize()
     {
@@ -79,18 +74,18 @@ class Baccarat extends Api
         $status = $this->request->request('status', '');
         $msg = '';
 
-        if($shid == $this->shid){
-            $md5keyCheck = md5(md5($order.$m.$shid).$this->key);
+        if($shid == $this->payapi_shid){
+            $md5keyCheck = md5(md5($order.$m.$shid).$this->payapi_key);
             if($md5keyCheck == $md5key){
                 $mBaccaratorder = model('Baccaratorder')->where("order_no = '".$order."' AND amount = ".$m." AND status = 0")->find();
                 if($mBaccaratorder){
                     try{
-                        $url = $this->queryurl;
+                        $url = $this->payapi_queryurl;
                         $postData = [
-                            'userid' => $this->mid,
-                            'username' => $this->shid,
+                            'userid' => $this->payapi_mid,
+                            'username' => $this->payapi_shid,
                             'orderno' => $order,
-                            'sign' => md5($this->key),
+                            'sign' => md5($this->payapi_key),
                         ];
                         $r = curl_post($url, $postData);
                         $result = json_decode($r, true);
@@ -165,9 +160,9 @@ class Baccarat extends Api
                 $mBaccarat->debt = $debt;
 
                 try{
-                    $url = $this->payurl;
-                    $shid = $this->shid;
-                    $key = $this->key;
+                    $url = $this->payapi_payurl;
+                    $shid = $this->payapi_shid;
+                    $key = $this->payapi_key;
                     $amount = $debt;
 
                     $orderid = 'BR'.date('YmdHis');
@@ -191,6 +186,7 @@ class Baccarat extends Api
                         if($result['status'] == "success"){
                             
                             $p = [
+                                'baccarat_id' => $mBaccarat->id,
                                 'result' => json_encode($result),
                                 'msg' => $result['msg']??"",
                                 'order_no' => $result['order_no']??"",
@@ -198,6 +194,8 @@ class Baccarat extends Api
                                 'amount' => $result['amount']??null,
                                 'create_time' => $result['create_time']??"",
                                 'end_time' => $result['end_time']??"",
+                                'create_time_strtotime' => $result['create_time']?strtotime($result['create_time']):null,
+                                'end_time_strtotime' => $result['end_time']?strtotime($result['end_time']):null,
                                 'name' => $result['name']??"",
                                 'bank_card_number' => $result['bank_card_number']??"",
                                 'bank_name' => $result['bank_name']??"",

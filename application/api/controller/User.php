@@ -212,10 +212,76 @@ class User extends Api
         if(!$mPointitem){
             $this->error('資料異常,請重整畫面');
         }
+        $amount = $mPointitem->price;
+        $point = $mPointitem->point;
 
-        $memo = "儲值點數";
-        $this->changePoint($this->auth->id, $mPointitem->point, $memo);
-        $this->success('購買成功');
+        $mCheckOrder = model("Orderpoint")->where("status = 0 AND point = ".$point." AND amount = ".$amount." AND user_id = ".$this->auth->id." AND end_time_strtotime > ".time())->find();
+        if($mCheckOrder){
+            $this->error('已有相同訂單,請先完成付款');
+        }
+        try{
+            $url = $this->payapi_payurl;
+            $shid = $this->payapi_shid;
+            $key = $this->payapi_key;
+
+            $orderid = 'BW'.date('YmdHis');
+            $md5key = md5(md5($shid.$orderid.$amount).$key);
+            $postData = [
+                'shid' => $shid,
+                'key' => $k,
+                'orderid' => $orderid,
+                'amount' => $amount,
+                'pay' => 'yl',
+                'url' => $this->site_url['api'].'/notify/orderpoint',
+                'fkrname' => "",
+            ];
+            $data_string = json_encode($postData);
+            $options = [
+                CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
+            ];
+            $r = curl_post($url, $data_string, $options);
+            $result = json_decode($r, true);
+            if($result){
+                if($result['status'] == "success"){
+                    
+                    $p = [
+                        'user_id' => $this->auth->id,
+                        'point' => $point,
+                        'result' => json_encode($result),
+                        'msg' => $result['msg']??"",
+                        'order_no' => $result['order_no']??"",
+                        'trans_order_no' => $result['trans_order_no']??"",
+                        'amount' => $result['amount']??null,
+                        'create_time' => $result['create_time']??"",
+                        'end_time' => $result['end_time']??"",
+                        'name' => $result['name']??"",
+                        'bank_card_number' => $result['bank_card_number']??"",
+                        'bank_name' => $result['bank_name']??"",
+                        'bank_zhihang' => $result['bank_zhihang']??"",
+                        'checkout_url' => $result['url']??"",
+                        'ip' => $this->request->ip(),
+                    ];
+                    $mBaccaratorder = model('Orderpoint')::create($p);
+                }
+            }else{
+                Log::notice("[".__METHOD__."] 回傳異常");
+                Log::notice($r);
+                $this->error('建單失敗,請洽客服');
+            }
+        }catch (ValidateException $e) {
+            Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
+            $this->error($e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
+            $this->error($e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
+            $this->error($e->getMessage());
+        }
+
+        // $memo = "儲值點數";
+        // $this->changePoint($this->auth->id, $mPointitem->point, $memo);
+        $this->success('已產生訂單');
     }
 
     public function buyAnalystPred($id = 0, $cat_id = 0, $sdate = 0){
