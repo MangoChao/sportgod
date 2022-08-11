@@ -22,10 +22,5 @@ class Pointlog extends Model
     {
         return $this->belongsTo('User', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
-
-    public function admin()
-    {
-        return $this->belongsTo('Admin', 'admin_id', 'id', [], 'LEFT')->setEagerlyType(0);
-    }
     
 }
