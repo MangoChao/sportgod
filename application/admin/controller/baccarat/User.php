@@ -51,7 +51,7 @@ class User extends Backend
                 ->select();
                 
             foreach ($list as $k => $v) {
-                $v->checkout_link = $this->site_url['furl']."/index/baccarat/checkout/order/".$v->order->ordernum;
+                $v->checkout_link = $this->site_url['furl']."/index/baccarat/checkout/code/".$v->code;
             }
             $result = array("total" => $total, "rows" => $list);
             return json($result);
