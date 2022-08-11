@@ -29,7 +29,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'debt', title: __('debt')},
                         {field: 'repay', title: __('repay')},
                         {field: 'checkout_link', title: __('checkout_link'), formatter: Controller.api.formatter.checkout_link},
-                        {field: 'take', title: __("take"), searchList: {"0":__('take 0'),"1":__('take 1')}, formatter: Controller.api.formatter.take},
                         {field: 'locked', title: __("locked"), searchList: {"0":__('locked 0'),"1":__('locked 1')}, formatter: Controller.api.formatter.locked},
                         {field: 'order_status', title: __("order_status"), searchList: {"0":__('order_status 0'),"1":__('order_status 1')}, formatter: Controller.api.formatter.order_status},
                         {field: 'status', title: __("Status"), searchList: {"0":__('Status 0'),"1":__('Status 1')}, formatter: Controller.api.formatter.status},
