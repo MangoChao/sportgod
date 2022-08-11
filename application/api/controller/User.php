@@ -264,6 +264,10 @@ class User extends Api
                         'ip' => $this->request->ip(),
                     ];
                     model('Orderpoint')::create($p);
+                }else{
+                    Log::notice("[".__METHOD__."] 建單失敗");
+                    Log::notice($result);
+                    $this->error('建單失敗,請洽客服');
                 }
             }else{
                 Log::notice("[".__METHOD__."] 回傳異常");

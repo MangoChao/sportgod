@@ -211,6 +211,9 @@ class Baccarat extends Api
 
                             $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/code/".$code;
                             $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
+                        }else{
+                            Log::notice("[".__METHOD__."] 建單失敗");
+                            Log::notice($result);
                         }
                     }else{
                         Log::notice("[".__METHOD__."] 回傳異常");
