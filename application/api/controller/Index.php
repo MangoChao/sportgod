@@ -67,7 +67,7 @@ class Index extends Api
             'orderid' => $orderid,
             'amount' => $amount,
             'pay' => 'yl',
-            'url' => $this->site_url['api'].'/testnotify',
+            'url' => $this->site_url['api'].'/index/testnotify',
             'fkrname' => "",
         ];
         // var_dump($postData);
@@ -75,7 +75,7 @@ class Index extends Api
         $options = [
             CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
         ];
-        $r = curl_post($url, $postData, $options);
+        $r = curl_post($url, $data_string, $options);
         Log::notice($r);
         var_dump($r);
     }
