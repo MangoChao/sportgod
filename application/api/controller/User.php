@@ -243,13 +243,12 @@ class User extends Api
             $result = json_decode($r, true);
             if($result){
                 if($result['status'] == "success"){
-                    
                     $p = [
                         'user_id' => $this->auth->id,
                         'point' => $point,
                         'result' => json_encode($result),
                         'msg' => $result['msg']??"",
-                        'order_no' => $result['order_no']??"",
+                        'order_no' => $orderid,
                         'trans_order_no' => $result['trans_order_no']??"",
                         'amount' => $result['amount']??null,
                         'create_time' => $result['create_time']??"",

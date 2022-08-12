@@ -956,3 +956,13 @@ a.btn-danger:visited{
 .m_panel.banner a.a_title>span{
     font-size: 14px;
 }
+
+.xs_table .table > thead > tr > th, 
+.xs_table .table > tbody > tr > th, 
+.xs_table .table > tfoot > tr > th, 
+.xs_table .table > thead > tr > td, 
+.xs_table .table > tbody > tr > td, 
+.xs_table .table > tfoot > tr > td{
+    font-size: 14px;
+    padding: 8px 0px;
+}
