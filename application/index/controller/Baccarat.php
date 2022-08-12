@@ -23,7 +23,7 @@ class Baccarat extends Frontend
     {
         $mBaccaratorder = model('Baccarat')->alias('b')
         ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
-        ->field("bo.*, b.code")
+        ->field("bo.*, b.code, b.order_status")
         ->where("b.code = '".$code."'")->find();
         if($mBaccaratorder){
             
