@@ -23,7 +23,7 @@
                 <td>{$v->end_time_strtotime|date='Y-m-d',###}</td>
                 <td>{$v->status_str}</td>
                 <td style="text-align: right;">
-                    <a href="javascript:;" class="btn btn-success"><i class="fa fa-reorder"></i></a>
+                    <a href="javascript:;" class="btn btn-success btn_checkout" data-id="{$v->id}"><i class="fa fa-search"></i></a>
                 </td>
             </tr>
             {/foreach}

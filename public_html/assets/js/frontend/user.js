@@ -112,6 +112,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
 
                     let options = {url: Config.url.api+'/user/buyPoint/id/'+id};
                     Fast.api.ajax(options, function (mthis, result, ret){
+                        console.log(mthis);
+                        console.log(result);
+                        console.log(ret);
                         let ajaxop = {
                             url: Config.url.furl+'/index/user/orderpoint', 
                             success: function (ret) {
@@ -122,6 +125,27 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                             }
                         };
                         $.ajax(ajaxop);
+
+                        let ajaxop_checkout = {
+                            url: Config.url.furl+'/index/user/checkoutlayer/id/1', 
+                            success: function (ret) {
+                                op_box_tmpname = layer.open({
+                                    title: '繳費單',
+                                    type: 1,
+                                    shadeClose: true,
+                                    area : ['300','auto'],
+                                    offset: '10%',
+                                    content: ret 
+                                }, function (index) {
+                                    $(document).resize();
+                                });
+                            },
+                            error: function (ret) {
+                                Layer.msg(ret.msg);
+                            }
+                        };
+                        $.ajax(ajaxop_checkout);
+
                         // setTimeout(function () {
                         //     layer.close(mload);
                         //     location.reload();
@@ -130,6 +154,28 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                         layer.close(mload);
                     });
                 });
+            });
+            $(document).on("click", ".btn_checkout", function () {
+                let id = $(this).data('id');
+                let ajaxop_checkout = {
+                    url: Config.url.furl+'/index/user/checkoutlayer/id/'+id, 
+                    success: function (ret) {
+                        op_box_tmpname = layer.open({
+                            title: '繳費單',
+                            type: 1,
+                            shadeClose: true,
+                            area : ['300','auto'],
+                            offset: '10%',
+                            content: ret 
+                        }, function (index) {
+                            $(document).resize();
+                        });
+                    },
+                    error: function (ret) {
+                        Layer.msg(ret.msg);
+                    }
+                };
+                $.ajax(ajaxop_checkout);
             });
         },
         addarticle: function () {
