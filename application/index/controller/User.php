@@ -332,6 +332,14 @@ class User extends Frontend
         $mPointitem = model('Pointitem')->order('point','asc')->select();
         $this->view->assign('mPointitem', $mPointitem);
 
+        $mCOP = model('Orderpoint')->where("end_time_strtotime < ".time()." AND user_id = ".$this->auth->id)->order('id','desc')->select();
+        if($mCOP){
+            foreach($mCOP as $v){
+                $v->status = 3;
+                $v->save();
+            }
+        }
+
         $orderpoint = $this->orderpoint();
         $this->view->assign('orderpoint', $orderpoint);
         $this->view->assign('title', '儲值點數');
