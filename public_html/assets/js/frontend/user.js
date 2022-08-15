@@ -112,9 +112,6 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
 
                     let options = {url: Config.url.api+'/user/buyPoint/id/'+id};
                     Fast.api.ajax(options, function (mthis, result, ret){
-                        console.log(mthis);
-                        console.log(result);
-                        console.log(ret);
                         let ajaxop = {
                             url: Config.url.furl+'/index/user/orderpoint', 
                             success: function (ret) {
@@ -127,7 +124,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                         $.ajax(ajaxop);
 
                         let ajaxop_checkout = {
-                            url: Config.url.furl+'/index/user/checkoutlayer/id/1', 
+                            url: Config.url.furl+'/index/user/checkoutlayer/id/'+result.data, 
                             success: function (ret) {
                                 op_box_tmpname = layer.open({
                                     title: '繳費單',
@@ -145,11 +142,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                             }
                         };
                         $.ajax(ajaxop_checkout);
-
-                        // setTimeout(function () {
-                        //     layer.close(mload);
-                        //     location.reload();
-                        // }, 1000);
+                        layer.close(mload);
                     },function (mthis, result, ret) {
                         layer.close(mload);
                     });

@@ -1,45 +1,47 @@
  {__NOLAYOUT__} 
-<div class="panel panel-default">
-    <div class="panel-body">
-        <div class="table-row">
-            <table class="table">
-                <tbody>
-                    {if $mOrderpoint}
-                    <tr>
-                        <td>訂單編號</td>
-                        <td>{$mOrderpoint->order_no}</td>
-                    </tr>
-                    <tr>
-                        <td>匯款金額</td>
-                        <td>{$mOrderpoint->amount}</td>
-                    </tr>
-                    <tr>
-                        <td>匯款帳號</td>
-                        <td>{$mOrderpoint->bank_card_number}</td>
-                    </tr>
-                    <tr>
-                        <td>銀行</td>
-                        <td>{$mOrderpoint->bank_name}</td>
-                    </tr>
-                    <tr>
-                        <td>開單時間</td>
-                        <td>{$mOrderpoint->create_time}</td>
-                    </tr>
-                    <tr>
-                        <td>繳費期限</td>
-                        <td>{$mOrderpoint->end_time}</td>
-                    </tr>
-                    <tr>
-                        <td>狀態</td>
-                        <td>{$mOrderpoint->status_str}</td>
-                    </tr>
-                    {else/}
-                        <tr>
-                            <td colspan="2">查無訂單</td>
-                        </tr>
-                    {/if}
-                <tbody>
-            </table>
-        </div>
+<div class="panel-body">
+    <div class="table-row">
+        <table class="table">
+            {if $mOrderpoint}
+            <thead>
+                <tr>
+                    <th>訂單編號</th>
+                    <th>{$mOrderpoint->order_no}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>匯款金額</td>
+                    <td>{$mOrderpoint->amount}</td>
+                </tr>
+                <tr>
+                    <td>匯款帳號</td>
+                    <td>{$mOrderpoint->bank_card_number}</td>
+                </tr>
+                <tr>
+                    <td>銀行</td>
+                    <td>{$mOrderpoint->bank_name}</td>
+                </tr>
+                <tr>
+                    <td>開單時間</td>
+                    <td>{$mOrderpoint->create_time}</td>
+                </tr>
+                <tr>
+                    <td>繳費期限</td>
+                    <td>{$mOrderpoint->end_time}</td>
+                </tr>
+                <tr>
+                    <td>狀態</td>
+                    <td>{$mOrderpoint->status_str}</td>
+                </tr>
+            </tbody>
+            {else/}
+            <thead>
+                <tr>
+                    <th colspan="2">查無訂單</th>
+                </tr>
+            </thead>
+            {/if}
+        </table>
     </div>
 </div>
