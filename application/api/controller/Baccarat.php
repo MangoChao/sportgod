@@ -135,6 +135,98 @@ class Baccarat extends Api
         }
         return $msg;
     }
+    
+    public function reOrder($code = '')
+    {
+        if($code == ''){
+            Log::notice("[".__METHOD__."] 缺少參數");
+            return false;
+        }
+        $mBaccaratorder = model('Baccarat')->alias('b')
+        ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
+        ->field("bo.*")
+        ->where("b.code = '".$code."'")->find();
+        if($mBaccaratorder){
+            try{
+                $url = $this->payapi_payurl;
+                $shid = $this->payapi_shid;
+                $key = $this->payapi_key;
+                $amount = $mBaccaratorder->amount;
+
+                $orderid = 'BR'.date('YmdHis');
+                $md5key = md5(md5($shid.$orderid.$amount).$key);
+                $postData = [
+                    'shid' => $shid,
+                    'key' => $md5key,
+                    'orderid' => $orderid,
+                    'amount' => $amount,
+                    'pay' => 'yl',
+                    'url' => $this->site_url['api'].'/baccarat/notify',
+                    'fkrname' => "",
+                ];
+                $data_string = json_encode($postData);
+                $options = [
+                    CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
+                ];
+                $r = curl_post($url, $data_string, $options);
+                $result = json_decode($r, true);
+                if($result){
+                    if($result['status'] == "success"){
+                        
+                        $p = [
+                            'baccarat_id' => $mBaccaratorder->baccarat_id,
+                            'result' => json_encode($result),
+                            'msg' => $result['msg']??"",
+                            'order_no' => $orderid,
+                            'trans_order_no' => $result['trans_order_no']??"",
+                            'amount' => $result['amount']??null,
+                            'create_time' => $result['create_time']??"",
+                            'end_time' => $result['end_time']??"",
+                            'create_time_strtotime' => $result['create_time']?strtotime($result['create_time']):null,
+                            'end_time_strtotime' => $result['end_time']?strtotime($result['end_time']):null,
+                            'name' => $result['name']??"",
+                            'bank_card_number' => $result['bank_card_number']??"",
+                            'bank_name' => $result['bank_name']??"",
+                            'bank_zhihang' => $result['bank_zhihang']??"",
+                            'checkout_url' => $result['url']??"",
+                            'ip' => $mBaccaratorder->ip,
+                        ];
+                        $mBaccaratorder = model('Baccaratorder')::create($p);
+                        
+                        $mBaccarat = model('Baccarat')->get($mBaccaratorder->baccarat_id);
+                        if($mBaccarat){
+                            $mBaccarat->order_status = 0;
+                            $mBaccarat->baccarat_order_id = $mBaccaratorder->id;
+                            $mBaccarat->save();
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }else{
+                        Log::notice("[".__METHOD__."] 建單失敗");
+                        Log::notice($result);
+                        return false;
+                    }
+                }else{
+                    Log::notice("[".__METHOD__."] 回傳異常");
+                    Log::notice($r);
+                    return false;
+                }
+            }catch (ValidateException $e) {
+                Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
+                return false;
+            } catch (PDOException $e) {
+                Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
+                return false;
+            } catch (Exception $e) {
+                Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
+                return false;
+            }
+        }else{
+            Log::notice("[".__METHOD__."] 查無用戶");
+            return false;
+        }
+    }
 
     public function debt()
     {
