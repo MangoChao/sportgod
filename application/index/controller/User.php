@@ -375,7 +375,7 @@ class User extends Frontend
                 $mOrderpoint->status_str = '<span class="text-warning">未付款</span>';
             }elseif($mOrderpoint->status == 1){
                 $mOrderpoint->status_str = '<span class="text-success">已付款</span>';
-            }elseif($v->status == 2){
+            }elseif($mOrderpoint->status == 2){
                 $mOrderpoint->status_str = '<span class="text-danger">建單失敗</span>';
             }else{
                 $mOrderpoint->status_str = '<span class="text-gray">失效</span>';
