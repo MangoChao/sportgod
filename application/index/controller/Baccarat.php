@@ -65,7 +65,11 @@ class Baccarat extends Frontend
                     }
                 }
             }elseif($mBaccaratorder->trade_type == 2){
-                return $this->orderpage($mBaccaratorder);
+                if($mBaccaratorder->status == 1){
+
+                }else{
+                    return $this->orderpage($mBaccaratorder);
+                }
             }
         }
         $this->view->assign('mBaccaratorder', $mBaccaratorder);

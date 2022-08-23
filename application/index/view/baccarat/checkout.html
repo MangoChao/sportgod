@@ -2,7 +2,9 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <h2 class="page-header">程式服務繳費單</h2>
+            {if $mBaccaratorder->trade_type == 1}
             <p class="text-danger">若已過了繳費期限,重整頁面即可重新開單</p>
+            {/if}
             <div class="table-row">
                 <table class="table">
                     <tbody>
@@ -19,6 +21,7 @@
                             <td>匯款金額</td>
                             <td>{$mBaccaratorder->amount}</td>
                         </tr>
+                        {if $mBaccaratorder->trade_type == 1}
                         <tr>
                             <td>匯款帳號</td>
                             <td>{$mBaccaratorder->bank_card_number}</td>
@@ -35,6 +38,7 @@
                             <td>繳費期限</td>
                             <td>{$mBaccaratorder->end_time}</td>
                         </tr>
+                        {/if}
                         <tr>
                             <td>狀態</td>
                             <td>{if $mBaccaratorder->order_status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
