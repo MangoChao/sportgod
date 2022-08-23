@@ -18,4 +18,10 @@ return [
     'locked' => '鎖定',
     'locked 0' => '未鎖定',
     'locked 1' => '已鎖定',
+    'confirm' => '認證',
+    'confirm 0' => '未認證',
+    'confirm 1' => '已認證',
+    'confirm 2' => '認證失敗',
+    'img' => '證件照片',
+    'phone' => '電話',
 ];
