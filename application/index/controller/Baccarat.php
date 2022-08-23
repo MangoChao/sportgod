@@ -61,11 +61,11 @@ class Baccarat extends Frontend
                         ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
                         ->field("bo.*, b.code, b.order_status")
                         ->where("b.code = '".$code."'")->find();
-                        $this->orderpage($mBaccaratorder);
+                        return $this->orderpage($mBaccaratorder);
                     }
                 }
             }elseif($mBaccaratorder->trade_type == 2){
-                $this->orderpage($mBaccaratorder);
+                return $this->orderpage($mBaccaratorder);
             }
         }
         $this->view->assign('mBaccaratorder', $mBaccaratorder);
