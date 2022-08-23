@@ -1,17 +1,22 @@
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-body">
-            <h2 class="page-header">實名制頁面</h2>
+            <h2 class="page-header">程式服務繳費單</h2>
             {if $mBaccarat}
-            <p class="text-danger">
-                為了防止三方詐騙，請提供匯款帳戶資訊、連絡電話實名驗證確認本人使用
-                1.需要一個上傳窗口 傳銀行帳戶照片
-                2.連絡電話
-                無提供則無法繼續配合擊敗莊家
-                客服協助實名驗證 line : @516wvzjp
-            </p>
             <form id="confirm_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/baccarat/confirm')}">
                 <input type="hidden" name="id" value="{$mBaccarat->id}"/>
+                <div class="form-group">
+                    <label for="phone" class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <p class="text-danger">
+                            為了防止三方詐騙，請提供匯款帳戶資訊、連絡電話實名驗證確認本人使用<br>
+                            1.需要一個上傳窗口 傳銀行帳戶照片<br>
+                            2.連絡電話<br><br>
+                            無提供則無法繼續配合擊敗莊家<br>
+                            客服協助實名驗證 line : <a href="https://line.me/R/ti/p/@516wvzjp" target="_blank">@516wvzjp</a><br>
+                        </p>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="phone" class="control-label col-xs-12 col-sm-2">連絡電話:</label>
                     <div class="col-xs-12 col-sm-8">
