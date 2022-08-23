@@ -43,6 +43,7 @@ class Index extends Frontend
         //排行
         $c = 0;
         $ckshowhome = true; //第一次 有查時間
+        $mRankcontent = false;
         do{
             $rcid = 0;
             $mECtitle = "";
