@@ -31,7 +31,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'checkout_link', title: __('checkout_link'), formatter: Controller.api.formatter.checkout_link},
                         {field: 'img', title: __('img'), events: Table.api.events.image, formatter: Table.api.formatter.images, operate: false},
                         {field: 'phone', title: __('phone')},
-                        {field: 'confirm', title: __("confirm"), searchList: {"0":__('confirm 0'),"1":__('confirm 1'),"2":__('confirm 2')}, formatter: Controller.api.formatter.confirm},
+                        {field: 'confirm', title: __("confirm"), searchList: {"0":__('confirm 0'),"1":__('confirm 1'),"2":__('confirm 2'),"3":__('confirm 3')}, formatter: Controller.api.formatter.confirm},
                         {field: 'locked', title: __("locked"), searchList: {"0":__('locked 0'),"1":__('locked 1')}, formatter: Controller.api.formatter.locked},
                         {field: 'order_status', title: __("order_status"), searchList: {"0":__('order_status 0'),"1":__('order_status 1')}, formatter: Controller.api.formatter.order_status},
                         {field: 'status', title: __("Status"), searchList: {"0":__('Status 0'),"1":__('Status 1')}, formatter: Controller.api.formatter.status},
@@ -67,8 +67,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
                 },
                 confirm: function (value, row, index, custom) {
-                    var colorArr = {'0':'gray','1':'success','2':'danger'};
-                    var valueArr = {'0':__('confirm 0'),'1':__('confirm 1'),'2':__('confirm 2')};
+                    var colorArr = {'0':'gray','1':'orange','2':'success','3':'danger'};
+                    var valueArr = {'0':__('confirm 0'),'1':__('confirm 1'),'2':__('confirm 2'),'3':__('confirm 3')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }

@@ -23,13 +23,14 @@ class Baccarat extends Frontend
 
     public function checkout($code = '')
     {
-        $this->redirect('/index/baccarat/confirmpage/code/'.$code);
-        
         $mBaccaratorder = model('Baccarat')->alias('b')
         ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
-        ->field("bo.*, b.code, b.order_status")
+        ->field("bo.*, b.code, b.order_status, b.confirm")
         ->where("b.code = '".$code."'")->find();
         if($mBaccaratorder){
+            if($mBaccaratorder->confirm == 0){
+                $this->redirect('/index/baccarat/confirmpage/code/'.$code);
+            }
             if($mBaccaratorder->trade_type == 1){
                 if($mBaccaratorder->end_time_strtotime <= time()){
                     $ApiBaccarat = new ApiBaccarat;

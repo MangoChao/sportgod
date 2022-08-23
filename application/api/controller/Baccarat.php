@@ -62,6 +62,33 @@ class Baccarat extends Api
     //         return "查無訂單";
     //     }
     // }
+
+
+    public function confirm()
+    {
+        $id = $this->request->request('id', '');
+        if($id == ''){
+            $this->error('查無帳號');
+        }
+        $mBaccarat = model('Baccarat')->where("id = ".$id)->find();
+        if(!$mBaccarat){
+            $this->error('查無帳號');
+        }
+        $phone = $this->request->request('phone', '');
+        $img = $this->request->request('img', '');
+        if($phone == ''){
+            $this->error('[連絡電話]不能為空');
+        }
+        if($img == ''){
+            $this->error('[匯款帳號]不能為空');
+        }
+
+        $mBaccarat->phone = $phone;
+        $mBaccarat->img = $img;
+        $mBaccarat->confirm = 1;
+        $mBaccarat->save();
+
+    }
     
     public function notify()
     {
