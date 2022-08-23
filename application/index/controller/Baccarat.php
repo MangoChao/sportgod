@@ -46,7 +46,7 @@ class Baccarat extends Frontend
                             'order_no' => $orderid,
                             'amount' => $amount,
                             'status' => 0,
-                            'ip' => $mBaccaratorder->ip(),
+                            'ip' => $mBaccaratorder->ip,
                             'trade_type' => 2
                         ];
                         $mBtr = model('Baccaratorder')::create($p);
