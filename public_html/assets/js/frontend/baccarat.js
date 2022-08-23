@@ -8,6 +8,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
     };
     var Controller = {
         checkout: function () {
+        },
+        confirmpage: function () {
+            Form.api.bindevent($("#confirm_form"));
         }
     };
     return Controller;
