@@ -13,6 +13,12 @@ class Index extends Frontend
     protected $noNeedRight = '*';
     protected $layout = 'base';
 
+    public function _initialize()
+    {
+        parent::_initialize();
+        Log::init(['type' => 'File', 'log_name' => 'index']);
+    }
+
     public function index()
     {
         $mNewArticle = model('Godarticle')->alias('a')
