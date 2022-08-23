@@ -40,7 +40,7 @@ class Baccarat extends Frontend
                         ->where("b.code = '".$code."'")->find();
                     }else{
                         $orderid = 'BR'.date('YmdHis');
-                        $amount = (int)$mBaccaratorder->amount;
+                        $amount = $mBaccaratorder->amount;
                         $p = [
                             'baccarat_id' => $mBaccaratorder->baccarat_id,
                             'order_no' => $orderid,
