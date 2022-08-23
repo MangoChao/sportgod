@@ -420,7 +420,7 @@ class Baccarat extends Api
                     $p = [
                         'baccarat_id' => $mBaccarat->id,
                         'order_no' => $orderid,
-                        'amount' => $amount,
+                        'amount' => (int)$amount,
                         'status' => 0,
                         'ip' => $this->request->ip(),
                         'trade_type' => 2
