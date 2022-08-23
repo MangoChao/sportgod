@@ -169,7 +169,7 @@ class Baccarat extends Api
                         }
 
                         $params = [
-                            'request' => json_encode($request, JSON_UNESCAPED_UNICODE)??"",
+                            'request' => json_encode($post, JSON_UNESCAPED_UNICODE)??"",
                             'notify_msg' => $TradeInfo['Message']??"",
                             'trade_no' => $Result['TradeNo']??"",
                             'payment_type' => $Result['PaymentType']??"",
