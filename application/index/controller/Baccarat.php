@@ -31,47 +31,49 @@ class Baccarat extends Frontend
             if($mBaccaratorder->confirm == 0){
                 return $this->confirmpage($code);
             }
-            if($mBaccaratorder->trade_type == 1){
-                if($mBaccaratorder->end_time_strtotime <= time()){
-                    $ApiBaccarat = new ApiBaccarat;
-                    $r = $ApiBaccarat->reOrder($code);
-                    
-                    if($r){
-                        $mBaccaratorder = model('Baccarat')->alias('b')
-                        ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
-                        ->field("bo.*, b.code, b.order_status")
-                        ->where("b.code = '".$code."'")->find();
-                    }else{
-                        $orderid = 'BR'.date('YmdHis');
-                        $amount = $mBaccaratorder->amount;
-                        $p = [
-                            'baccarat_id' => $mBaccaratorder->baccarat_id,
-                            'order_no' => $orderid,
-                            'amount' => $amount,
-                            'status' => 0,
-                            'ip' => $mBaccaratorder->ip,
-                            'trade_type' => 2
-                        ];
-                        $mBtr = model('Baccaratorder')::create($p);
+            if($mBaccaratorder->order_status != 1){
+                if($mBaccaratorder->trade_type == 1){
+                    if($mBaccaratorder->end_time_strtotime <= time()){
+                        $ApiBaccarat = new ApiBaccarat;
+                        $r = $ApiBaccarat->reOrder($code);
+                        
+                        if($r){
+                            $mBaccaratorder = model('Baccarat')->alias('b')
+                            ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
+                            ->field("bo.*, b.code, b.order_status")
+                            ->where("b.code = '".$code."'")->find();
+                        }else{
+                            $orderid = 'BR'.date('YmdHis');
+                            $amount = $mBaccaratorder->amount;
+                            $p = [
+                                'baccarat_id' => $mBaccaratorder->baccarat_id,
+                                'order_no' => $orderid,
+                                'amount' => $amount,
+                                'status' => 0,
+                                'ip' => $mBaccaratorder->ip,
+                                'trade_type' => 2
+                            ];
+                            $mBtr = model('Baccaratorder')::create($p);
 
-                        $mBaccarat = model('Baccarat')->get($mBaccaratorder->baccarat_id);
-                        if($mBaccarat){
-                            $mBaccarat->order_status = 0;
-                            $mBaccarat->baccarat_order_id = $mBtr->id;
-                            $mBaccarat->save();
+                            $mBaccarat = model('Baccarat')->get($mBaccaratorder->baccarat_id);
+                            if($mBaccarat){
+                                $mBaccarat->order_status = 0;
+                                $mBaccarat->baccarat_order_id = $mBtr->id;
+                                $mBaccarat->save();
+                            }
+                            $mBaccaratorder = model('Baccarat')->alias('b')
+                            ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
+                            ->field("bo.*, b.code, b.order_status")
+                            ->where("b.code = '".$code."'")->find();
+                            return $this->orderpage($mBaccaratorder);
                         }
-                        $mBaccaratorder = model('Baccarat')->alias('b')
-                        ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
-                        ->field("bo.*, b.code, b.order_status")
-                        ->where("b.code = '".$code."'")->find();
+                    }
+                }elseif($mBaccaratorder->trade_type == 2){
+                    if($mBaccaratorder->status == 1){
+
+                    }else{
                         return $this->orderpage($mBaccaratorder);
                     }
-                }
-            }elseif($mBaccaratorder->trade_type == 2){
-                if($mBaccaratorder->status == 1){
-
-                }else{
-                    return $this->orderpage($mBaccaratorder);
                 }
             }
         }
