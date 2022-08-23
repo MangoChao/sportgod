@@ -7,6 +7,12 @@
         <meta name="renderer" content="webkit">
 
         <link href="__CDN__/assets/css/frontend{$Think.config.app_debug?'':'.min'}.css?v={$Think.config.site.version}" rel="stylesheet">
+        
+        <script type="text/javascript">
+            var require = {
+                config: {$config|json_encode}
+            };
+        </script>
     </head>
     <body>
         <main class="content">
