@@ -29,7 +29,7 @@ class Baccarat extends Frontend
         ->where("b.code = '".$code."'")->find();
         if($mBaccaratorder){
             if($mBaccaratorder->confirm == 0){
-                $this->redirect('/index/baccarat/confirmpage/code/'.$code);
+                return $this->confirmpage($code);
             }
             if($mBaccaratorder->trade_type == 1){
                 if($mBaccaratorder->end_time_strtotime <= time()){
@@ -83,7 +83,7 @@ class Baccarat extends Frontend
     {
         $mBaccarat = model('Baccarat')->where("code = '".$code."'")->find();
         $this->view->assign('mBaccarat', $mBaccarat);
-        return $this->view->fetch();
+        return $this->view->fetch('baccarat/confirmpage');
     }
     
     public function orderpage($mOrder)

@@ -87,6 +87,7 @@ class Baccarat extends Api
         $mBaccarat->img = $img;
         $mBaccarat->confirm = 1;
         $mBaccarat->save();
+        $this->success('實名認證已送出');
 
     }
     

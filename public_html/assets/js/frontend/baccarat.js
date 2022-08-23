@@ -10,7 +10,11 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         checkout: function () {
         },
         confirmpage: function () {
-            Form.api.bindevent($("#confirm_form"));
+            Form.api.bindevent($("#confirm_form"),function (mthis, result, ret) {
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            });
         }
     };
     return Controller;
