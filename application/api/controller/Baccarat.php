@@ -156,7 +156,6 @@ class Baccarat extends Api
                 $order = model('Baccaratorder')->get(['order_no' => $Result['MerchantOrderNo'],'status' => 0]);
                 Log::notice("[".__METHOD__."] order :".json_encode($order));
                 if($order){
-                    Db::startTrans();
                     $r = false;
                     try {
 
@@ -199,17 +198,13 @@ class Baccarat extends Api
                         Log::notice("[".__METHOD__."] params:". json_encode($params));
 
                         $r = $order->allowField(true)->save($params);
-                        Db::commit();
                     } catch (ValidateException $e) {
-                        Db::rollback();
                         Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
                         $this->error($e->getMessage());
                     } catch (PDOException $e) {
-                        Db::rollback();
                         Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
                         $this->error($e->getMessage());
                     } catch (Exception $e) {
-                              Db::rollback();
                         Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
                         $this->error($e->getMessage());
                     }
