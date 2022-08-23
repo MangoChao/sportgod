@@ -25,7 +25,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true, visible: false},
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'code', title: __('code')},
-                        {field: 'remark', title: __('remark')},
+                        {field: 'remark', title: __('remark'), align: 'left'},
                         {field: 'debt', title: __('debt')},
                         {field: 'repay', title: __('repay')},
                         {field: 'checkout_link', title: __('checkout_link'), formatter: Controller.api.formatter.checkout_link},
