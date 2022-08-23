@@ -1,0 +1,47 @@
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h2 class="page-header">程式服務繳費單</h2>
+            {if $mBaccarat}
+            <p class="text-danger">
+                為了防止三方詐騙，請提供匯款帳戶資訊、連絡電話實名驗證確認本人使用
+                1.需要一個上傳窗口 傳銀行帳戶照片
+                2.連絡電話
+                無提供則無法繼續配合擊敗莊家
+                客服協助實名驗證 line : @516wvzjp
+            </p>
+            <form id="confirm_form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:url('api/baccarat/confirm')}">
+                <input type="hidden" name="id" value="{$mBaccarat->id}"/>
+                <div class="form-group">
+                    <label for="phone" class="control-label col-xs-12 col-sm-2">連絡電話:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <input type="text" class="form-control" id="phone" name="phone" value="" data-rule="required" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content" class="control-label col-xs-12 col-sm-2">匯款帳號:</label>
+                    <div class="col-xs-12 col-sm-8">
+                        <div class="input-group">
+                            <input id="img"  class="form-control" size="50" name="img" type="text" value="">
+                            <div class="input-group-addon no-border no-padding">
+                                <span><button type="button" id="faupload-img" class="btn btn-danger faupload" data-input-id="img" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-img"><i class="fa fa-upload"></i> 點擊上傳</button></span>
+                            </div>
+                            <span class="msg-box n-right" for="img"></span>
+                        </div>
+                        <ul class="row list-inline faupload-preview" id="p-img"></ul>
+                    </div>
+                </div>
+                <div class="form-group normal-footer">
+                    <label class="control-label col-xs-12 col-sm-2"></label>
+                    <div class="col-xs-12 col-sm-8">
+                        <button type="submit" class="btn btn-success btn-embossed disabled">送出</button>
+                        <button type="reset" class="btn btn-default btn-embossed">重置</button>
+                    </div>
+                </div>
+            </form>
+            {else/}
+            <p class="text-danger">查無資料</p>
+            {/if}
+        </div>
+    </div>
+</div>
