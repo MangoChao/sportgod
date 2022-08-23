@@ -332,7 +332,7 @@ class User extends Frontend
         $mPointitem = model('Pointitem')->order('point','asc')->select();
         $this->view->assign('mPointitem', $mPointitem);
 
-        $mCOP = model('Orderpoint')->where("end_time_strtotime < ".time()." AND user_id = ".$this->auth->id)->order('id','desc')->select();
+        $mCOP = model('Orderpoint')->where("trade_type = 1 AND end_time_strtotime < ".time()." AND user_id = ".$this->auth->id)->order('id','desc')->select();
         if($mCOP){
             foreach($mCOP as $v){
                 $v->status = 3;

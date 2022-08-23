@@ -48,9 +48,26 @@ class Frontend extends Controller
     protected $def_avatar = "";
     protected $paginate_config = [];
     protected $check_sysadminlogin = true;
+    
+    //藍新資訊 
+    //測試
+    protected $newebpay_url_t = 'https://ccore.newebpay.com/MPG/mpg_gateway';
+    protected $newebpay_MerchantID_t = 'MS116713868';
+    protected $newebpay_HashKey_t = '3YqcriMvCIz0We7pcYYXbZl3b2wcn5Sp';
+    protected $newebpay_HashIV_t = 'CfDcKXfy6un3NY2P';
+    //正式
+    protected $newebpay_url = 'https://core.newebpay.com/MPG/mpg_gateway';
+    protected $newebpay_MerchantID = 'MS3629731290';
+    protected $newebpay_HashKey = 'VAcfXUQJELhcK8Vy4uh881HaKiaW9ppq';
+    protected $newebpay_HashIV = 'PWDwDgz6KNxrgysC';
 
     public function _initialize()
     {
+        
+        $this->newebpay_url = $this->newebpay_url_t;
+        $this->newebpay_MerchantID = $this->newebpay_MerchantID_t;
+        $this->newebpay_HashKey = $this->newebpay_HashKey_t;
+        $this->newebpay_HashIV = $this->newebpay_HashIV_t;
         
         // if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
         //     exit;

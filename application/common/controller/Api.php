@@ -72,6 +72,17 @@ class Api
     protected $payapi_mid = "33";
     protected $payapi_payurl = "https://wwh.zzpayis.com/apijson.php";
     protected $payapi_queryurl = "https://www.zzpayis.com/Login/roborderquery";
+    //藍新資訊 
+    //測試
+    protected $newebpay_url_t = 'https://ccore.newebpay.com/MPG/mpg_gateway';
+    protected $newebpay_MerchantID_t = 'MS116713868';
+    protected $newebpay_HashKey_t = '3YqcriMvCIz0We7pcYYXbZl3b2wcn5Sp';
+    protected $newebpay_HashIV_t = 'CfDcKXfy6un3NY2P';
+    //正式
+    protected $newebpay_url = 'https://core.newebpay.com/MPG/mpg_gateway';
+    protected $newebpay_MerchantID = 'MS3629731290';
+    protected $newebpay_HashKey = 'VAcfXUQJELhcK8Vy4uh881HaKiaW9ppq';
+    protected $newebpay_HashIV = 'PWDwDgz6KNxrgysC';
 
     /**
      * 构造方法
@@ -101,6 +112,12 @@ class Api
      */
     protected function _initialize()
     {
+
+        $this->newebpay_url = $this->newebpay_url_t;
+        $this->newebpay_MerchantID = $this->newebpay_MerchantID_t;
+        $this->newebpay_HashKey = $this->newebpay_HashKey_t;
+        $this->newebpay_HashIV = $this->newebpay_HashIV_t;
+
         //跨域请求检测
         check_cors_request();
 
@@ -360,7 +377,7 @@ class Api
 
             $mUser->point = $after;
             $mUser->save();
-            Log::notice("[".__METHOD__."] 更動點數成功 pointlog參數:".json_encode($p_params));
+            Log::notice("[".__METHOD__."] 更動點數成功 pointlog參數:".json_encode($p_params, JSON_UNESCAPED_UNICODE));
         }else{
             Log::notice("[".__METHOD__."] 查無用戶 id:".$id);
         }
@@ -371,7 +388,7 @@ class Api
     {
         $request = $this->request->request();
         $p = [
-            'request' => json_encode($request),
+            'request' => json_encode($request, JSON_UNESCAPED_UNICODE),
             'ip' => $this->request->ip(),
         ];
         model('Requestlog')::create($p);

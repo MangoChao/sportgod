@@ -456,3 +456,51 @@ if (!function_exists('file_get_content')) {
         return $file_contents;
     }
 }
+
+if (!function_exists('create_mpg_aes_encrypt')) {
+/**
+     * AES加密
+     */
+    function create_mpg_aes_encrypt($parameter = "" , $key = "", $iv = "") {
+        $return_str = '';
+        if (!empty($parameter)) {
+            //將參數經過 URL ENCODED QUERY STRING
+            $return_str = http_build_query($parameter);
+        }
+        return trim(bin2hex(openssl_encrypt(addpadding($return_str), 'aes-256-cbc', $key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv)));
+    }
+}
+
+
+if (!function_exists('addpadding')) {
+    function addpadding($string, $blocksize = 32) {
+        $len = strlen($string);
+        $pad = $blocksize - ($len % $blocksize);
+        $string .= str_repeat(chr($pad), $pad);
+        return $string;
+    }
+}
+
+
+if (!function_exists('create_aes_decrypt')) {
+    /**
+     * AES解密
+     */
+    function create_aes_decrypt($parameter = "", $key = "", $iv = "") {
+        return strippadding(openssl_decrypt(hex2bin($parameter),'AES-256-CBC',$key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv));
+    }
+}
+
+if (!function_exists('strippadding')) {
+    function strippadding($string) {
+        $slast = ord(substr($string, -1));
+        $slastc = chr($slast);
+        $pcheck = substr($string, -$slast);
+        if (preg_match("/$slastc{" . $slast . "}/", $string)) {
+            $string = substr($string, 0, strlen($string) - $slast);
+            return $string;
+        } else {
+            return false;
+        }
+    }
+}

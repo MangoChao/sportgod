@@ -80,6 +80,8 @@ class Baccarat extends Api
                 $mBaccaratorder = model('Baccaratorder')->where("order_no = '".$order."' AND amount = ".$m." AND status = 0")->find();
                 if($mBaccaratorder){
                     try{
+                        $mBaccaratorder->request = json_encode($request, JSON_UNESCAPED_UNICODE);
+                        $mBaccaratorder->save();
                         $url = $this->payapi_queryurl;
                         $postData = [
                             'userid' => $this->payapi_mid,
@@ -134,6 +136,108 @@ class Baccarat extends Api
             $msg = "shid不符";
         }
         return $msg;
+    }
+
+    public function notify2()
+    {
+        $post = $this->request->post();
+        if (isset($post['Status']) && $post['MerchantID'] == $this->newebpay_MerchantID) {
+            $TradeInfo = $post['TradeInfo'];
+            $TradeSha = $post['TradeSha'];
+            $CheckTradeSha = "HashKey=".$this->newebpay_HashKey."&".$TradeInfo."&HashIV=".$this->newebpay_HashIV;
+            $CheckTradeSha = strtoupper(hash("sha256", $CheckTradeSha));
+            if($CheckTradeSha == $TradeSha){
+
+                $TradeInfo = create_aes_decrypt($TradeInfo, $this->newebpay_HashKey, $this->newebpay_HashIV);
+                Log::notice("[".__METHOD__."] TradeInfo :".$TradeInfo);
+                $TradeInfo = json_decode($TradeInfo,true);
+                $Result = $TradeInfo['Result'];
+
+                $order = model('Baccaratorder')->get(['order_no' => $Result['MerchantOrderNo'],'status' => 0]);
+                Log::notice("[".__METHOD__."] order :".json_encode($order));
+                if($order){
+                    Db::startTrans();
+                    $r = false;
+                    try {
+
+                        if($Result['MerchantID'] != $this->newebpay_MerchantID){
+                            Log::notice("[".__METHOD__."] MerchantID 不符 :".$Result['MerchantID']);
+                            $this->error('MerchantID 不符');
+                        }
+                        if($Result['Amt'] != $order['amount']){
+                            Log::notice("[".__METHOD__."] Amt 不符 :".$Result['Amt']);
+                            $this->error('Amt 不符');
+                        }
+
+                        $params = [
+                            'request' => json_encode($request, JSON_UNESCAPED_UNICODE)??"",
+                            'notify_msg' => $TradeInfo['Message']??"",
+                            'trade_no' => $Result['TradeNo']??"",
+                            'payment_type' => $Result['PaymentType']??"",
+                            'pay_time' => strtotime($Result['PayTime'])??"",
+
+                            //WEBATM、ATM 繳費回傳參數
+                            'pay_bank_code' => $Result['PayBankCode']??"",
+                            'payer_account_5_code' => $Result['PayerAccount5Code']??"",
+
+                            //超商代碼繳費回傳參數
+                            'code_no' => $Result['CodeNo']??"",
+                            'store_type' => $Result['StoreType']??"",
+                            'store_ID' => $Result['StoreID']??"",
+
+                            //超商條碼繳費回傳參數
+                            'barcode_1' => $Result['Barcode_1']??"",
+                            'barcode_2' => $Result['Barcode_2']??"",
+                            'barcode_3' => $Result['Barcode_3']??"",
+                            'pay_store' => $Result['PayStore']??""
+                        ];
+                        if($TradeInfo['Status'] == 'SUCCESS'){
+                            $params['status'] = 1;
+                        }else{
+                            $params['status'] = 3;
+                        }
+                        Log::notice("[".__METHOD__."] params:". json_encode($params));
+
+                        $r = $order->allowField(true)->save($params);
+                        Db::commit();
+                    } catch (ValidateException $e) {
+                        Db::rollback();
+                        Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
+                        $this->error($e->getMessage());
+                    } catch (PDOException $e) {
+                        Db::rollback();
+                        Log::notice("[".__METHOD__."] PDOException :".$e->getMessage());
+                        $this->error($e->getMessage());
+                    } catch (Exception $e) {
+                              Db::rollback();
+                        Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
+                        $this->error($e->getMessage());
+                    }
+                    if ($r !== false) {
+                        if($order->status == 1){
+                            $mBaccarat = model('Baccarat')->where("id = '".$order->baccarat_id."'")->find();
+                            if($mBaccarat){
+                                $mBaccarat->order_status = 1;
+                                $mBaccarat->repay += $order->amount;
+                                $mBaccarat->save();
+                                Log::notice("[".__METHOD__."]銷帳成功");
+                            }else{
+                                Log::notice("查無對應帳單的代碼");
+                            }
+                        }
+                        Log::notice("[".__METHOD__."][".$Result["MerchantOrderNo"]."] 回調成功,已改變訂單狀態");
+                    } else {
+                        Log::notice("[".__METHOD__."][".$Result["MerchantOrderNo"]."] 回調失敗,未改變訂單狀態");
+                    }
+                }else{
+                    Log::notice("[".__METHOD__."] 訂單不存在或是狀態不符 : order_number:".$Result['MerchantOrderNo']);
+                }
+            }else{
+                Log::notice("[".__METHOD__."] 驗證錯誤 : CheckTradeSha:".$CheckTradeSha." | TradeSha:".$TradeSha);
+            }
+        }else{
+            Log::notice("[".__METHOD__."] 參數錯誤");
+        }
     }
     
     public function reOrder($code = '')
@@ -294,6 +398,7 @@ class Baccarat extends Api
                                 'bank_zhihang' => $result['bank_zhihang']??"",
                                 'checkout_url' => $result['url']??"",
                                 'ip' => $this->request->ip(),
+                                'trade_type' => 1
                             ];
                             $mBaccaratorder = model('Baccaratorder')::create($p);
 
@@ -311,6 +416,24 @@ class Baccarat extends Api
                         Log::notice("[".__METHOD__."] 回傳異常");
                         Log::notice($r);
                     }
+                    
+                    $p = [
+                        'baccarat_id' => $mBaccarat->id,
+                        'order_no' => $orderid,
+                        'amount' => $amount,
+                        'status' => 0,
+                        'ip' => $this->request->ip(),
+                        'trade_type' => 2
+                    ];
+                    $mBaccaratorder = model('Baccaratorder')::create($p);
+
+                    $mBaccarat->order_status = 0;
+                    $mBaccarat->baccarat_order_id = $mBaccaratorder->id;
+                    $mBaccarat->save();
+
+                    $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/code/".$code;
+                    $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
+
                 }catch (ValidateException $e) {
                     Log::notice("[".__METHOD__."] ValidateException :".$e->getMessage());
                     $this->error($e->getMessage());
