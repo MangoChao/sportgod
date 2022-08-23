@@ -49,6 +49,7 @@ class Frontend extends Controller
     protected $paginate_config = [];
     protected $check_sysadminlogin = true;
     
+    protected $webshow = false;
     //藍新資訊 
     //測試
     protected $newebpay_url_t = 'https://ccore.newebpay.com/MPG/mpg_gateway';
@@ -69,9 +70,9 @@ class Frontend extends Controller
         $this->newebpay_HashKey = $this->newebpay_HashKey_t;
         $this->newebpay_HashIV = $this->newebpay_HashIV_t;
         
-        // if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
-        //     exit;
-        // }
+        if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
+            exit;
+        }
 
         //移除HTML标签
         $this->request->filter('trim,strip_tags,htmlspecialchars');

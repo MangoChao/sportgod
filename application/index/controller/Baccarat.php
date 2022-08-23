@@ -24,7 +24,7 @@ class Baccarat extends Frontend
     public function checkout($code = '')
     {
         $this->redirect('/index/baccarat/confirmpage/code/'.$code);
-
+        
         $mBaccaratorder = model('Baccarat')->alias('b')
         ->join("baccarat_order bo","bo.id = b.baccarat_order_id","LEFT")
         ->field("bo.*, b.code, b.order_status")
