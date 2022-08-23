@@ -8,13 +8,13 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
     };
     var Controller = {
         checkout: function () {
-        },
-        confirmpage: function () {
             Form.api.bindevent($("#confirm_form"),function (mthis, result, ret) {
                 setTimeout(function () {
                     location.reload();
                 }, 1000);
             });
+        },
+        confirmpage: function () {
         }
     };
     return Controller;
