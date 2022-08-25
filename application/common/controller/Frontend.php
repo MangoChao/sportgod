@@ -47,7 +47,7 @@ class Frontend extends Controller
     protected $site_url = null;
     protected $def_avatar = "";
     protected $paginate_config = [];
-    protected $check_sysadminlogin = true;
+    protected $check_sysadminlogin = false;
     
     protected $webshow = false;
     //藍新資訊 
