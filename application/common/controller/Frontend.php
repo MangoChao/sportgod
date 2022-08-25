@@ -70,9 +70,9 @@ class Frontend extends Controller
         $this->newebpay_HashKey = $this->newebpay_HashKey_t;
         $this->newebpay_HashIV = $this->newebpay_HashIV_t;
         
-        if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
-            exit;
-        }
+        // if($this->check_sysadminlogin AND !Cookie::has('sysadminlogin')){
+        //     exit;
+        // }
 
         //移除HTML标签
         $this->request->filter('trim,strip_tags,htmlspecialchars');
