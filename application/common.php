@@ -504,3 +504,29 @@ if (!function_exists('strippadding')) {
         }
     }
 }
+
+
+if (!function_exists('toDotNetUrlEncode')) {
+    function toDotNetUrlEncode($source){
+        $search = [
+            '%2d',
+            '%5f',
+            '%2e',
+            '%21',
+            '%2a',
+            '%28',
+            '%29',
+        ];
+        $replace = [
+            '-',
+            '_',
+            '.',
+            '!',
+            '*',
+            '(',
+            ')',
+        ];
+        $replaced = str_replace($search, $replace, $source);
+        return $replaced;
+    }
+}

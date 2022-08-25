@@ -47,11 +47,11 @@ class Index extends Api
     //         }
     //     }
     // }
-    // public function testnotify()
-    // {
-    //     $post = $this->request->post();
-    //     Log::notice($post);
-    // }
+    public function testnotify()
+    {
+        $post = $this->request->post();
+        Log::notice($post);
+    }
     
     // public function testapi()
     // {
@@ -138,4 +138,45 @@ class Index extends Api
     //   }
 
     // }
+
+    
+    public function ecpay()
+    {
+        $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
+        $HashKey = "5294y06JbISpM5x9";
+        $HashIV = "v77hoKGq4kWxNNIS";
+        
+        $TradeDesc = "";
+        $TotalAmount = 100;
+        $ItemName = "";
+        $ReturnURL = $this->site_url['api'].'/index/testnotify';
+        $CheckMacValue = "";
+        $ClientBackURL = "";
+        $OrderResultURL = "";
+        $postData = [
+            'MerchantID' => '2000132',
+            'MerchantTradeNo' => 'AB00001',
+            'MerchantTradeDate' => date("Y-m-d H:i:s"),
+            'PaymentType' => 'aio',
+            'TotalAmount' => $TotalAmount,
+            'TradeDesc' => $TradeDesc,
+            'ItemName' => $ItemName,
+            'ReturnURL' => $ReturnURL,
+            'ChoosePayment' => 'ALL',
+            'EncryptType' => 1,
+            'ClientBackURL' => $ClientBackURL,
+            'OrderResultURL' => $OrderResultURL,
+        ];
+        
+        ksort($postData);
+        $signStr = http_build_query($postData);
+        $signStr = "HashKey=".$HashKey."&".$signStr."&HashIV=".$HashIV;
+        $signStr = toDotNetUrlEncode(strtolower(urlencode($signStr)));
+        $CheckMacValue = strtoupper(hash('sha256', $signStr));
+        $postData['CheckMacValue'] = $CheckMacValue;
+
+        $r = curl_post($url, $postData);
+        var_dump($r);
+    }
+    
 }
