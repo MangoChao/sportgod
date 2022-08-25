@@ -156,7 +156,7 @@ class Index extends Api
         $postData = [
             'MerchantID' => '2000132',
             'MerchantTradeNo' => 'AB00001',
-            'MerchantTradeDate' => date("Y-m-d H:i:s"),
+            'MerchantTradeDate' => date("Y/m/d H:i:s"),
             'PaymentType' => 'aio',
             'TotalAmount' => $TotalAmount,
             'TradeDesc' => $TradeDesc,
