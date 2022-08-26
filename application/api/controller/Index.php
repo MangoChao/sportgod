@@ -51,6 +51,11 @@ class Index extends Api
     {
         $post = $this->request->post();
         Log::notice($post);
+        return '1|OK';
+    }
+    public function testback()
+    {
+        return '轉跳成功';
     }
     
     // public function testapi()
@@ -139,23 +144,24 @@ class Index extends Api
 
     // }
 
-    
+    //4311-9522-2222-2222
+    //https://bigwinners.cc/api/index/ecpay
     public function ecpay()
     {
         $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
         $HashKey = "5294y06JbISpM5x9";
         $HashIV = "v77hoKGq4kWxNNIS";
         
-        $TradeDesc = "";
+        $TradeDesc = "交易說明";
         $TotalAmount = 100;
-        $ItemName = "";
+        $ItemName = "商品名稱";
         $ReturnURL = $this->site_url['api'].'/index/testnotify';
         $CheckMacValue = "";
-        $ClientBackURL = "";
+        $ClientBackURL = $this->site_url['api'].'/index/testback';
         $OrderResultURL = "";
         $postData = [
             'MerchantID' => '2000132',
-            'MerchantTradeNo' => 'AB00001',
+            'MerchantTradeNo' => 'AB'.date("His"),
             'MerchantTradeDate' => date("Y/m/d H:i:s"),
             'PaymentType' => 'aio',
             'TotalAmount' => $TotalAmount,
@@ -169,14 +175,43 @@ class Index extends Api
         ];
         
         ksort($postData);
-        $signStr = http_build_query($postData);
-        $signStr = "HashKey=".$HashKey."&".$signStr."&HashIV=".$HashIV;
-        $signStr = toDotNetUrlEncode(strtolower(urlencode($signStr)));
+        $signStr = "";
+        foreach($postData as $k => $v){
+            $signStr .= $k."=".$v."&";
+        }
+        $signStr = "HashKey=".$HashKey."&".$signStr."HashIV=".$HashIV;
+        $signStr = strtolower(urlencode($signStr));
+        $signStr = toDotNetUrlEncode($signStr);
         $CheckMacValue = strtoupper(hash('sha256', $signStr));
-        $postData['CheckMacValue'] = $CheckMacValue;
 
-        $r = curl_post($url, $postData);
-        var_dump($r);
+        $szHtml = '<!doctype html>';
+        $szHtml .= '<html>';
+        $szHtml .= '<head>';
+        $szHtml .= '<meta charset="utf-8">';
+        $szHtml .= '</head>';
+        $szHtml .= '<body>';
+        $szHtml .= '<form name="ebpay" id="ebpay" method="post" action="' . $url . '" style="display:none;">';
+        $szHtml .= '<input name="MerchantID" value="' . $postData['MerchantID'] . '" type="hidden">';
+        $szHtml .= '<input name="MerchantTradeNo" value="' . $postData['MerchantTradeNo'] . '"   type="hidden">';
+        $szHtml .= '<input name="MerchantTradeDate" value="' . $postData['MerchantTradeDate'] . '"   type="hidden">';
+        $szHtml .= '<input name="PaymentType" value="' . $postData['PaymentType'] . '" type="hidden">';
+        $szHtml .= '<input name="TotalAmount" value="' . $postData['TotalAmount'] . '" type="hidden">';
+        $szHtml .= '<input name="TradeDesc" value="' . $postData['TradeDesc'] . '" type="hidden">';
+        $szHtml .= '<input name="ItemName" value="' . $postData['ItemName'] . '" type="hidden">';
+        $szHtml .= '<input name="ReturnURL" value="' . $postData['ReturnURL'] . '" type="hidden">';
+        $szHtml .= '<input name="ChoosePayment" value="' . $postData['ChoosePayment'] . '" type="hidden">';
+        $szHtml .= '<input name="EncryptType" value="' . $postData['EncryptType'] . '" type="hidden">';
+        $szHtml .= '<input name="ClientBackURL" value="' . $postData['ClientBackURL'] . '" type="hidden">';
+        $szHtml .= '<input name="OrderResultURL" value="' . $postData['OrderResultURL'] . '" type="hidden">';
+        $szHtml .= '<input name="CheckMacValue"  value="' . $CheckMacValue . '" type="hidden">';
+        $szHtml .= '</form>';
+        $szHtml .= '<script type="text/javascript">';
+        $szHtml .= 'document.getElementById("ebpay").submit();';
+        $szHtml .= '</script>';
+        $szHtml .= '</body>';
+        $szHtml .= '</html>';
+
+        return $szHtml;
     }
     
 }
