@@ -113,10 +113,10 @@ class Api
     protected function _initialize()
     {
 
-        $this->newebpay_url = $this->newebpay_url_t;
-        $this->newebpay_MerchantID = $this->newebpay_MerchantID_t;
-        $this->newebpay_HashKey = $this->newebpay_HashKey_t;
-        $this->newebpay_HashIV = $this->newebpay_HashIV_t;
+        // $this->newebpay_url = $this->newebpay_url_t;
+        // $this->newebpay_MerchantID = $this->newebpay_MerchantID_t;
+        // $this->newebpay_HashKey = $this->newebpay_HashKey_t;
+        // $this->newebpay_HashIV = $this->newebpay_HashIV_t;
 
         //跨域请求检测
         check_cors_request();
