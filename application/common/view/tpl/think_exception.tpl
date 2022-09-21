@@ -4,11 +4,11 @@ $publicurl = function_exists('config') ? (config('view_replace_str.__PUBLIC__')?
 $debug = function_exists('config') ? config('app_debug') : false;
 
 $lang = [
-    'An error occurred' => '发生错误',
-    'Home' => '返回主页',
-    'Feedback' => '反馈错误',
-    'The page you are looking for is temporarily unavailable' => '你所浏览的页面暂时无法访问',
-    'You can return to the previous page and try again' => '你可以返回上一页重试，或直接向我们反馈错误报告'
+    'An error occurred' => '發生錯誤',
+    'Home' => '返回主頁',
+    'Feedback' => '反饋錯誤',
+    'The page you are looking for is temporarily unavailable' => '無法訪問, 請聯絡管理員',
+    'You can return to the previous page and try again' => '請返回上一頁重試'
 ];
 
 $langSet = '';
@@ -28,6 +28,9 @@ $langSet == 'en' && $lang = array_combine(array_keys($lang), array_keys($lang));
 <!DOCTYPE html>
 <html>
 <head>
+    <script type="text/javascript">
+        location.href = "<?=$publicurl?>";
+    </script>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <title><?=$lang['An error occurred']?></title>
     <meta name="robots" content="noindex,nofollow" />
@@ -55,8 +58,6 @@ $langSet == 'en' && $lang = array_combine(array_keys($lang), array_keys($lang));
         .error-page-wrapper .buttons-container {margin-top:35px;overflow:hidden;}
         .error-page-wrapper .buttons-container a {transition:text-indent .2s ease-out,color .2s linear,background-color .2s linear;text-indent:0px;font-size:14px;text-transform:uppercase;text-decoration:none;color:#fff;background-color:#2ecc71;border-radius:99px;padding:8px 0 8px;text-align:center;display:inline-block;overflow:hidden;position:relative;width:45%;}
         .error-page-wrapper .buttons-container a:hover {text-indent:15px;}
-        .error-page-wrapper .buttons-container a:nth-child(1) {float:left;}
-        .error-page-wrapper .buttons-container a:nth-child(2) {float:right;}
         @media screen and (max-width:580px) {
             .error-page-wrapper {padding:30px 5%;}
             .error-page-wrapper .content-container {padding:37px;position:static;left:0;margin-top:0;margin-left:0;}
@@ -94,7 +95,6 @@ $langSet == 'en' && $lang = array_combine(array_keys($lang), array_keys($lang));
     </div>
     <div class="buttons-container">
         <a href="<?=$publicurl?>"><?=$lang['Home']?></a>
-        <a href="<?=$publicurl?>"><?=$lang['Feedback']?></a>
     </div>
 </div>
 </body>
