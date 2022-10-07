@@ -22,32 +22,30 @@ class Baccarat extends Api
         $this->requestLog();
     }
 
-    // public function checkout($order = '')
-    // {
-    //     $mBaccarat = model('Baccarat')->where("ordernum = '".$order."'")->find();
-    //     if($mBaccarat AND $order != ''){
-    //         $mBaccarat->status = 1;
-    //         $mBaccarat->save();
-    //         return "已銷帳";
-    //     }else{
-    //         return "查無訂單";
-    //     }
-    // }
+    public function checkout()
+    {
+        $mBaccarat = model('Baccarat')->where("code = 'TESTAPP'")->find();
+        if($mBaccarat){
+            $mBaccarat->order_status = 1;
+            $mBaccarat->save();
+            return "已銷帳";
+        }else{
+            return "查無訂單";
+        }
+    }
 
-    // public function checkoutall()
-    // {
-    //     $mBaccarat = model('Baccarat')->where("locked = 1")->select();
-    //     if($mBaccarat){
-    //         foreach($mBaccarat as $v){
-    //             $v->locked = 0;
-    //             $v->act = 0;
-    //             $v->save();
-    //         }
-    //         return "已解鎖";
-    //     }else{
-    //         return "查無鎖定";
-    //     }
-    // }
+    public function unlocked()
+    {
+        $mBaccarat = model('Baccarat')->where("code = 'TESTAPP'")->select();
+        if($mBaccarat){
+            $mBaccarat->locked = 0;
+            $mBaccarat->act = 0;
+            $mBaccarat->save();
+            return "已解鎖 act = 0";
+        }else{
+            return "查無";
+        }
+    }
 
     // public function checkoutall2()
     // {
