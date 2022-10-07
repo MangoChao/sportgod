@@ -36,7 +36,7 @@ class Baccarat extends Api
 
     public function unlocked()
     {
-        $mBaccarat = model('Baccarat')->where("code = 'TESTAPP'")->select();
+        $mBaccarat = model('Baccarat')->where("code = 'TESTAPP'")->find();
         if($mBaccarat){
             $mBaccarat->locked = 0;
             $mBaccarat->act = 0;
