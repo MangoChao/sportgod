@@ -532,7 +532,7 @@ class Baccarat extends Api
                 if($mBaccarat AND $code != "" AND $uid != ""){
                     if($mBaccarat->status == 0){
                         Log::notice("[".__METHOD__."] 代號已被停用".$code);
-                        $msg = "代號已被鎖定";
+                        $msg = "代號已被停用";
                         $response_code = 0;
                     }elseif($mBaccarat->locked == 1){
                         Log::notice("[".__METHOD__."] 代號已被鎖定".$code);
