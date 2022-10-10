@@ -542,7 +542,8 @@ class Baccarat extends Api
                         if(!$mBaccarat->uid){
                             $mBaccarat->uid = $uid;
                         }
-                        if($mBaccarat->uid != $uid AND $mBaccarat->act == 1){
+                        if($mBaccarat->uid != $uid){
+                            // if($mBaccarat->uid != $uid AND $mBaccarat->act == 1){
                             Log::notice("[".__METHOD__."] 識別碼異常,鎖定代號".$code);
                             $mBaccarat->locked = 1; //鎖定
                             $msg = "識別碼異常,鎖定代號";
