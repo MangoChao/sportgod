@@ -47,6 +47,19 @@ class Baccarat extends Api
         }
     }
 
+    public function unsetuid()
+    {
+        $mBaccarat = model('Baccarat')->where("code = 'TESTAPP'")->find();
+        if($mBaccarat){
+            $mBaccarat->uid = null;
+            $mBaccarat->act = 0;
+            $mBaccarat->save();
+            return "已重置 uid = null ,act = 0";
+        }else{
+            return "查無";
+        }
+    }
+
     // public function checkoutall2()
     // {
     //     $mBaccarat = model('Baccarat')->where("status = 0")->select();
