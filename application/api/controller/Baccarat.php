@@ -523,6 +523,7 @@ class Baccarat extends Api
             $exps = 60;
             $iat = time();
             if($getPayload){
+                Log::notice("[".__METHOD__."] getPayload:".json_encode($getPayload, JSON_UNESCAPED_UNICODE));
                 $code = $getPayload['code']??"";
                 $exp = $getPayload['exp']??0;
                 $exps = $getPayload['exps']??60;
