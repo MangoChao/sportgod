@@ -74,6 +74,14 @@ class User extends Backend
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->id;
                 }
+                
+                if($params['code'] != ""){
+                    $mUser = $this->model->get(['code' => $params['code']]);
+                    if($mUser){
+                        $this->error(__('代碼已存在'));
+                    }
+                }
+
                 $result = false;
                 Db::startTrans();
                 try {
@@ -130,6 +138,14 @@ class User extends Backend
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
+                
+                if($params['code'] != ""){
+                    $mUser = $this->model->get(['id' => ['<>',$ids], 'code' => $params['code']]);
+                    if($mUser){
+                        $this->error(__('代碼已存在'));
+                    }
+                }
+
                 $result = false;
                 Db::startTrans();
                 try {
