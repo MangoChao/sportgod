@@ -74,6 +74,15 @@ class Baccarat extends Api
     //     }
     // }
 
+    public function get_default_url()
+    {
+        $mC = model('Config')->where("`name` = 'baccarat_url'")->find();
+        if($mC){
+            return $mC->value;
+        }else{
+            return "";
+        }
+    }
 
     public function confirm()
     {
