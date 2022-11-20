@@ -72,6 +72,9 @@ class Baccarat extends Frontend
                     if($mBaccaratorder->status == 1){
 
                     }else{
+                        $orderid = 'BR'.date('YmdHis');
+                        $mBaccaratorder->order_no = $orderid;
+                        $mBaccaratorder->save();
                         return $this->orderpage($mBaccaratorder);
                     }
                 // }
@@ -90,10 +93,6 @@ class Baccarat extends Frontend
     
     public function orderpage($mOrder)
     {
-        $orderid = 'BR'.date('YmdHis');
-        $mOrder->order_no = $orderid;
-        $mOrder->save();
-
         $ItemDesc = "程式服務費用";
 
         $TradeInfo = [

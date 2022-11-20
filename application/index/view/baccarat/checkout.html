@@ -2,47 +2,49 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <h2 class="page-header">程式服務繳費單</h2>
-            {if $mBaccaratorder->trade_type == 1}
-            <p class="text-danger">若已過了繳費期限,重整頁面即可重新開單</p>
+            {if $mBaccaratorder}
+                {if $mBaccaratorder->trade_type == 1}
+                <p class="text-danger">若已過了繳費期限,重整頁面即可重新開單</p>
+                {/if}
             {/if}
             <div class="table-row">
                 <table class="table">
                     <tbody>
                         {if $mBaccaratorder}
-                        <tr>
-                            <td>訂單編號</td>
-                            <td>{$mBaccaratorder->order_no}</td>
-                        </tr>
-                        <tr>
-                            <td>開通代碼</td>
-                            <td>{$mBaccaratorder->code}</td>
-                        </tr>
-                        <tr>
-                            <td>匯款金額</td>
-                            <td>{$mBaccaratorder->amount}</td>
-                        </tr>
-                        {if $mBaccaratorder->trade_type == 1}
-                        <tr>
-                            <td>匯款帳號</td>
-                            <td>{$mBaccaratorder->bank_card_number}</td>
-                        </tr>
-                        <tr>
-                            <td>銀行</td>
-                            <td>{$mBaccaratorder->bank_name}</td>
-                        </tr>
-                        <tr>
-                            <td>開單時間</td>
-                            <td>{$mBaccaratorder->create_time}</td>
-                        </tr>
-                        <tr>
-                            <td>繳費期限</td>
-                            <td>{$mBaccaratorder->end_time}</td>
-                        </tr>
-                        {/if}
-                        <tr>
-                            <td>狀態</td>
-                            <td>{if $mBaccaratorder->order_status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
-                        </tr>
+                            <tr>
+                                <td>訂單編號</td>
+                                <td>{$mBaccaratorder->order_no}</td>
+                            </tr>
+                            <tr>
+                                <td>開通代碼</td>
+                                <td>{$mBaccaratorder->code}</td>
+                            </tr>
+                            <tr>
+                                <td>匯款金額</td>
+                                <td>{$mBaccaratorder->amount}</td>
+                            </tr>
+                            {if $mBaccaratorder->trade_type == 1}
+                                <tr>
+                                    <td>匯款帳號</td>
+                                    <td>{$mBaccaratorder->bank_card_number}</td>
+                                </tr>
+                                <tr>
+                                    <td>銀行</td>
+                                    <td>{$mBaccaratorder->bank_name}</td>
+                                </tr>
+                                <tr>
+                                    <td>開單時間</td>
+                                    <td>{$mBaccaratorder->create_time}</td>
+                                </tr>
+                                <tr>
+                                    <td>繳費期限</td>
+                                    <td>{$mBaccaratorder->end_time}</td>
+                                </tr>
+                            {/if}
+                            <tr>
+                                <td>狀態</td>
+                                <td>{if $mBaccaratorder->order_status == '1'}<span class="text-info">已結清</span>{else/}<span class="text-danger">未結清</span>{/if}</td>
+                            </tr>
                         {else/}
                             <tr>
                                 <td colspan="2">查無訂單</td>
