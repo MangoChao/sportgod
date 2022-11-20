@@ -72,9 +72,6 @@ class Baccarat extends Frontend
                     if($mBaccaratorder->status == 1){
 
                     }else{
-                        $orderid = 'BR'.date('YmdHis');
-                        $mBaccaratorder->order_no = $orderid;
-                        $mBaccaratorder->save();
                         return $this->orderpage($mBaccaratorder);
                     }
                 // }
@@ -93,6 +90,13 @@ class Baccarat extends Frontend
     
     public function orderpage($mOrder)
     {
+        $orderid = 'BR'.date('YmdHis');
+        $mB = model('Baccaratorder')->get($mOrder->id);
+        if($mB){
+            $mB->order_no = $orderid;
+            $mB->save();
+        }
+
         $ItemDesc = "程式服務費用";
 
         $TradeInfo = [
@@ -101,7 +105,7 @@ class Baccarat extends Frontend
             'TimeStamp' => time(),
             'Version' => '1.5',
             'LangType' => 'zh-tw',
-            'MerchantOrderNo' => $mOrder->order_no,
+            'MerchantOrderNo' => $orderid,
             'Amt' => $mOrder->amount,
             'ItemDesc' => $ItemDesc,
             'TradeLimit' => 0,
