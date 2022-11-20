@@ -1,0 +1,62 @@
+<style>
+    .profile-avatar-container {
+        position: relative;
+        width: 100px;
+        margin: 0 auto;
+    }
+
+    .profile-avatar-container .profile-user-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-avatar-container .profile-avatar-text {
+        display: none;
+    }
+
+    .profile-avatar-container:hover .profile-avatar-text {
+        display: block;
+        position: absolute;
+        height: 100px;
+        width: 100px;
+        background: #444;
+        opacity: .6;
+        color: #fff;
+        top: 0;
+        left: 0;
+        line-height: 100px;
+        text-align: center;
+    }
+
+    .profile-avatar-container button {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+    }
+</style>
+<div class="row animated fadeInRight">
+    <div class="col-md-12">
+        <div class="box box-success">
+            <div class="panel-body">
+                <h3>設定</h3>
+                <form id="setting-form" data-toggle="validator" method="POST" action="">
+                    {:token()}
+                    <div class="box-body box-profile">
+                        {foreach $mConfig as $v}
+                            <div class="form-group">
+                                <label for="{$v->name}" class="control-label">{:__($v->title)}:</label>
+                                <input id="{$v->name}" data-rule="required" class="form-control" name="row[{$v->name}]" type="text" value="{$v->value|htmlentities}">
+                            </div>
+                        {/foreach}
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-info">儲存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
