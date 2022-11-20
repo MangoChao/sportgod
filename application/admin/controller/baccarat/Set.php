@@ -11,7 +11,7 @@ use think\exception\ValidateException;
 use Exception;
 use think\Config;
 
-class Settings extends Backend
+class Set extends Backend
 {
 
     protected $dataLimit = true;
