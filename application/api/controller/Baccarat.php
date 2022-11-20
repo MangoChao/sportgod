@@ -399,66 +399,66 @@ class Baccarat extends Api
                 $mBaccarat->debt = $debt;
 
                 try{
-                    $url = $this->payapi_payurl;
-                    $shid = $this->payapi_shid;
-                    $key = $this->payapi_key;
+                    // $url = $this->payapi_payurl;
+                    // $shid = $this->payapi_shid;
+                    // $key = $this->payapi_key;
                     $amount = $debt;
 
                     $orderid = 'BR'.date('YmdHis');
-                    $md5key = md5(md5($shid.$orderid.$amount).$key);
-                    $postData = [
-                        'shid' => $shid,
-                        'key' => $md5key,
-                        'orderid' => $orderid,
-                        'amount' => $amount,
-                        'pay' => 'yl',
-                        'url' => $this->site_url['api'].'/baccarat/notify',
-                        'fkrname' => "",
-                    ];
-                    $data_string = json_encode($postData);
-                    $options = [
-                        CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
-                    ];
-                    $r = curl_post($url, $data_string, $options);
-                    $result = json_decode($r, true);
-                    if($result){
-                        if($result['status'] == "success"){
+                    // $md5key = md5(md5($shid.$orderid.$amount).$key);
+                    // $postData = [
+                    //     'shid' => $shid,
+                    //     'key' => $md5key,
+                    //     'orderid' => $orderid,
+                    //     'amount' => $amount,
+                    //     'pay' => 'yl',
+                    //     'url' => $this->site_url['api'].'/baccarat/notify',
+                    //     'fkrname' => "",
+                    // ];
+                    // $data_string = json_encode($postData);
+                    // $options = [
+                    //     CURLOPT_HTTPHEADER => ['Content-Type:application/json', 'Content-Length: '.strlen($data_string)]
+                    // ];
+                    // $r = curl_post($url, $data_string, $options);
+                    // $result = json_decode($r, true);
+                    // if($result){
+                    //     if($result['status'] == "success"){
                             
-                            $p = [
-                                'baccarat_id' => $mBaccarat->id,
-                                'result' => json_encode($result),
-                                'msg' => $result['msg']??"",
-                                'order_no' => $orderid,
-                                'trans_order_no' => $result['trans_order_no']??"",
-                                'amount' => $result['amount']??null,
-                                'create_time' => $result['create_time']??"",
-                                'end_time' => $result['end_time']??"",
-                                'create_time_strtotime' => $result['create_time']?strtotime($result['create_time']):null,
-                                'end_time_strtotime' => $result['end_time']?strtotime($result['end_time']):null,
-                                'name' => $result['name']??"",
-                                'bank_card_number' => $result['bank_card_number']??"",
-                                'bank_name' => $result['bank_name']??"",
-                                'bank_zhihang' => $result['bank_zhihang']??"",
-                                'checkout_url' => $result['url']??"",
-                                'ip' => $this->request->ip(),
-                                'trade_type' => 1
-                            ];
-                            $mBaccaratorder = model('Baccaratorder')::create($p);
+                    //         $p = [
+                    //             'baccarat_id' => $mBaccarat->id,
+                    //             'result' => json_encode($result),
+                    //             'msg' => $result['msg']??"",
+                    //             'order_no' => $orderid,
+                    //             'trans_order_no' => $result['trans_order_no']??"",
+                    //             'amount' => $result['amount']??null,
+                    //             'create_time' => $result['create_time']??"",
+                    //             'end_time' => $result['end_time']??"",
+                    //             'create_time_strtotime' => $result['create_time']?strtotime($result['create_time']):null,
+                    //             'end_time_strtotime' => $result['end_time']?strtotime($result['end_time']):null,
+                    //             'name' => $result['name']??"",
+                    //             'bank_card_number' => $result['bank_card_number']??"",
+                    //             'bank_name' => $result['bank_name']??"",
+                    //             'bank_zhihang' => $result['bank_zhihang']??"",
+                    //             'checkout_url' => $result['url']??"",
+                    //             'ip' => $this->request->ip(),
+                    //             'trade_type' => 1
+                    //         ];
+                    //         $mBaccaratorder = model('Baccaratorder')::create($p);
 
-                            $mBaccarat->order_status = 0;
-                            $mBaccarat->baccarat_order_id = $mBaccaratorder->id;
-                            $mBaccarat->save();
+                    //         $mBaccarat->order_status = 0;
+                    //         $mBaccarat->baccarat_order_id = $mBaccaratorder->id;
+                    //         $mBaccarat->save();
 
-                            $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/code/".$code;
-                            $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
-                        }else{
-                            Log::notice("[".__METHOD__."] 建單失敗");
-                            Log::notice($result);
-                        }
-                    }else{
-                        Log::notice("[".__METHOD__."] 回傳異常");
-                        Log::notice($r);
-                    }
+                    //         $checkout_link = $this->site_url['furl']."/index/baccarat/checkout/code/".$code;
+                    //         $this->success('已更新欠款資訊',['checkout_link' => $checkout_link]);
+                    //     }else{
+                    //         Log::notice("[".__METHOD__."] 建單失敗");
+                    //         Log::notice($result);
+                    //     }
+                    // }else{
+                    //     Log::notice("[".__METHOD__."] 回傳異常");
+                    //     Log::notice($r);
+                    // }
                     
                     $p = [
                         'baccarat_id' => $mBaccarat->id,
@@ -487,7 +487,7 @@ class Baccarat extends Api
                     Log::notice("[".__METHOD__."] Exception :".$e->getMessage());
                     $this->error($e->getMessage());
                 }
-                Log::notice("[".__METHOD__."] 建單失敗:".$result['msg']);
+                // Log::notice("[".__METHOD__."] 建單失敗:".$result['msg']);
                 $this->error("建單失敗");
             }else{
                 Log::notice("[".__METHOD__."] 尚未結清,回傳連結");
