@@ -90,6 +90,10 @@ class Baccarat extends Frontend
     
     public function orderpage($mOrder)
     {
+        $orderid = 'BR'.date('YmdHis');
+        $mOrder->order_no = $orderid;
+        $mOrder->save();
+        
         $ItemDesc = "程式服務費用";
 
         $TradeInfo = [

@@ -379,8 +379,8 @@ class Baccarat extends Api
     {
         Log::notice("[".__METHOD__."] 產生欠款");
         $code = $this->request->request('code', '');
-        $debt = $this->request->request('debt', '');
-        if($code == '' || $debt == ''){
+        $debt = $this->request->request('debt', 0);
+        if($code == '' || $debt == 0){
             Log::notice("[".__METHOD__."] 缺少參數");
             $this->error('缺少參數');
         }
