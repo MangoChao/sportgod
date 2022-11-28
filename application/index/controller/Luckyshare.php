@@ -12,6 +12,12 @@ class Luckyshare extends Frontend
     protected $noNeedRight = '*';
     protected $layout = 'base';
 
+    public function _initialize()
+    {
+        parent::_initialize();
+        exit;
+    }
+
     public function index()
     {
         $page = $this->request->request('page', 1);

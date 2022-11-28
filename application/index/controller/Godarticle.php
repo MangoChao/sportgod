@@ -12,6 +12,12 @@ class Godarticle extends Frontend
     protected $noNeedRight = '*';
     protected $layout = 'base';
 
+    public function _initialize()
+    {
+        parent::_initialize();
+        exit;
+    }
+
     //文章列表
     public function index()
     {

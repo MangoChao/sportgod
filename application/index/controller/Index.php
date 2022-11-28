@@ -17,6 +17,7 @@ class Index extends Frontend
     {
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'index']);
+        exit;
     }
 
     public function index()

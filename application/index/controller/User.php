@@ -28,7 +28,7 @@ class User extends Frontend
     {
         parent::_initialize();
         $auth = $this->auth;
-
+        exit;
         if (!Config::get('fastadmin.usercenter')) {
             $this->error(__('User center already closed'));
         }

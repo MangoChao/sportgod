@@ -12,6 +12,12 @@ class Rank extends Frontend
     protected $noNeedRight = '*';
     protected $layout = 'base';
 
+    public function _initialize()
+    {
+        parent::_initialize();
+        exit;
+    }
+
     public function index()
     {
         $mEventcategory = model('Eventcategory')->where('status = 1')->find();
