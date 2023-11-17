@@ -16,7 +16,6 @@ class Article extends Frontend
     public function _initialize()
     {
         parent::_initialize();
-        exit;
     }
 
     //文章列表

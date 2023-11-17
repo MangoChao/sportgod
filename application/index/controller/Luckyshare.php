@@ -15,7 +15,6 @@ class Luckyshare extends Frontend
     public function _initialize()
     {
         parent::_initialize();
-        exit;
     }
 
     public function index()

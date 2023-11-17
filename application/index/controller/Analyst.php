@@ -17,7 +17,6 @@ class Analyst extends Frontend
     {
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'analyst']);
-        exit;
     }
 
     public function index()
