@@ -18,11 +18,11 @@ return [
     // 服务器地址
     'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
-    'database'        => Env::get('database.database', 'sportgod'),
+    'database'        => Env::get('database.database', 'sql_bigwinner_cc'),
     // 用户名
-    'username'        => Env::get('database.username', 'sportgod'),
+    'username'        => Env::get('database.username', 'sql_bigwinner_cc'),
     // 密码
-    'password'        => Env::get('database.password', 'So&nUdTC7hM('),
+    'password'        => Env::get('database.password', '4ZGkA7SrRatTfHbt'),
     // 端口
     'hostport'        => Env::get('database.hostport', ''),
     // 连接dsn
