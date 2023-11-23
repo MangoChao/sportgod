@@ -30,10 +30,7 @@
             <hr class="haderline" />
             <!-- 分類選單 -->
             <div class="container menu_list">
-                <a href="{:url('/index/analyst/list')}">獲利專區</a>
                 <a href="{:url('/index/godarticle')}">神人專欄</a>
-                <a href="{:url('/index/rank')}">排行榜</a>
-                <a href="{:url('/index/luckyshare')}">好運分享</a>
                 {if $baseArticlecat AND 1==0}
                 {foreach $baseArticlecat as $cat}
                 <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>
