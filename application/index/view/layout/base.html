@@ -12,7 +12,6 @@
                 
                 <div class="collapse navbar-collapse" id="navbar-collapse-menu">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="{:url('index/user/pred')}" class="user_btn text_btn">我要預測</a></li>
                         <li><a href="{:url('index/user/buypoint')}" class="user_btn text_btn">儲值</a></li>
                         {if $user}
                             {if $user->isgod == 1}
@@ -54,14 +53,6 @@
         </main>
 
         <footer class="footer" style="clear:both">
-            <div class="container footer_top">
-                <div class="fb_like">
-                    <b>{$site.name}粉絲專頁</b> <div class="fb-like" data-href="https://www.facebook.com/sportgod.cc/" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
-                </div>
-                <div class="info_list">
-                    <a target="_blank" href="https://instagram.com/sportgod.cc">IG</a>&nbsp;|&nbsp;<a href="{:url('index/contact')}">聯絡我們</a>
-                </div>
-            </div>
             <div class="footer_bottom">
                 <p class="container">Copyright&nbsp;©&nbsp; {$site.name} 版權所有&nbsp;|&nbsp;<a href="{:url('index/service')}">服務條款</a>&nbsp;|&nbsp;<a href="{:url('index/policy')}">隱私權政策</a></p>
             </div>
