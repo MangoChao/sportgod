@@ -13,9 +13,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 let a_img_box = $(this).closest('.banner').find('.a_img_box');
                 a_img_box.each(function(){
                     if($(this).data('k') != k){
-                        $(this).fadeOut();
+                        $(this).hide();
                     }else{
-                        $(this).fadeIn();
+                        $(this).show();
                     }
                 });
             });
