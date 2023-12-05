@@ -1,6 +1,7 @@
 <?php
 
 return [ 
+    'type_name' => '專欄名稱',
     'Status 0' => '審核中',
     'Status 1' => '審核通過',
     'Status 2' => '拒絕刊登',

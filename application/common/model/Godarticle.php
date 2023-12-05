@@ -32,5 +32,10 @@ class Godarticle extends Model
     {
         return $this->belongsTo('Articlecat', 'cat_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
+
+    public function godtype()
+    {
+        return $this->belongsTo('GodType', 'god_type', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
     
 }

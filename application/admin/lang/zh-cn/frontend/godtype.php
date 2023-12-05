@@ -1,5 +1,5 @@
 <?php
 
 return [ 
-    'type_name' => '名稱',
+    'type_name' => '專欄名稱',
 ];
