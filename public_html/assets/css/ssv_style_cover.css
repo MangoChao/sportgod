@@ -11,3 +11,6 @@
 .author_card .author_default{
     padding-bottom: 12px;
 }
+.article_hero .narrative .panel-default{
+    background-color: transparent;
+}
