@@ -5,13 +5,15 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
-                        <div class="banner_box">
-                            {if $mGodarticle->video_url}
+                        {if $mGodarticle->video_url}
+                            <div class="banner_box">
                                 <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
-                            {else/}
-                            <img src="{$mGodarticle->cover_img}">
-                            {/if}
-                        </div>
+                            </div>
+                        {else/}
+                            <div class="banner_box" style="background-image: url({$mGodarticle->cover_img});">
+                                
+                            </div>
+                        {/if}
                         <div class="panel-content">
                             <div class="infon">
                                 <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>

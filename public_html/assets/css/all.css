@@ -970,6 +970,9 @@ a.btn-danger:visited{
 .banner_box{
     width: 100%;
     height: 500px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .video_player{
     width: 100%;
