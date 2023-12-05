@@ -1,18 +1,16 @@
 <div class="article_full">
     <header class="article_hero">
-        <div class="panel-default">
-            <div class="fill bg-blur"><img class="lazy" src="{$mGodarticle->cover_img}" width="100%" height="100%"></div>
-            <div class="mask"></div>
-        </div>
 
         <div class="narrative">
             <div class="container">
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
-                        <div class="panel-default">
-                            <div class="fill"><img src="{$mGodarticle->cover_img}">
-                            </div>
-                            <div class="mask"></div>
+                        <div class="banner_box">
+                            {if $mGodarticle->video_url}
+                                <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+                            {else/}
+                            <img src="{$mGodarticle->cover_img}">
+                            {/if}
                         </div>
                         <div class="panel-content">
                             <div class="infon">

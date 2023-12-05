@@ -94,7 +94,7 @@ class Godarticle extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
-                $params['video_url'] = getYoutubeEmbedUrl($params['video_url'])."?autoplay=1&mute=1";
+                $params['video_url'] = getYoutubeEmbedUrl($params['video_url']);
 
                 $result = false;
                 Db::startTrans();
@@ -152,7 +152,7 @@ class Godarticle extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
-                $params['video_url'] = getYoutubeEmbedUrl($params['video_url'])."?autoplay=1&mute=1";
+                $params['video_url'] = getYoutubeEmbedUrl($params['video_url']);
                 $result = false;
                 Db::startTrans();
                 try {
