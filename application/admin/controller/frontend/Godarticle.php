@@ -34,6 +34,15 @@ class Godarticle extends Backend
     
     public function getArticlecat()
     {
+        $type_list = [];
+        $type_list[0] = '請選擇專欄';
+        $mArticlecat = model('GodType')->where('status = 1')->select();
+        foreach ($mArticlecat as $k => $v) {
+            $type_list[$v['id']] = $v['type_name'];
+        }
+
+        $this->view->assign('type_list', $type_list);
+        
         $cat_list = [];
         $cat_list[0] = '請選擇分類';
         $mArticlecat = model('Articlecat')->where('status = 1')->select();
@@ -85,6 +94,7 @@ class Godarticle extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
+                $params['video_url'] = getYoutubeEmbedUrl($params['video_url'])."?autoplay=1&mute=1";
 
                 $result = false;
                 Db::startTrans();
@@ -142,6 +152,7 @@ class Godarticle extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
+                $params['video_url'] = getYoutubeEmbedUrl($params['video_url'])."?autoplay=1&mute=1";
                 $result = false;
                 Db::startTrans();
                 try {

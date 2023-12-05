@@ -1,6 +1,12 @@
 <form id="add-form" class="form-horizontal form-ajax" role="form" data-toggle="validator" method="POST" action="">
     {:token()}
     <div class="form-group">
+        <label for="god_type" class="control-label col-xs-12 col-sm-2">{:__('type_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[god_type]', $type_list, 0, ['class'=>'form-control selectpicker', 'data-rule'=>'required'])}
+        </div>
+    </div>
+    <div class="form-group">
         <label for="cat_id" class="control-label col-xs-12 col-sm-2">{:__('cat_name')}:</label>
         <div class="col-xs-12 col-sm-8">
             {:build_select('row[cat_id]', $cat_list, 0, ['class'=>'form-control selectpicker', 'data-rule'=>'required'])}
@@ -16,13 +22,19 @@
         <label class="control-label col-xs-12 col-sm-2">{:__('cover_img')}:</label>
         <div class="col-xs-12 col-sm-8">
             <div class="input-group">
-                <input id="cover_img"  class="form-control" size="50" name="row[cover_img]" type="text" value="{$row.cover_img|htmlentities}">
+                <input id="cover_img"  class="form-control" size="50" name="row[cover_img]" type="text" value="">
                 <div class="input-group-addon no-border no-padding">
                     <span><button type="button" class="btn btn-danger faupload" data-rule="required" data-input-id="cover_img" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_img"><i class="fa fa-upload"></i> 上傳照片</button></span>
                 </div>
                 <span class="msg-box n-right" for="cover_img"></span>
             </div>
             <ul class="row list-inline faupload-preview" id="p-cover_img"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="video_url" class="control-label col-xs-12 col-sm-2">{:__('video_url')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="video_url" class="form-control" name="row[video_url]" type="text" value="">
         </div>
     </div>
     <div class="form-group">
