@@ -178,7 +178,7 @@ define([], function () {
                     themeType: typeof Config.nkeditor != 'undefined' ? Config.nkeditor.theme : 'black', //编辑器皮肤,这个值从后台获取
                     fileManagerJson: Fast.api.fixurl("/addons/nkeditor/index/attachment/module/" + Config.modulename),
                     items: [
-                        'undo', 'redo', 'justifyleft', 'justifycenter', 'justifyright',
+                        'Source', 'undo', 'redo', 'justifyleft', 'justifycenter', 'justifyright',
                         'justifyfull', 'clearhtml', 'formatblock', 'fontname', 'fontsize', 'forecolor', 'hilitecolor', 'bold',
                         'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', 'link', 'unlink', 'image'
                     ],
