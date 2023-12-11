@@ -18,13 +18,18 @@ class Godarticle extends Frontend
     }
 
     //文章列表
-    public function index()
+    public function index($id=null)
     {
+        $whereStr = "";
+        if($id){
+            $whereStr = " AND gt.id = '.$id.'";
+        }
         $page = $this->request->request('page', 1);
         $mGodarticle = model('Godarticle')->alias('a')
         ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
+        ->join("god_type gt","gt.id = a.god_type and gt.status = 1")
         ->field('a.*, u.nickname, u.avatar')
-        ->where("a.status = 1 ")->group('a.id')->order('a.updatetime','desc')->paginate(20, false, $this->paginate_config);
+        ->where("a.status = 1 ".$whereStr)->group('a.id')->order('a.updatetime','desc')->paginate(20, false, $this->paginate_config);
         
         // if($mGodarticle){
         //     foreach($mGodarticle as $v){

@@ -29,7 +29,11 @@
             <hr class="haderline" />
             <!-- 分類選單 -->
             <div class="container menu_list">
-                <a href="{:url('/index/godarticle')}">神人專欄</a>
+                {if $baseGodType}
+                {foreach $baseGodType as $cat}
+                    <a href="{:url('/index/godarticle/index/id/'.$cat->id)}">{$cat->type_name}</a>
+                {/foreach}
+                {/if}
                 {if $baseArticlecat AND 1==0}
                 {foreach $baseArticlecat as $cat}
                 <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>

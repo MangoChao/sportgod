@@ -152,7 +152,8 @@ class Frontend extends Controller
         $channel_access_token = Config::get("site.line_channel_access_token");
         $this->LineBot = new LineBot($channel_access_token);
 
-        $this->assignArticlecat();
+        // $this->assignArticlecat();
+        $this->assignGodType();
         $this->assignArticleTitle();
         $this->checkArticleread();
 
@@ -209,6 +210,13 @@ class Frontend extends Controller
     {
         $baseArticlecat = model('Articlecat')->where('status = 1')->order('weigh')->select();
         $this->assign('baseArticlecat', $baseArticlecat);
+    }
+    
+
+    protected function assignGodType()
+    {
+        $baseGodType = model('GodType')->where('status = 1')->order('weigh')->select();
+        $this->assign('baseGodType', $baseGodType);
     }
 
     protected function assignArticleTitle()
