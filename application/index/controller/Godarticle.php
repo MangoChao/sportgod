@@ -22,7 +22,7 @@ class Godarticle extends Frontend
     {
         $whereStr = "";
         if($id){
-            $whereStr = " AND gt.id = '.$id.'";
+            $whereStr = " AND gt.id = '".$id."'";
         }
         $page = $this->request->request('page', 1);
         $mGodarticle = model('Godarticle')->alias('a')
@@ -30,6 +30,7 @@ class Godarticle extends Frontend
         ->join("god_type gt","gt.id = a.god_type and gt.status = 1")
         ->field('a.*, u.nickname, u.avatar')
         ->where("a.status = 1 ".$whereStr)->group('a.id')->order('a.updatetime','desc')->paginate(20, false, $this->paginate_config);
+        Log::notice( model('Godarticle')->getLastSql());
         
         // if($mGodarticle){
         //     foreach($mGodarticle as $v){
