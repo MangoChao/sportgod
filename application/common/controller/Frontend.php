@@ -152,7 +152,7 @@ class Frontend extends Controller
         $channel_access_token = Config::get("site.line_channel_access_token");
         $this->LineBot = new LineBot($channel_access_token);
 
-        // $this->assignArticlecat();
+        $this->assignArticlecat();
         $this->assignGodType();
         $this->assignArticleTitle();
         $this->checkArticleread();
