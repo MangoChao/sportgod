@@ -26,6 +26,7 @@ class Article extends Api
         $god_type = $this->request->request('god_type', 0);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
+        $video_url = $this->request->request('video_url', '');
         $content = $this->request->request('content', '', 'trim');
         
         $mUser = model('User')->get($this->auth->id);
@@ -57,6 +58,7 @@ class Article extends Api
             'god_type' => $god_type,
             'cat_id' => $cat_id,
             'title' => $title,
+            'video_url' => $video_url,
             'cover_img' => $cover_img,
             'content' => $content,
             'user_id' => $this->auth->id,
@@ -159,6 +161,7 @@ class Article extends Api
         $god_type = $this->request->request('god_type', 0);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
+        $video_url = $this->request->request('video_url', '');
         $content = $this->request->request('content', '', 'trim');
         
         $mUser = model('User')->get($this->auth->id);
@@ -205,6 +208,10 @@ class Article extends Api
         }
         if($mArticle->cover_img != $cover_img){
             $mArticle->cover_img = $cover_img;
+            $mArticle->status = 0;
+        }
+        if($mArticle->video_url != $video_url){
+            $mArticle->video_url = $video_url;
             $mArticle->status = 0;
         }
         if($mArticle->content != $content){
