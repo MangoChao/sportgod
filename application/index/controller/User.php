@@ -248,6 +248,16 @@ class User extends Frontend
     //刊登神人專欄
     public function addgodarticle()
     {
+        $typelist = [
+            '0' => '請選擇專欄'
+        ];
+        $mArticlecat = model('GodType')->where("status = 1")->order("weigh")->select();
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
+                $typelist[$v->id] = $v->type_name;
+            }
+        }
+        $this->view->assign('typelist', $typelist);
         $catlist = [
             '0' => '請選擇分類'
         ];
@@ -309,6 +319,17 @@ class User extends Frontend
             $this->redirect('/index/godarticle');
         }
         
+        $typelist = [
+            '0' => '請選擇專欄'
+        ];
+        $mArticlecat = model('GodType')->where("status = 1")->order("weigh")->select();
+        if($mArticlecat){
+            foreach($mArticlecat as $v){
+                $typelist[$v->id] = $v->type_name;
+            }
+        }
+        $this->view->assign('typelist', $typelist);
+
         $catlist = [
             '0' => '請選擇分類'
         ];

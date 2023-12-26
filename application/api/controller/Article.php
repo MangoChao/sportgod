@@ -23,6 +23,7 @@ class Article extends Api
     {
         $id = $this->request->request('id', 0);
         $cat_id = $this->request->request('cat_id', 0);
+        $god_type = $this->request->request('god_type', 0);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
         $content = $this->request->request('content', '', 'trim');
@@ -39,6 +40,9 @@ class Article extends Api
             $this->error('你不是神人');
         }
 
+        if($god_type == 0){
+            $this->error('必須選擇專欄');
+        }
         if($cat_id == 0){
             $this->error('必須選擇分類');
         }
@@ -50,6 +54,7 @@ class Article extends Api
         }
 
         $params = [
+            'god_type' => $god_type,
             'cat_id' => $cat_id,
             'title' => $title,
             'cover_img' => $cover_img,
@@ -151,6 +156,7 @@ class Article extends Api
     {
         $id = $this->request->request('id', 0);
         $cat_id = $this->request->request('cat_id', 0);
+        $god_type = $this->request->request('god_type', 0);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
         $content = $this->request->request('content', '', 'trim');
@@ -172,6 +178,9 @@ class Article extends Api
             $this->error('查無專欄, 或是沒有編輯權限');
         }
 
+        if($god_type == 0){
+            $this->error('必須選擇專欄');
+        }
         if($cat_id == 0){
             $this->error('必須選擇分類');
         }
@@ -182,6 +191,10 @@ class Article extends Api
             $this->error('內容不能為空');
         }
 
+        if($mArticle->god_type != $god_type){
+            $mArticle->god_type = $god_type;
+            $mArticle->status = 0;
+        }
         if($mArticle->cat_id != $cat_id){
             $mArticle->cat_id = $cat_id;
             $mArticle->status = 0;
