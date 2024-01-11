@@ -1,18 +1,18 @@
 body{
-    padding-top: 122px;
-    background-color: #dfdfdf;
+    padding-top: 190px;
+    background-color: #fff;
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
     font-size: 16px;
 }
 .navbar-brand{
-    padding: 6px;
+    padding: 0;
     height: auto;
 }
 .navbar-brand > img{
     display: block;
-    width: 200px;
+    width: 230px;
     height: auto;
 }
 .navbar-inverse{
@@ -21,12 +21,34 @@ body{
     box-shadow: 1px 1px 1px 0 rgb(34 38 46 / 10%);
 }
 .menu_list{
-    margin-bottom: 3px;
-    margin-top: 8px;
+    padding: 8px 13px 7px;
+    background-color: #ff6c04;
+    display: flex;
+    gap: 10px;
 }
+
+.menu_list .menu_item{
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
+
+.menu_list .s_box{
+    width: 20%;
+}
+
+.menu_list .s_box input{
+    width: 100%;
+    padding: 5px 10px 4px;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: #ccc;
+}
+
 .menu_list a{
     font-size: 18px;
-    color: #6d6d6d;
+    color: #fff;
     display: inline-block;
     margin-right: 10px;
 }
@@ -39,7 +61,7 @@ body{
     margin: 0;
 }
 .navbar-inverse .navbar-nav > li > a{
-    padding: 25px 10px;
+    padding: 0 15px;
     font-size: 30px;
     color: #ccc;
 }
@@ -723,11 +745,11 @@ a.btn_buy_pred:link:active{
 }
 main.content{
     padding: 0;
-    background-image: url('/assets/img/login_bg.jpg');
     overflow: unset;
 }
 main.content>.container{
-    margin: 15px auto;
+    margin: 0 auto;
+    padding: 15px;
 }
 
 button.toast-close-button{
@@ -977,4 +999,84 @@ a.btn-danger:visited{
 .video_player{
     width: 100%;
     height: 100%;
+}
+
+.navbar-header{
+    padding: 30px 40px 20px;
+    display: block;
+}
+
+header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.header-box{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.right-menu{
+    display: flex;
+    align-items: center; 
+    justify-content: flex-end;
+    gap: 10px;
+    width: 50%;
+}
+
+.right-menu a{
+    font-size: 22px;
+    color: #3c8dbc;
+}
+
+.logo-box{
+    height: 150px;
+    padding: 30px 40px 20px;
+    width: 50%;
+}
+
+.logo-box img{
+    height: 100%;
+}
+
+@media (max-width: 767px) {
+    .menu_list .menu_item{
+        display: block;
+    }
+    .menu_list .menu_item{
+        width: 70%;
+    }
+    
+    .menu_list .s_box{
+        width: 30%;
+    }
+    
+    .logo-box{
+        height: 75px;
+        padding: 10px 15px 10px;
+    }
+    
+    .right-menu a{
+        font-size: 16px;
+    }
+    .menu_list a{
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 500px) {
+    .menu_list{
+        display: block;
+    }
+
+    .menu_list .menu_item{
+        width: 100%;
+    }
+
+    .menu_list .s_box{
+        width: 100%;
+    }
 }

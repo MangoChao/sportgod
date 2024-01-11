@@ -4,52 +4,40 @@
         {include file="common/meta" /}
     </head>
     <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container isrelative">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="{:url('/')}"><img src="__CDN__/assets/img/logo.jpg" /></a>
+        <header>
+            <div class="container header-box">
+                <div class="logo-box">
+                    <a href="{:url('/')}"><img src="__CDN__/assets/img/logo.jpg" /></a>
                 </div>
-                
-                <div class="collapse navbar-collapse" id="navbar-collapse-menu">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="{:url('index/user/buypoint')}" class="user_btn text_btn">儲值</a></li>
-                        {if $user}
-                            {if $user->isgod == 1}
-                            <li><a href="{:url('index/user/addgodarticle')}" class="user_btn text_btn">刊登專欄</a></li>
-                            {/if}
-                        <li><a href="javascript:;" class="btn_notify user_btn {if $isnotify > 0}active{/if}"><i class="fa fa-bell"></i></a><div id="notify_box"></div></li>
-                        <li><a href="{:url('index/user/profile')}" class="user_btn active"><i class="fa fa-user-circle-o"></i></a></li>
-                        {else/}
-                        <li><a href="{:url('index/user/notify')}" class="user_btn"><i class="fa fa-bell"></i></a></li>
-                        <li><a href="{:url('user/login')}" class="user_btn"><i class="fa fa-user-circle-o"></i></a></li>
+                <div class="right-menu">
+                    <a href="{:url('index/user/buypoint')}" class="user_btn text_btn">儲值</a>
+                    {if $user}
+                        {if $user->isgod == 1}
+                        <a href="{:url('index/user/addgodarticle')}" class="user_btn text_btn">刊登專欄</a>
                         {/if}
-                    </ul>
+                    <a href="javascript:;" class="btn_notify user_btn {if $isnotify > 0}active{/if}"><i class="fa fa-bell"></i></a><div id="notify_box"></div>
+                    <a href="{:url('index/user/profile')}" class="user_btn active"><i class="fa fa-user-circle-o"></i></a>
+                    {else/}
+                    <a href="{:url('index/user/notify')}" class="user_btn"><i class="fa fa-bell"></i></a>
+                    <a href="{:url('user/login')}" class="user_btn"><i class="fa fa-user-circle-o"></i></a>
+                    {/if}
                 </div>
             </div>
-            <hr class="haderline" />
             <!-- 分類選單 -->
             <div class="container menu_list">
-                {if $baseGodType}
-                {foreach $baseGodType as $cat}
-                    <a href="{:url('/index/godarticle/index/id/'.$cat->id)}">{$cat->type_name}</a>
-                {/foreach}
-                {/if}
-                {if $baseArticlecat AND 1==0}
-                {foreach $baseArticlecat as $cat}
-                <a href="{:url('/index/article/index/cid/'.$cat->id)}">{$cat->cat_name}</a>
-                {/foreach}
-                {/if}
-            </div>
-            {if $baseAnalysttitle AND 1==0}
-            <div class="container">
-                <div class="at_list">
-                    {foreach $baseAnalysttitle as $v}
-                    <a class="at_text" href="{:url('/index/analyst/profile/id/'.$v->analyst_id.'/pt/1')}?cat={$v->ecid}">{$v->atitle}</a>
-                    {/foreach}
+                <div class="menu_item">
+                    <a href="#">每日新聞</a>
+                    <a href="#">神人專欄</a>
+                    <a href="#">運彩投注</a>
+                    <a href="#">娛樂城介紹</a>
+                    <a href="#">百家樂教學</a>
+                    <a href="#">娛樂城評分</a>
+                </div>
+                <div class="s_box">
+                    <input type="text" value="" placeholder="我想搜尋..." />
                 </div>
             </div>
-            {/if}
-        </nav>
+        </header>
         
 
         <main class="content">
