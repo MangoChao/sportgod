@@ -166,4 +166,10 @@ class Index extends Frontend
         $this->view->assign('mUsernotify', $mUsernotify);
         return $this->view->fetch('common/notifylistlayer');
     }
+
+    public function teach()
+    {
+        
+        return $this->view->fetch();
+    }
 }

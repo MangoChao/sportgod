@@ -19,6 +19,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                     }
                 });
             });
+        },
+        teach: function () {
+            
         }
     };
     return Controller;
