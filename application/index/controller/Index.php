@@ -179,4 +179,18 @@ class Index extends Frontend
         
         return $this->view->fetch();
     }
+    
+    public function teach_detail($id = null)
+    {
+        $mGodarticle = null;
+        // $mGodarticle = model('Godarticle')->alias('a')
+        // ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
+        // ->field('a.*, u.nickname, u.avatar')
+        // ->where("a.status = 1 AND a.id = ".$id)->find();
+
+        if(!$mGodarticle){
+            $this->redirect('/index/teach');
+        }
+        return $this->view->fetch();
+    }
 }

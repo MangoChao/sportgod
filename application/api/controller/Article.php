@@ -23,7 +23,7 @@ class Article extends Api
     {
         $id = $this->request->request('id', 0);
         $cat_id = $this->request->request('cat_id', 0);
-        $god_type = $this->request->request('god_type', 0);
+        $god_type = $this->request->request('god_type', 1);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
         $video_url = $this->request->request('video_url', '');
@@ -158,7 +158,7 @@ class Article extends Api
     {
         $id = $this->request->request('id', 0);
         $cat_id = $this->request->request('cat_id', 0);
-        $god_type = $this->request->request('god_type', 0);
+        $god_type = $this->request->request('god_type', 1);
         $title = $this->request->request('title', '', 'trim');
         $cover_img = $this->request->request('cover_img', '');
         $video_url = $this->request->request('video_url', '');
