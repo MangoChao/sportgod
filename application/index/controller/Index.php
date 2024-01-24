@@ -193,4 +193,19 @@ class Index extends Frontend
         }
         return $this->view->fetch();
     }
+
+    public function betList()
+    {
+        return $this->view->fetch();
+    }
+    
+    public function review()
+    {
+        return $this->view->fetch();
+    }
+    
+    public function cityInfo()
+    {
+        return $this->view->fetch();
+    }
 }
