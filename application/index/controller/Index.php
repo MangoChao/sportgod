@@ -199,12 +199,7 @@ class Index extends Frontend
         return $this->view->fetch();
     }
     
-    public function review()
-    {
-        return $this->view->fetch();
-    }
-    
-    public function cityInfo()
+    public function cityRank()
     {
         return $this->view->fetch();
     }
