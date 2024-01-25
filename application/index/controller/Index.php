@@ -21,73 +21,29 @@ class Index extends Frontend
 
     public function index()
     {
+        //最新新聞
         $mNewArticle = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.god_type = 0 AND a.cover_img <> '' ")->order("a.createtime","desc")->limit(8)->select();
+        ->where("a.status = 1 AND a.god_type = 3 AND a.cover_img <> '' ")->order("a.createtime","desc")->limit(4)->select();
         
-        //足球
+        //足球新聞
         $mArticle1 = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 4")->order("a.createtime","desc")->limit(7)->select();
+        ->where("a.status = 1 AND a.god_type = 3 AND a.cat_id = 4")->order("a.createtime","desc")->limit(7)->select();
 
-        //籃球
+        //籃球新聞
         $mArticle2 = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 1")->order("a.createtime","desc")->limit(7)->select();
+        ->where("a.status = 1 AND a.god_type = 3 AND a.cat_id = 1")->order("a.createtime","desc")->limit(7)->select();
         
-        //棒球
+        //棒球新聞
         $mArticle3 = model('Godarticle')->alias('a')
         ->join("article_cat ac","ac.id = a.cat_id AND ac.status = 1")
         ->field('a.*')
-        ->where("a.status = 1 AND a.cover_img <> '' AND a.cat_id = 3")->order("a.createtime","desc")->limit(7)->select();
-
-        
-        // $H = date('H');
-        // //排行
-        // $c = 0;
-        // $ckshowhome = true; //第一次 有查時間
-        // $mRankcontent = false;
-        // do{
-        //     $rcid = 0;
-        //     $mECtitle = "";
-        //     if($ckshowhome){
-        //         $whereStr = "showhome1 <= ".$H." AND showhome2 > ".$H." ";
-        //         $whereStr .= " OR (showhome1 > showhome2 AND showhome2 > ".$H.")";
-        //         $whereStr .= " OR (showhome1 > showhome2 AND showhome1 <= ".$H.")";
-        //         $whereStr = " AND (".$whereStr.")";
-        //     }else{
-        //         $whereStr = "";
-        //     }
-        //     $mEventcategory = model('Eventcategory')->where("status = 1 ".$whereStr)->orderRaw('RAND()')->find();
-        //     if($mEventcategory){
-        //         $rcid = $mEventcategory->id;
-        //         $mECtitle = $mEventcategory->title;
-
-        //         $mRank = model('Rank')->where("event_category_id = ".$rcid)->order("id","desc")->find();
-        //         $mRankcontent = false;
-        //         if($mRank){
-        //             $mRankcontent = model('Rankcontent')->alias('rc')
-        //             ->join("analyst a","a.id = rc.analyst_id")
-        //             ->field("rc.*, a.analyst_name, a.avatar")
-        //             ->where('rc.rank_id = '.$mRank->id)->order('rc.rank','asc')->limit(8)->select();
-        //             if($mRankcontent){
-        //                 foreach($mRankcontent as $v){
-        //                     if(!$v->avatar) $v->avatar = $this->def_avatar;
-        //                 }
-        //             }
-        //         }
-        //     }else{
-        //         $ckshowhome = false;
-        //     }
-        //     $c++;
-        // }while($c <= 12 AND $mRankcontent === false);
-        // $this->view->assign('rcid', $rcid);
-        // $this->view->assign('mECtitle', $mECtitle);
-        // $this->view->assign('mRank', $mRank);
-        // $this->view->assign('mRankcontent', $mRankcontent);
+        ->where("a.status = 1 AND a.god_type = 3 AND a.cat_id = 3")->order("a.createtime","desc")->limit(7)->select();
 
         $this->view->assign('mNewArticle', $mNewArticle);
         $this->view->assign('mArticle1', $mArticle1);

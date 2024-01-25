@@ -1,94 +1,21 @@
-<div class="article_full">
-    <header class="article_hero">
-
-        <div class="narrative">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        {if $mGodarticle->video_url}
-                            <div class="banner_box">
-                                <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
-                            </div>
-                        {else/}
-                            <div class="banner_box" style="background-image: url({$mGodarticle->cover_img});">
-                                
-                            </div>
-                        {/if}
-                        <div class="panel-content">
-                            <div class="infon">
-                                <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>
-                            </div>
-                            <h1>{$mGodarticle->title}</h1>
-                            <p></p>
-                            <div class="infon">
-                                <div class="author_name">作者：<a href="#">{$mGodarticle->nickname}</a></div>
-                            </div>
-                            <div class="article-share">
-                                <ul>
-                                    <li class="as-fb">
-                                        <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+<div class="container main-container">
+    <div class="row">
+        {if $mGodarticle->video_url}
+            <div class="banner_box">
+                <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
             </div>
-        </div>
-    </header>
-    <div id="article_top"></div>
-    <section class="article">
-        <div class="container relative">
-            <div class="row">
-
-                <div class="col-md-1 article_comment">
-                    <div class="toolbox">
-                        <a href="javascript:;" class="btn_set_fav {if $hasfav}active{/if}" data-id="{$mGodarticle->id}">
-                            <i class="fa fas fa-bookmark fa-2x"> <span>收藏</span></i>
-                        </a>
-                        <a href="javascript:;" class="btn_dotnet" data-id="{$mGodarticle->id}">
-                            <i class="fa fas fa-dollar fa-2x"> <span>贊助</span></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-10">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <div class="article-content">
-                                {$mGodarticle->content}
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="author_card">
-                                <div class="author_default">
-                                    <div class="author_pic">
-                                        <a href="#">
-                                            <img src="{$mGodarticle->avatar}" width="100%" alt="{$mGodarticle->nickname}">
-                                        </a>
-                                    </div>
-                                    <div class="author_infon">
-                                        <h4 class="name">{$mGodarticle->nickname}</h4>
-                                    </div>
-                                </div>
-                                {if $mGodarticleLast}
-                                <div class="author_featured">
-                                    <div class="title">最新文章</div>
-                                    <ul class="item">
-                                        {foreach $mGodarticleLast as $v}
-                                        <li><a href="{:url('/index/godarticle/detail/id/'.$v->id)}">{$v->title}</a>
-                                        </li>
-                                        {/foreach}
-                                    </ul>
-                                </div>
-                                {/if}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {else/}
+            <div class="banner_box" style="background-image: url({$mGodarticle->cover_img});">
+                
             </div>
+        {/if}
+        <h1>{$mGodarticle->title}</h1>
+        <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>
+        <div class="author_name">作者：<a href="#">{$mGodarticle->nickname}</a></div>
+        <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
+
+        <div class="article-content">
+            {$mGodarticle->content}
         </div>
-    </section>
+    </div>
 </div>
