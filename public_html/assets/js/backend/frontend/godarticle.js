@@ -52,7 +52,19 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
                 $(document).on("change", "[name='row[god_type]']", function () {
                     let god_type = $("[name='row[god_type]']").val();
-                    console.log(god_type);
+                    if(god_type == 2){
+                        $(".type-base").hide();
+                        $(".type-teach").show();
+                    }else{
+                        $(".type-base").show();
+                        $(".type-teach").hide();
+                    }
+
+                    if(god_type == 2 || god_type == 4){
+                        $(".type-onlyvideo").hide();
+                    }else{
+                        $(".type-onlyvideo").show();
+                    }
                 });
             },
             formatter:{
