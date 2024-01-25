@@ -49,6 +49,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
+
+                $(document).on("change", "[name='row[god_type]']", function () {
+                    let god_type = $("[name='row[god_type]']").val();
+                    console.log(god_type);
+                });
             },
             formatter:{
                 status: function (value, row, index, custom) {

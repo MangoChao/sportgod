@@ -7,10 +7,16 @@
             {:build_select('row[god_type]', $type_list, $row.god_type, ['class'=>'form-control selectpicker', 'data-rule'=>'required'])}
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group type-base" {if $row.god_type == 2}style="display: none;"{/if}>
         <label for="cat_id" class="control-label col-xs-12 col-sm-2">{:__('cat_name')}:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_select('row[cat_id]', $cat_list, $row.cat_id, ['class'=>'form-control selectpicker', 'data-rule'=>'required'])}
+            {:build_select('row[cat_id]', $cat_list, $row.cat_id, ['class'=>'form-control selectpicker'])}
+        </div>
+    </div>
+    <div class="form-group type-teach" {if $row.god_type != 2}style="display: none;"{/if}>
+        <label for="teach_cat_id" class="control-label col-xs-12 col-sm-2">{:__('cat_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[teach_cat_id]', $teach_cat_list, $row.cat_id, ['class'=>'form-control selectpicker'])}
         </div>
     </div>
     <div class="form-group">
@@ -19,13 +25,13 @@
             <input id="title" data-rule="required" class="form-control" name="row[title]" type="text" value="{$row.title|htmlentities}">
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group type-onlyvideo" {if $row.god_type == 2 || $row.god_type == 4}style="display: none;"{/if}>
         <label class="control-label col-xs-12 col-sm-2">{:__('cover_img')}:</label>
         <div class="col-xs-12 col-sm-8">
             <div class="input-group">
                 <input id="cover_img"  class="form-control" size="50" name="row[cover_img]" type="text" value="{$row.cover_img|htmlentities}">
                 <div class="input-group-addon no-border no-padding">
-                    <span><button type="button" class="btn btn-danger faupload" data-rule="required" data-input-id="cover_img" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_img"><i class="fa fa-upload"></i> 上傳照片</button></span>
+                    <span><button type="button" class="btn btn-danger faupload" data-input-id="cover_img" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_img"><i class="fa fa-upload"></i> 上傳照片</button></span>
                 </div>
                 <span class="msg-box n-right" for="cover_img"></span>
             </div>

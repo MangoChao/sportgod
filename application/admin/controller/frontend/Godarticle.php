@@ -51,6 +51,8 @@ class Godarticle extends Backend
         }
 
         $this->view->assign('cat_list', $cat_list);
+        
+        $this->view->assign('teach_cat_list', getTeachCatList());
     }
 
     /**
@@ -95,6 +97,30 @@ class Godarticle extends Backend
             if ($params) {
                 $params = $this->preExcludeFields($params);
                 $params['video_url'] = getYoutubeEmbedUrl($params['video_url']);
+
+                if($params['god_type'] == 0){
+                    $this->error(__('請選擇專欄'));
+                }
+
+                if($params['god_type'] == 2){
+                    if($params['teach_cat_id'] == 0){
+                        $this->error(__('請選擇分類'));
+                    }
+                }else{
+                    if($params['cat_id'] == 0){
+                        $this->error(__('請選擇分類'));
+                    }
+                }
+                
+                if($params['god_type'] == 2 || $params['god_type'] == 4){
+                    if($params['video_url'] == ''){
+                        $this->error(__('請填TY連結'));
+                    }
+                }else{
+                    if($params['cover_img'] == '' && $params['video_url'] == ''){
+                        $this->error(__('請上傳封面圖 或是 填入TY連結'));
+                    }
+                }
 
                 $result = false;
                 Db::startTrans();
@@ -153,6 +179,31 @@ class Godarticle extends Backend
             if ($params) {
                 $params = $this->preExcludeFields($params);
                 $params['video_url'] = getYoutubeEmbedUrl($params['video_url']);
+                
+                if($params['god_type'] == 0){
+                    $this->error(__('請選擇專欄'));
+                }
+
+                if($params['god_type'] == 2){
+                    if($params['teach_cat_id'] == 0){
+                        $this->error(__('請選擇分類'));
+                    }
+                }else{
+                    if($params['cat_id'] == 0){
+                        $this->error(__('請選擇分類'));
+                    }
+                }
+                
+                if($params['god_type'] == 2 || $params['god_type'] == 4){
+                    if($params['video_url'] == ''){
+                        $this->error(__('請填TY連結'));
+                    }
+                }else{
+                    if($params['cover_img'] == '' && $params['video_url'] == ''){
+                        $this->error(__('請上傳封面圖 或是 填入TY連結'));
+                    }
+                }
+
                 $result = false;
                 Db::startTrans();
                 try {

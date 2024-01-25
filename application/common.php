@@ -554,3 +554,16 @@ if (!function_exists('getYoutubeEmbedUrl')) {
        }
     }
 }
+
+if (!function_exists('getTeachCatList')) {
+    function getTeachCatList()
+    {
+        return [
+            0 => '請選擇分類',
+            1 => '籌碼學策略',
+            2 => '算牌策略',
+            3 => '牌路打法',
+            4 => '心態學',
+        ];
+    }
+}
