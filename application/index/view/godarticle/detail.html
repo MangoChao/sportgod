@@ -13,7 +13,6 @@
         <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>
         <div class="author_name">作者：<a href="#">{$mGodarticle->nickname}</a></div>
         <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
-
         <div class="article-content">
             {$mGodarticle->content}
         </div>
