@@ -5,13 +5,13 @@
             <div id="home_banner" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     {foreach $mNewArticle as $k=>$v}
-                    <button type="button" data-bs-target="#home_banner" data-bs-slide-to="{$k}" aria-label="Slide {$k+1}"></button>
+                    <button type="button" data-bs-target="#home_banner" data-bs-slide-to="{$k}" {if $k == 0}class="active" aria-current="true"{/if} aria-label="Slide {$k+1}"></button>
                     {/foreach}
                 </div>
                 <div class="carousel-inner">
                     {foreach $mNewArticle as $k=>$v}
-                    <div class="carousel-item">
-                        <img src="{$v->cover_img}" class="d-block w-100" alt="$v->title">
+                    <div class="carousel-item {if $k == 0}active{/if}">
+                        <img src="{$v->cover_img}" class="d-block w-100" alt="{$v->title}">
                     </div>
                     {/foreach}
                 </div>
