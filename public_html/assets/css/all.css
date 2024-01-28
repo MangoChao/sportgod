@@ -417,6 +417,23 @@ h2:not(.title)>a{
     width:40%;
 }
 
+.sub_banner{
+    border: 1px #1f449b solid;
+}
+.sub_banner .list{
+    width: 85%;
+    padding: 10px 20px;
+}
+.sub_banner .more{
+    width: 15%;
+    writing-mode: vertical-rl;
+    color: #1f449b;
+    display: flex;
+    font-size: 24px;
+    font-weight: bold; 
+    align-items: center;
+    padding: 40px 20px 20px 0;
+}
 .m_panel.banner.sub_banner .left_box{
     width:50%;
 }
@@ -1046,6 +1063,114 @@ header{
 
 .main-container{
     background: #f3f3f3;
+}
+
+.home_banner{
+    margin-bottom: 20px;
+}
+.home_banner .carousel-item{
+    height:  600px;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+}
+
+.home_banner .carousel-item span{
+    font-size: 46px;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80%;
+    padding: 1%;
+}
+
+.home_banner .carousel-indicators{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20%;
+    left: auto;
+    padding: 3% 1%;
+    margin: 0;
+    display: flex;
+    gap: 5%;
+}
+
+.home_banner .carousel-indicators button{
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    background-color: transparent;
+    border: 1px #fff solid;
+    opacity: 1;
+}
+.home_banner .carousel-indicators button.active{
+    background-color: #fff;
+}
+.homepage h2{
+    font-size: 30px;
+    line-height: 70px;
+    font-weight: bold;
+    color: #1f449b;
+    border-top: 1px #1f449b solid;
+    margin: 0;
+}
+.god_info_box{
+    background-color: #1f449b;
+    position: relative;
+    padding: 60px 0;
+}
+
+.god_info_box .b_box,
+.god_info_box .f_box{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.god_info_box .b_box{
+    padding: 20px 20px 20px 35%;
+}
+.god_info_box .b_box::after{
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: #fff;
+}
+.god_info_box .f_box{
+    display: flex;
+}
+
+.god_info_box .f_box .god_banner{
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.god_info_box .f_box .god_banner img{
+    width: 100%;
+}
+.god_info_box .f_box .god_info_content{
+    width: 55%;
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 60px 40px 60px 20px;
+    color: #1f449b;
+}
+.god_info_box .f_box .god_info_content p{
+    font-size: 20px;
+}
+.god_info_box .f_box .god_info_content h3{
+    font-weight: bold;
+    font-size: 32px;
+    margin: 0;
+    margin-bottom: 30px;
+}
+.rank_table>div{
+    border: 1px #1f449b solid;
 }
 
 @media (max-width: 767px) {
