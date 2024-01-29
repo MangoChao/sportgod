@@ -11,8 +11,8 @@ git ftp init -u admin@bigwinners.cc -p 'mi2Lo(?qP,W,' ftp://184.168.96.165
 git ftp push -u admin@bigwinners.cc -p 'mi2Lo(?qP,W,' ftp://184.168.96.165
 
 
-git ftp init -u ftp_bigwinner_cc -p 'TbJNmkfb5sPxRRda' ftp://35.225.200.36
-git ftp push -u ftp_bigwinner_cc -p 'TbJNmkfb5sPxRRda' ftp://35.225.200.36
+git ftp init -u ftp_bigwinner_cc -p 'TbJNmkfb5sPxRRda' ftp://35.224.224.99
+git ftp push -u ftp_bigwinner_cc -p 'TbJNmkfb5sPxRRda' ftp://35.224.224.99
 //設定主機
 git config git-ftp.url ftp://184.168.96.165/public_html/ts.bigwinners.cc
 git config git-ftp.user admin@bigwinners.cc
