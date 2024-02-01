@@ -47,9 +47,7 @@ class Godarticle extends Backend
         $cat_list[0] = '請選擇分類';
         $mArticlecat = model('Articlecat')->where('status = 1')->select();
         foreach ($mArticlecat as $k => $v) {
-            if($v->god_type == 2){
-                $cat_list[$v['id']] = $v['cat_name'];
-            }
+            $cat_list[$v['id']] = $v['cat_name'];
         }
 
         $this->view->assign('cat_list', $cat_list);
@@ -84,7 +82,9 @@ class Godarticle extends Backend
                 
             $teachCatList = getTeachCatList();
             foreach ($list as $k => $v) {
-                $v->cat->cat_name = $teachCatList[$v->cat->id];
+                if($v->god_type == 2){
+                    $v->cat->cat_name = $teachCatList[$v->cat->id];
+                }
             }
             $result = array("total" => $total, "rows" => $list);
             return json($result);
