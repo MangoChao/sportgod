@@ -36,7 +36,7 @@ class Godarticle extends Backend
     {
         $type_list = [];
         $type_list[0] = '請選擇專欄';
-        $mArticlecat = model('GodType')->where('status = 1')->select();
+        $mArticlecat = model('GodType')->where('status = 1')->order('weigh','asc')->select();
         foreach ($mArticlecat as $k => $v) {
             $type_list[$v['id']] = $v['type_name'];
         }
