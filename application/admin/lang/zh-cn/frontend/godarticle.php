@@ -8,5 +8,5 @@ return [
     'Status 3' => '刪除',
     'cover_img' => '封面',
     'reason' => '理由',
-    'video_url' => 'TY連結',
+    'video_url' => 'YT連結',
 ];

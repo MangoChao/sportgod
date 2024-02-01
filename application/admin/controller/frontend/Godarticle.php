@@ -79,6 +79,11 @@ class Godarticle extends Backend
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
+                
+            $teachCatList = getTeachCatList();
+            foreach ($list as $k => $v) {
+                $v->cat->cat_name = $teachCatList[$v->cat->id];
+            }
             $result = array("total" => $total, "rows" => $list);
             return json($result);
         }
@@ -114,11 +119,11 @@ class Godarticle extends Backend
                 
                 if($params['god_type'] == 2 || $params['god_type'] == 4){
                     if($params['video_url'] == ''){
-                        $this->error(__('請填TY連結'));
+                        $this->error(__('請填YT連結'));
                     }
                 }else{
                     if($params['cover_img'] == '' && $params['video_url'] == ''){
-                        $this->error(__('請上傳封面圖 或是 填入TY連結'));
+                        $this->error(__('請上傳封面圖 或是 填入YT連結'));
                     }
                 }
 
@@ -196,11 +201,11 @@ class Godarticle extends Backend
                 
                 if($params['god_type'] == 2 || $params['god_type'] == 4){
                     if($params['video_url'] == ''){
-                        $this->error(__('請填TY連結'));
+                        $this->error(__('請填YT連結'));
                     }
                 }else{
                     if($params['cover_img'] == '' && $params['video_url'] == ''){
-                        $this->error(__('請上傳封面圖 或是 填入TY連結'));
+                        $this->error(__('請上傳封面圖 或是 填入YT連結'));
                     }
                 }
 

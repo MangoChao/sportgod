@@ -535,15 +535,20 @@ if (!function_exists('toDotNetUrlEncode')) {
 if (!function_exists('getYoutubeEmbedUrl')) {
     function getYoutubeEmbedUrl($url)
     {
-        $shortUrlRegex = '/youtu.be\/([a-zA-Z0-9_-]+)\??/i';
+        $baseUrlRegex = '/youtu.be\/([a-zA-Z0-9_-]+)\??/i';
         $longUrlRegex = '/youtube.com\/((?:embed)|(?:watch))((?:\?v\=)|(?:\/))([a-zA-Z0-9_-]+)/i';
+        $shortsUrlRegex = '/youtube.com\/shorts\/([a-zA-Z0-9_-]+)/i';
    
         $youtube_id = "";
        if (preg_match($longUrlRegex, $url, $matches)) {
            $youtube_id = $matches[count($matches) - 1];
        }
    
-       if (preg_match($shortUrlRegex, $url, $matches)) {
+       if (preg_match($baseUrlRegex, $url, $matches)) {
+           $youtube_id = $matches[count($matches) - 1];
+       }
+   
+       if (preg_match($shortsUrlRegex, $url, $matches)) {
            $youtube_id = $matches[count($matches) - 1];
        }
 
