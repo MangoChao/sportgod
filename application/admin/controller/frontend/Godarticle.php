@@ -47,7 +47,9 @@ class Godarticle extends Backend
         $cat_list[0] = '請選擇分類';
         $mArticlecat = model('Articlecat')->where('status = 1')->select();
         foreach ($mArticlecat as $k => $v) {
-            $cat_list[$v['id']] = $v['cat_name'];
+            if($v->god_type == 2){
+                $cat_list[$v['id']] = $v['cat_name'];
+            }
         }
 
         $this->view->assign('cat_list', $cat_list);
