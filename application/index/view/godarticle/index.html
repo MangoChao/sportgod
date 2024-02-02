@@ -1,45 +1,12 @@
-<!-- 
-<div class="container">
-    <div class="m_panel">
-        <section id="featured_lish">
-            <div class="container">
-                {foreach $mGodarticle as $v}
-                <div class="row item">
-                    <div class="col-md-6">
-                        <div class="panel-default">
-                            {if $v->video_url}
-                                <iframe class="video_player" src="{$v->video_url}?controls=0" frameborder="0" allowfullscreen></iframe>
-                            {else/}
-                                <a href="{:url('/index/godarticle/detail/id/'.$v->id)}">
-                                    <div class="fill" style="background-image:url({$v->cover_img});">
-                                    </div>
-                                </a>
-                            {/if}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="panel-content">
-                            <div class="date">{$v->createtime|date='Y/m/d',###}</div>
-                            <h2 class="title">
-                                <a href="{:url('/index/godarticle/detail/id/'.$v->id)}">
-                                    {$v->title}
-                                </a>
-                            </h2>
-                            <div class="author">
-                                {$v->nickname}
-                            </div>
-                            <div class="view_content">
-                                {$v->content}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {/foreach}
-                <div class="page">
-                    {$pagelist}
-                </div>
-            </div>
-        </section>
+<div class="container main-container">
+    <div class="row">
+        {if $mGodarticle}
+        <div class="col-xs-12">
+            {foreach $mGodarticle as $k=>$v}
+            <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
+            {/foreach}
+        </div>
+        {$pagelist}
+        {/if}
     </div>
-</div> -->
-<!-- <img src="__CDN__/assets/img/demo/bac_teach_list.jpg" style="width: 100%;"/> -->
+</div>
