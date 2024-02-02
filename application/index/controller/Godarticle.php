@@ -30,7 +30,7 @@ class Godarticle extends Frontend
         ->join("god_type gt","gt.id = a.god_type and gt.status = 1")
         ->field('a.*, u.nickname, u.avatar')
         ->where("a.status = 1 ".$whereStr)->group('a.id')->order('a.updatetime','desc')->paginate(20, false, $this->paginate_config);
-        Log::notice( model('Godarticle')->getLastSql());
+        // Log::notice( model('Godarticle')->getLastSql());
         
         // if($mGodarticle){
         //     foreach($mGodarticle as $v){
@@ -41,10 +41,21 @@ class Godarticle extends Frontend
         $count = $mGodarticle->total();
         $pagelist = $mGodarticle->render();
         
+        
+        //1神人 2教學 3新聞 4視界
         $this->view->assign('count', $count);
         $this->view->assign('page', $page);
         $this->view->assign('pagelist', $pagelist);
         $this->view->assign('mGodarticle', $mGodarticle);
+        
+        //1神人 2教學 3新聞 4視界
+        if($id == 2){
+            return $this->view->fetch('godarticle/teach');
+        }elseif($id == 3){
+            return $this->view->fetch('godarticle/news');
+        }elseif($id == 4){
+            return $this->view->fetch('godarticle/video');
+        }
         return $this->view->fetch();
     }
     
@@ -61,22 +72,17 @@ class Godarticle extends Frontend
         }
         if(!$mGodarticle->avatar) $mGodarticle->avatar = $this->def_avatar;
 
-        $mGodarticle->user_id;
-
-        $mGodarticleLast = model('Godarticle')->alias('a')
-        ->field('a.*')
-        ->where("a.status = 1 AND a.id <> ".$id." AND a.user_id = ".$mGodarticle->user_id)->order('a.updatetime','desc')->limit(3)->select();
-
-        $hasfav = false;
-        if($this->auth->isLogin()){
-            $afc = model('Articlefav')->where("user_id = ".$this->auth->id." AND type = 2 AND article_id = ".$id)->count();
-            if($afc > 0) $hasfav = true;
-        }
-
-        $this->view->assign('hasfav', $hasfav);
-        $this->view->assign('mGodarticleLast', $mGodarticleLast);
         $this->view->assign('mGodarticle', $mGodarticle);
-        return $this->view->fetch();
+
+        //1神人 2教學 3新聞 4視界
+        if($mGodarticle->god_type == 2){
+            return $this->view->fetch('godarticle/detail/teach');
+        }elseif($mGodarticle->god_type == 3){
+            return $this->view->fetch('godarticle/detail/news');
+        }elseif($mGodarticle->god_type == 4){
+            return $this->view->fetch('godarticle/detail/video');
+        }
+        return $this->view->fetch('godarticle/detail/base');
     }
 
 }

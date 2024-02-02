@@ -1,0 +1,20 @@
+<div class="container main-container">
+    <div class="row">
+        {if $mGodarticle->video_url}
+            <div class="banner_box">
+                <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+            </div>
+        {else/}
+            <div class="banner_box" style="background-image: url({$mGodarticle->cover_img});">
+                
+            </div>
+        {/if}
+        <h1>{$mGodarticle->title}</h1>
+        <div class="date">{$mGodarticle->createtime|date='Y/m/d',###}</div>
+        <div class="author_name">作者：<a href="#">{$mGodarticle->nickname}</a></div>
+        <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
+        <div class="article-content">
+            {$mGodarticle->content}
+        </div>
+    </div>
+</div>
