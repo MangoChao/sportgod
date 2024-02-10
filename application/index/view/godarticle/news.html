@@ -1,12 +1,51 @@
 <div class="container main-container">
-    <div class="row">
-        {if $mGodarticle}
-        <div class="col-xs-12">
-            {foreach $mGodarticle as $k=>$v}
-            <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a_title" data-k="{$k}">{$v->title}</a>
+    <div class="row article_list">
+        {if $list}
+            {foreach $list as $cat_id => $mGodarticle}
+                {if $mGodarticle['list']}
+                    <div class="article_cat_list">
+                        <div class="col-xs-12">
+                            <h2>
+                                <hr>
+                                <span>{$mGodarticle['title']}</span>
+                            </h2>
+                        </div>
+                        <div id="slider_{$cat_id}" class="carousel slide" data-bs-ride="carousel" data-bs-wrap="false" data-bs-interval="false">
+                            <div class="carousel-inner">
+                                {foreach $mGodarticle['list'] as $k=>$v}
+                                    {if $k%3 == 0 || $k == 0} 
+                                    <div class="carousel-item {if $k == 0}active{/if}">
+                                    {/if}
+                                        <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a-btn article_list_item col-xs-4">
+                                            {if $v->video_url}
+                                                <div class="img_box">
+                                                    <iframe class="video_player" src="{$v->video_url}?autoplay=0&controls=0&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>
+                                                </div>
+                                            {else/}
+                                                <div class="img_box" style="background-image: url({$v->cover_img});">
+                                                    
+                                                </div>
+                                            {/if}
+                                            <div class="content_box">
+                                                <h3>{$v->title}</h3>
+                                                <span>觀看次數:{$v->views}次．1天前</span>
+                                            </div>
+                                        </a>
+                                    {if ($k+1)%3 == 0 || $k == (sizeof($mGodarticle['list'])-1)} 
+                                    </div>
+                                    {/if}
+                                {/foreach}
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#slider_{$cat_id}" data-bs-slide="prev">
+                                &lt;
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#slider_{$cat_id}" data-bs-slide="next">
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                {/if}
             {/foreach}
-        </div>
-        {$pagelist}
         {/if}
     </div>
 </div>
