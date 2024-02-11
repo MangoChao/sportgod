@@ -56,6 +56,7 @@ class Godarticle extends Frontend
                     ];
                 }
 
+                $v->timeDescribe = getTimeDescribe($v->createtime);
                 $list[$v->cat_id]['list'][] = $v;
                 // if(!$v->avatar) $v->avatar = $this->def_avatar;
             }
@@ -97,6 +98,7 @@ class Godarticle extends Frontend
         $mGodarticle->views += 1; 
         $mGodarticle->save();
         if(!$mGodarticle->avatar) $mGodarticle->avatar = $this->def_avatar;
+        $mGodarticle->timeDescribe = getTimeDescribe($mGodarticle->createtime);
 
         $this->view->assign('mGodarticle', $mGodarticle);
 
@@ -118,6 +120,7 @@ class Godarticle extends Frontend
         ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) AND a.cat_id = ".$mGodarticle->cat_id." AND a.god_type = ".$mGodarticle->god_type." ")->group('a.id')->order(['ac.weigh' => 'asc', 'a.updatetime' => 'desc'])->select();
         if($mGodarticleList){
             foreach($mGodarticleList as $v){
+                $v->timeDescribe = getTimeDescribe($v->createtime);
                 $list['list'][] = $v;
             }
         }

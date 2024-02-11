@@ -12,7 +12,7 @@
         <h1>{$mGodarticle->title}</h1>
         <div class="fb-like" data-href="{:url('/index/godarticle/detail/id/'.$mGodarticle->id)}" data-width="" data-colorscheme="dark" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
         <div class="article_detail_content">
-            <span>觀看次數:{$mGodarticle->views}次．1天前</span>
+            <span>觀看次數:{$mGodarticle->views}次．{$mGodarticle->timeDescribe}</span>
             <div class="article-content">
                 {$mGodarticle->content}
             </div>
@@ -20,7 +20,7 @@
         
         <div class="article_cat_list">
             <div class="col-xs-12">
-                <h2>
+                <h2 class="blue-line-title">
                     <hr>
                     <span>{$list['title']}</span>
                 </h2>
@@ -43,7 +43,7 @@
                                 {/if}
                                 <div class="content_box">
                                     <h3>{$v->title}</h3>
-                                    <span>觀看次數:{$v->views}次．1天前</span>
+                                    <span>觀看次數:{$v->views}次．{$v->timeDescribe}</span>
                                 </div>
                             </a>
                         {if ($k+1)%3 == 0 || $k == (sizeof($list['list'])-1)} 
@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div class="reply">
+    <div class="reply hide">
         <div class="title">讀者回應</div>
         <textarea class="msg_box"></textarea>
     </div>

@@ -5,7 +5,7 @@
                 {if $mGodarticle['list']}
                     <div class="article_cat_list">
                         <div class="col-xs-12">
-                            <h2>
+                            <h2 class="blue-line-title">
                                 <hr>
                                 <span>{$mGodarticle['title']}</span>
                             </h2>
@@ -28,7 +28,7 @@
                                             {/if}
                                             <div class="content_box">
                                                 <h3>{$v->title}</h3>
-                                                <span>觀看次數:{$v->views}次．1天前</span>
+                                                <span>觀看次數:{$v->views}次．{$v->timeDescribe}</span>
                                             </div>
                                         </a>
                                     {if ($k+1)%3 == 0 || $k == (sizeof($mGodarticle['list'])-1)} 

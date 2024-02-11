@@ -1247,19 +1247,20 @@ a.a-btn{
     left: -6px;
 }
 
-.article_cat_list h2{
+h2.blue-line-title{
     color:#1f449b;
     font-size: 24px;
     font-weight: bold;
     position: relative;
     margin-top: 35px;
+    margin-bottom: 15px;
 }
-.article_cat_list h2 span{
+h2.blue-line-title span{
     background-color: #fff;
     position: relative;
     padding-right: 10px;
 }
-.article_cat_list h2 hr{   
+h2.blue-line-title hr{   
     margin: 0;
     position: absolute;
     top: calc(50% - 2px);
@@ -1290,6 +1291,106 @@ a.a-btn{
     padding: 8px 10px;
     border: 1px solid #1f449b;
     background-color: transparent;
+}
+
+.city_rank{
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    padding-bottom: 20px;
+}
+.city_item .img_box{
+    height: 150px;
+}
+.city_item .dec{
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+}
+.city_item .dec .title{
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+}
+.city_item .dec .review{
+    color: #919191;
+}
+
+.city_info{
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    padding-bottom: 20px;
+}
+
+.city_info .main_info{
+    position: relative;
+    height: 370px;
+    background-color: #1e1e91;
+    padding: 15px 15px 15px 40%;
+}
+
+.city_info .main_info .img_box{
+    height: 320px;
+    width: 45%;
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+}
+
+.city_info .main_info .review_box{
+    background: #fff;
+    height: 100%;
+    padding: 40px 15px 15px 15%;
+    color: #1e1e91;
+}
+
+.city_info .main_info .review_box .review{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.city_info .main_info .review_box .review i{
+    font-style: normal;
+    color: #f5da29;
+}
+
+.city_info .main_info .review_box h2{
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.city_info .main_info .review_box p{
+    font-size: 16px;
+}
+
+.city_info_box{
+    padding: 0;
+}
+.city_info_box h3{
+    background-color: #1e1e91;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 11px 10px 8px;
+}
+.city_info_box.main h3{
+    font-size: 28px;
+    padding-left: 40px;
+}
+
+.city_info_box p{
+    color: #1e1e91;
+    border: 1px #1e1e91 solid;
+    padding: 10px;
+    font-size: 14px;
+}
+.city_info_box.main p{
+    font-size: 18px;
+    border:none;
+    padding: 10px 0;
 }
 
 @media (max-width: 767px) {

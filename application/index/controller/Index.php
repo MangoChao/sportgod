@@ -159,4 +159,14 @@ class Index extends Frontend
     {
         return $this->view->fetch();
     }
+    
+    public function cityInfo($id = null)
+    {
+        if ($id == 'bet365'){
+            return $this->view->fetch('index/city/bet365');
+        }else if ($id == 'fu'){
+            return $this->view->fetch('index/city/fu');
+        }
+        return $this->view->fetch('index/city/bet365');
+    }
 }

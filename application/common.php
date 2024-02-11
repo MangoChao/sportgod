@@ -572,3 +572,39 @@ if (!function_exists('getTeachCatList')) {
         ];
     }
 }
+
+
+if (!function_exists('getTimeDescribe')) {
+    function getTimeDescribe($timestamp)
+    {
+        $currentTime = time();
+        $timeDifference = $currentTime - $timestamp;
+        
+        if ($timeDifference < 60) {
+            return "剛剛";
+        } elseif ($timeDifference < 3600) {
+            $minutes = floor($timeDifference / 60);
+            return $minutes . "分鐘前";
+        } elseif ($timeDifference < 86400) {
+            $hours = floor($timeDifference / 3600);
+            return $hours . "小時前";
+        } elseif ($timeDifference < 604800) {
+            $days = floor($timeDifference / 86400);
+            if ($days == 1) {
+                return "昨天";
+            } else {
+                return $days . "天前";
+            }
+        } elseif ($timeDifference < 2592000) {
+            $weeks = floor($timeDifference / 604800);
+            return $weeks . "週前";
+        } elseif ($timeDifference < 31536000) {
+            $months = floor($timeDifference / 2592000);
+            return $months . "個月前";
+        } else {
+            $years = floor($timeDifference / 31536000);
+            return $years . "年前";
+        }
+
+    }
+}
