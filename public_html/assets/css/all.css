@@ -1249,7 +1249,7 @@ a.a-btn{
     width: 40px;
     border-radius: 50%;
     line-height: 40px;
-    top: 95px;
+    top: 32%;
 }
 .swiper .swiper-button-next{
     right: -14px;
@@ -1412,7 +1412,68 @@ h2.blue-line-title hr{
     font-size: 20px;
 }
 
+@media (max-width: 1200px) {
+    .home_banner .carousel-item{
+        height: 400px;
+    }
+    .home_banner .carousel-item span{
+        font-size: 30px;
+    }
+    .home_banner{
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 992px) {
+    .sub_banner .more{
+        width: 10%;
+        padding: 40px 0px 20px 0;
+    }
+    .sub_banner .list{
+        width: 90%;
+        padding: 10px 0px 10px 20px;
+    }
+    .city_info .main_info{
+        height: auto;
+        padding: 15px;
+    }
+    .city_info .main_info .img_box{
+        height: 260px;
+        width: 100%;
+        position:static;
+    }
+    .city_info .main_info .review_box{
+        padding: 15px;
+        height: auto;
+    }
+    .city_info .main_info .review_box h2{
+        font-size: 28px;
+    }
+    .article_detail .img_box{
+        height: 360px;
+    }
+    .article_cat_list .img_box{
+        height: 360px;
+    }
+}
+
 @media (max-width: 767px) {
+    body {
+        padding-top: 132px;
+    }
+    .home_banner .carousel-item{
+        height: 250px;
+    }
+    .home_banner .carousel-item span{
+        font-size: 20px;
+    }
+    .article_detail .img_box{
+        height: 260px;
+    }
+    .article_cat_list .img_box{
+        height: 260px;
+    }
+
     .menu_list .menu_item{
         display: block;
     }
