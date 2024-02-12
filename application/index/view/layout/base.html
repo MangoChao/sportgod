@@ -33,7 +33,9 @@
                     <a href="{:url('/index/godarticle')}?id=4">體育視界</a>
                 </div>
                 <div class="s_box">
-                    <input type="text" value="" placeholder="我想搜尋..." />
+                    <form action="{:url('/index/index/search')}">
+                        <input type="text" name="keyword" value="{:input('keyword')}" placeholder="我想搜尋..." />
+                    </form>
                 </div>
             </div>
         </header>
@@ -49,8 +51,8 @@
             </div>
         </footer>
 
+        <script src="__CDN__/assets/libs/swiper/swiper-bundle.min.js"></script>
         <script src="__CDN__/assets/libs/bootstrap-5.0.0-dist/js/bootstrap.bundle.min.js"></script>
         {include file="common/script" /}
-
     </body>
 </html>

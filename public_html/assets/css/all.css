@@ -1227,8 +1227,19 @@ a.a-btn{
     pointer-events: none;
 }
 
-.article_cat_list .carousel .carousel-control-next,
-.article_cat_list .carousel .carousel-control-prev{
+:root{
+    --swiper-navigation-size: 24px;
+    --swiper-navigation-top-offset: 50%;
+    --swiper-navigation-sides-offset: 10px;
+    --swiper-navigation-color: var(--swiper-theme-color);
+}
+
+.swiper{
+    width: 100%;
+}
+
+.swiper .swiper-button-next,
+.swiper .swiper-button-prev{
     position: absolute;
     background: #fff;
     opacity: 1;
@@ -1238,13 +1249,16 @@ a.a-btn{
     width: 40px;
     border-radius: 50%;
     line-height: 40px;
-    top: 148px;
+    top: 95px;
 }
-.article_cat_list .carousel .carousel-control-next{
-    right: -6px;
+.swiper .swiper-button-next{
+    right: -14px;
 }
-.article_cat_list .carousel .carousel-control-prev{
-    left: -6px;
+.swiper .swiper-button-prev{
+    left: -14px;
+}
+.swiper-button-disabled{
+    display: none;
 }
 
 h2.blue-line-title{
@@ -1391,6 +1405,11 @@ h2.blue-line-title hr{
     font-size: 18px;
     border:none;
     padding: 10px 0;
+}
+.s_empty{
+    padding: 20px;
+    text-align: center;
+    font-size: 20px;
 }
 
 @media (max-width: 767px) {

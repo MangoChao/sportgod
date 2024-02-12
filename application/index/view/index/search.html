@@ -13,7 +13,7 @@
                         <div class="col-xs-12">
                             <div class="swiper">
                                 <div class="swiper-wrapper">
-                                    {foreach $mGodarticle['list'] as $k=>$v}
+                                    {foreach $list['list'] as $k=>$v}
                                         <div class="swiper-slide">
                                             <a href="{:url('/index/godarticle/detail/id/'.$v->id)}" class="a-btn article_list_item">
                                                 {if $v->video_url}
@@ -40,6 +40,8 @@
                     </div>
                 {/if}
             {/foreach}
+        {else/}
+            <div class="s_empty">查無專欄</div>
         {/if}
     </div>
 </div>

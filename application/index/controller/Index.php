@@ -51,6 +51,52 @@ class Index extends Frontend
         $this->view->assign('mArticle3', $mArticle3);
         return $this->view->fetch();
     }
+
+    public function search($keyword = "")
+    {
+        $whereStr = "";
+        if (trim($keyword) != ""){
+            $whereStr .= " AND (a.title like '%".trim($keyword)."%' OR a.content like '%".trim($keyword)."%')";
+        }
+        $page = $this->request->request('page', 1);
+        $paginate = 9999;
+        $mGodarticle = model('Godarticle')->alias('a')
+        ->join("user u","(u.id = a.user_id AND u.status = 1) OR a.user_id = 0 ")
+        ->join("god_type gt","gt.id = a.god_type AND gt.id = 1 AND gt.status = 1")
+        ->join("article_cat ac","ac.id = a.cat_id")
+        ->field('a.*, u.nickname, u.avatar, ac.cat_name')
+        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) ".$whereStr)->group('a.id')->order(['ac.weigh' => 'asc', 'a.updatetime' => 'desc'])->paginate($paginate, false, $this->paginate_config);
+        // Log::notice( model('Godarticle')->getLastSql());
+        
+        $list = [];
+        if($mGodarticle){
+            foreach($mGodarticle as $v){
+                if (!isset($list[$v->cat_id])){
+                    $title = $v->cat_name;
+                    $list[$v->cat_id] = [
+                        'title' => $title,
+                        'list' => []
+                    ];
+                }
+
+                $v->timeDescribe = getTimeDescribe($v->createtime);
+                $list[$v->cat_id]['list'][] = $v;
+                // if(!$v->avatar) $v->avatar = $this->def_avatar;
+            }
+        }
+
+        $count = $mGodarticle->total();
+        $pagelist = $mGodarticle->render();
+        
+        
+        $this->view->assign('count', $count);
+        $this->view->assign('page', $page);
+        $this->view->assign('pagelist', $pagelist);
+        $this->view->assign('mGodarticle', $mGodarticle);
+        $this->view->assign('list', $list);
+        
+        return $this->view->fetch();
+    }
     
     public function contact()
     {
