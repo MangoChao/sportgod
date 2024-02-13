@@ -65,7 +65,7 @@ class Index extends Frontend
         ->join("god_type gt","gt.id = a.god_type AND gt.id = 1 AND gt.status = 1")
         ->join("article_cat ac","ac.id = a.cat_id")
         ->field('a.*, u.nickname, u.avatar, ac.cat_name')
-        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) ".$whereStr)->group('a.id')->order(['ac.weigh' => 'asc', 'a.updatetime' => 'desc'])->paginate($paginate, false, $this->paginate_config);
+        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) ".$whereStr)->group('a.id')->order(['ac.weigh' => 'asc', 'a.createtime' => 'desc'])->paginate($paginate, false, $this->paginate_config);
         // Log::notice( model('Godarticle')->getLastSql());
         
         $list = [];

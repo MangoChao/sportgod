@@ -37,7 +37,7 @@ class Godarticle extends Frontend
         ->join("god_type gt","gt.id = a.god_type and gt.status = 1")
         ->join("article_cat ac","ac.id = a.cat_id")
         ->field('a.*, u.nickname, u.avatar, ac.cat_name')
-        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) ".$whereStr)->group('a.id')->order(['ac.weigh' => 'asc', 'a.updatetime' => 'desc'])->paginate($paginate, false, $this->paginate_config);
+        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) ".$whereStr)->group('a.id')->order(['ac.weigh' => 'asc', 'a.createtime' => 'desc'])->paginate($paginate, false, $this->paginate_config);
         // Log::notice( model('Godarticle')->getLastSql());
         
         $list = [];
@@ -117,7 +117,7 @@ class Godarticle extends Frontend
         ->join("god_type gt","gt.id = a.god_type and gt.status = 1")
         ->join("article_cat ac","ac.id = a.cat_id")
         ->field('a.*, u.nickname, u.avatar, ac.cat_name')
-        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) AND a.cat_id = ".$mGodarticle->cat_id." AND a.god_type = ".$mGodarticle->god_type." ")->group('a.id')->order(['ac.weigh' => 'asc', 'a.updatetime' => 'desc'])->select();
+        ->where("a.status = 1 AND (a.cover_img <> '' OR a.video_url <> '' ) AND a.cat_id = ".$mGodarticle->cat_id." AND a.god_type = ".$mGodarticle->god_type." ")->group('a.id')->order(['ac.weigh' => 'asc', 'a.createtime' => 'desc'])->select();
         if($mGodarticleList){
             foreach($mGodarticleList as $v){
                 $v->timeDescribe = getTimeDescribe($v->createtime);
