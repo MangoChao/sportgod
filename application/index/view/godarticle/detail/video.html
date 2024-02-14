@@ -5,8 +5,8 @@
                 <iframe class="video_player" src="{$mGodarticle->video_url}?autoplay=1" frameborder="0" allowfullscreen></iframe>
             </div>
         {else/}
-            <div class="img_box" style="background-image: url({$mGodarticle->cover_img});">
-                
+            <div class="img_box auto">
+                <img src="{$mGodarticle->cover_img}" />
             </div>
         {/if}
         <h1>{$mGodarticle->title}</h1>

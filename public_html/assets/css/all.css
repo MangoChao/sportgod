@@ -1182,6 +1182,9 @@ a.a-btn{
     background-position: center;
     background-size: cover;
 }
+.img_box img{
+    width: 100%;
+}
 .article_detail{
     padding: 20px 15px;
     margin: 0;
@@ -1194,6 +1197,9 @@ a.a-btn{
     border-radius: 7px;
     overflow: hidden;
     padding: 0;
+}
+.article_detail .img_box.auto{
+    height: auto!important;
 }
 .article_detail h1{
     font-size: 20px;
