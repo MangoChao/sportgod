@@ -83,7 +83,8 @@ class Godarticle extends Backend
             $teachCatList = getTeachCatList();
             foreach ($list as $k => $v) {
                 if($v->god_type == 2){
-                    $v->cat->cat_name = $teachCatList[$v->cat->id];
+                    // $v->cat->cat_name = $teachCatList[$v->cat->id];
+                    $v->cat->cat_name = '';
                 }
             }
             $result = array("total" => $total, "rows" => $list);
