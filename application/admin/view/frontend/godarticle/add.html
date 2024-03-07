@@ -6,13 +6,13 @@
             {:build_select('row[god_type]', $type_list, 0, ['class'=>'form-control selectpicker', 'data-rule'=>'required'])}
         </div>
     </div>
-    <div class="form-group type-base">
+    <div class="form-group type-base" style="display: none;">
         <label for="cat_id" class="control-label col-xs-12 col-sm-2">{:__('cat_name')}:</label>
         <div class="col-xs-12 col-sm-8">
             {:build_select('row[cat_id]', $cat_list, 0, ['class'=>'form-control selectpicker'])}
         </div>
     </div>
-    <div class="form-group type-teach">
+    <div class="form-group type-teach" style="display: none;">
         <label for="teach_cat_id" class="control-label col-xs-12 col-sm-2">{:__('cat_name')}:</label>
         <div class="col-xs-12 col-sm-8">
             {:build_select('row[teach_cat_id]', $teach_cat_list, 0, ['class'=>'form-control selectpicker'])}

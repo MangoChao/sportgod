@@ -113,6 +113,7 @@ class Godarticle extends Backend
                     if($params['teach_cat_id'] == 0){
                         $this->error(__('請選擇分類'));
                     }
+                    $params['cat_id'] = $params['teach_cat_id'];
                 }else{
                     if($params['cat_id'] == 0){
                         $this->error(__('請選擇分類'));
@@ -195,6 +196,7 @@ class Godarticle extends Backend
                     if($params['teach_cat_id'] == 0){
                         $this->error(__('請選擇分類'));
                     }
+                    $params['cat_id'] = $params['teach_cat_id'];
                 }else{
                     if($params['cat_id'] == 0){
                         $this->error(__('請選擇分類'));
