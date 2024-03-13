@@ -10,17 +10,6 @@
                     <a href="{:url('/')}"><img src="__CDN__/assets/img/logo.jpg" /></a>
                 </div>
                 <div class="right-menu">
-                    <a href="{:url('index/user/buypoint')}" class="user_btn text_btn">儲值</a>
-                    {if $user}
-                        {if $user->isgod == 1}
-                        <a href="{:url('index/user/addgodarticle')}" class="user_btn text_btn">刊登專欄</a>
-                        {/if}
-                    <a href="javascript:;" class="btn_notify user_btn {if $isnotify > 0}active{/if}"><i class="fa fa-bell"></i></a><div id="notify_box"></div>
-                    <a href="{:url('index/user/profile')}" class="user_btn active"><i class="fa fa-user-circle-o"></i></a>
-                    {else/}
-                    <a href="{:url('index/user/notify')}" class="user_btn"><i class="fa fa-bell"></i></a>
-                    <a href="{:url('user/login')}" class="user_btn"><i class="fa fa-user-circle-o"></i></a>
-                    {/if}
                 </div>
             </div>
             <!-- 分類選單 -->
@@ -44,6 +33,10 @@
         <main class="content">
             {__CONTENT__}
         </main>
+
+        <div class="ad_banner">
+            <!-- <img src="__CDN__/assets/img/god_banner.png"/> -->
+        </div>
 
         <footer class="footer" style="clear:both">
             <div class="footer_bottom">

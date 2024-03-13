@@ -1517,3 +1517,10 @@ h2.blue-line-title hr{
         width: 100%;
     }
 }
+
+.ad_banner{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+}
