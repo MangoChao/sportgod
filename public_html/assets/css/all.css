@@ -1526,11 +1526,15 @@ h2.blue-line-title hr{
     display: flex;
 }
 
-.ad_banner .type0{
+.ad_banner.type0{
     width: 300px;
 }
 
-.ad_banner .type1{
+.ad_banner.type1{
+    width: 100%;
+}
+
+.ad_banner img{
     width: 100%;
 }
 
