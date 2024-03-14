@@ -1523,6 +1523,7 @@ h2.blue-line-title hr{
     bottom: 0;
     right: 0;
     z-index: 9999;
+    display: flex;
 }
 
 .ad_banner .type0{
@@ -1531,4 +1532,13 @@ h2.blue-line-title hr{
 
 .ad_banner .type1{
     width: 100%;
+}
+
+.ad_banner .close_btn{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 10px;
+    font-size: 20px;
+    color: #000;
 }
