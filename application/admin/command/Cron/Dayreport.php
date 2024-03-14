@@ -35,7 +35,7 @@ class Dayreport extends Command
     protected function execute(Input $input, Output $output){
         Log::init(['type' => 'File', 'log_name' => 'cron_Dayreport']);
         $this->site = Config::get("site");
-        $this->Eventreport();
+        // $this->Eventreport();
         $this->Geteventcat();
         $this->Titlereport();
         if(date('w') == 2){

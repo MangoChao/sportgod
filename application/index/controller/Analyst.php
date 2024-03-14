@@ -132,7 +132,7 @@ class Analyst extends Frontend
 
             //檢查預測
             if($mAnalyst->autopred == 1){
-                $this->checkPred($id);
+                // $this->checkPred($id);
             }
 
             if($pt == 1){
