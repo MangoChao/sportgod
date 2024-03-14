@@ -118,6 +118,10 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                 };
                 $.ajax(options);
             });
+
+            $(document).on("click", ".ad_banner .close_btn", function () {
+                $(".ad_banner").hide();
+            });
         }
     };
     Frontend.api = $.extend(Fast.api, Frontend.api);

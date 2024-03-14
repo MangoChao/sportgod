@@ -62,6 +62,8 @@ class Frontend extends Controller
     protected $newebpay_HashKey = 'VAcfXUQJELhcK8Vy4uh881HaKiaW9ppq';
     protected $newebpay_HashIV = 'PWDwDgz6KNxrgysC';
 
+    protected $isweb = true;
+
     public function _initialize()
     {
         
@@ -152,6 +154,28 @@ class Frontend extends Controller
         $channel_access_token = Config::get("site.line_channel_access_token");
         $this->LineBot = new LineBot($channel_access_token);
 
+        $HTTP_USER_AGENT = $_SERVER['HTTP_USER_AGENT']??"";
+        $iphone        = strstr($HTTP_USER_AGENT, "iPhone");
+        $ipad          = strstr($HTTP_USER_AGENT, "iPad");
+        $android       = strstr($HTTP_USER_AGENT, "Android");
+        $windows_phone = strstr($HTTP_USER_AGENT, "Windows Phone");
+        $black_berry   = strstr($HTTP_USER_AGENT, "BlackBerry");
+        
+        if ($iphone) {
+            $this->isweb = false;
+        } elseif ($ipad) {
+            $this->isweb = false;
+        } elseif ($android) {
+            $this->isweb = false;
+        } elseif ($windows_phone) {
+            $this->isweb = false;
+        } elseif ($black_berry) {
+            $this->isweb = false;
+        } else {
+            $this->isweb = true;
+        }
+
+        $this->assignAdbanner();
         $this->assignArticlecat();
         $this->assignGodType();
         $this->assignArticleTitle();
@@ -212,6 +236,16 @@ class Frontend extends Controller
         $this->assign('baseArticlecat', $baseArticlecat);
     }
     
+    protected function assignAdbanner()
+    {
+        if($this->isweb){
+            $type = 0;
+        }else{
+            $type = 1;
+        }
+        $baseAdbanner = model('Adbanner')->where('type = '.$type)->orderRaw('RAND()')->find();
+        $this->assign('baseAdbanner', $baseAdbanner);
+    }
 
     protected function assignGodType()
     {

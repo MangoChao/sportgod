@@ -1524,3 +1524,11 @@ h2.blue-line-title hr{
     right: 0;
     z-index: 9999;
 }
+
+.ad_banner .type0{
+    width: 300px;
+}
+
+.ad_banner .type1{
+    width: 100%;
+}

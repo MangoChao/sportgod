@@ -34,9 +34,14 @@
             {__CONTENT__}
         </main>
 
-        <div class="ad_banner">
-            <!-- <img src="__CDN__/assets/img/god_banner.png"/> -->
-        </div>
+        {if $baseAdbanner}
+            <div class="ad_banner type{$baseAdbanner->type}">
+                <a href="{$baseAdbanner->url}">
+                    <img src="{$baseAdbanner->img}"/>
+                </a>
+                <a href="javascript:;" class="close_btn">X</a>
+            </div>
+        {/if}
 
         <footer class="footer" style="clear:both">
             <div class="footer_bottom">
