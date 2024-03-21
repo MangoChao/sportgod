@@ -1437,6 +1437,9 @@ h2.blue-line-title hr{
 .bet_knowledge .text_box h2{
     font-weight: bold;
 }
+.bet_knowledge .text_box {
+    margin-bottom: 20px;
+}
 @media (max-width: 1200px) {
     .home_banner .carousel-item{
         height: 400px;
