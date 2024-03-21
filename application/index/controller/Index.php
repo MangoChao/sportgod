@@ -215,4 +215,9 @@ class Index extends Frontend
         }
         return $this->view->fetch('index/city/bet365');
     }
+    
+    public function betKnowledge()
+    {
+        return $this->view->fetch();
+    }
 }

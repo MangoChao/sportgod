@@ -25,6 +25,9 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         },
         teach_detail: function () {
             
+        },
+        bet_knowledge: function () {
+            
         }
     };
     return Controller;
