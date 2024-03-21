@@ -1418,6 +1418,25 @@ h2.blue-line-title hr{
     font-size: 20px;
 }
 
+.bet_knowledge h1{
+    font-weight: bold;
+}
+.catalog_box{
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+.ul_c{
+    margin: 0;
+    font-size: 16px;
+}
+.bet_knowledge .text_box p{
+    font-size: 16px;
+}
+.bet_knowledge .text_box h2{
+    font-weight: bold;
+}
 @media (max-width: 1200px) {
     .home_banner .carousel-item{
         height: 400px;
