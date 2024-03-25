@@ -220,4 +220,8 @@ class Index extends Frontend
     {
         return $this->view->fetch();
     }
+    public function betKnowledge2()
+    {
+        return $this->view->fetch();
+    }
 }
