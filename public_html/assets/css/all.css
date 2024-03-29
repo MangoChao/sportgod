@@ -45,7 +45,6 @@ body{
     border-width: 1px;
     border-color: #ccc;
 }
-
 .menu_list a{
     font-size: 18px;
     color: #fff;
@@ -55,6 +54,24 @@ body{
 .menu_list a:hover{
     color: #34568b;
     text-decoration: unset;
+}
+.dropdown_btn{
+    position: relative;
+}
+.dropdown_box{
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ff6c04;
+    display: flex;
+    flex-direction: column;
+    width: 180px;
+    gap: 10px;
+    padding: 10px;
+}
+.dropdown_btn:hover .dropdown_box{
+    display: flex;
 }
 .haderline{
     border-top: 1px solid #ccc;
