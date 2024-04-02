@@ -26,7 +26,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         teach_detail: function () {
             
         },
-        bet_knowledge: function () {
+        strategy1: function () {
             
         }
     };

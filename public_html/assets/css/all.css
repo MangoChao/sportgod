@@ -1434,7 +1434,7 @@ h2.blue-line-title hr{
     font-size: 20px;
 }
 
-.bet_knowledge h1{
+.strategy h1{
     font-weight: bold;
 }
 .catalog_box{
@@ -1447,13 +1447,13 @@ h2.blue-line-title hr{
     margin: 0;
     font-size: 16px;
 }
-.bet_knowledge .text_box p{
+.strategy .text_box p{
     font-size: 16px;
 }
-.bet_knowledge .text_box h2{
+.strategy .text_box h2{
     font-weight: bold;
 }
-.bet_knowledge .text_box {
+.strategy .text_box {
     margin-bottom: 20px;
 }
 @media (max-width: 1200px) {
