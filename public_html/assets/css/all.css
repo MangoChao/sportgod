@@ -64,7 +64,6 @@ body{
     top: 100%;
     left: 0;
     background-color: #ff6c04;
-    display: flex;
     flex-direction: column;
     width: 180px;
     gap: 10px;
