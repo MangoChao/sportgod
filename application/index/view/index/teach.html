@@ -1,326 +1,141 @@
 <div class="container main-container">
-    <div class="container main-container mt-4">
-        <style>
-            .special-text {
-                font-family: 'Arial', sans-serif;
-                color: #3366cc; /* 藍色 */
-                font-size: 24px;
-                /* 其他樣式設定 */
-            }
-            .container {
-                width: 1000px;
-                margin: auto;
-            }
 
-            .title span {
-                display: block;
-                color: #0b08ad;
-                position: relative;
-            }
-            .title span:before {
-                content: "";
-                position: absolute;
-                top: 50%;
-                background: #0b08ad;
-                width: 90%;
-                height: 1px;
-            }
-            .title span:before {
-                left: 9%; 
-            }
+    <style>
+        .horizontal-line {
+            display: flex;
+            align-items: center;
+            color: #0b08ad;
+        }
 
-            .video-card iframe {
+        .horizontal-line .line {
+            flex-grow: 1;
+            border-bottom: 1px solid #0b08ad;
+            margin: 0 10px;
+        }
+
+        .slider-container {
             width: 100%;
-            height: 200px;
-            border-radius: 10px; /* 调整这个值以改变圆角的半径 */
-            overflow: hidden; /* 隐藏超出圆角的内容 *//
-            }
-        </style>
-123
-        <h2 class="title"><span><b>籌碼學策略</b></span></h2>
-        <!-- Video Carousel -->
-        <div id="videoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner"> <!-- 添加圆角样式类 -->
-                                <h5 class="mt-2">Video Title 4</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                <h5 class="mt-2">Video Title 2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                <h5 class="mt-2">Video Title 3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-1</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                <h5 class="mt-2">Video Title 4-2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                <h5 class="mt-2">Video Title 4-3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Add more video cards here -->
-                    </div>
-                </div>
-                
-                
-                <!-- Add more carousel items here -->
+            overflow-x: auto;
+        }
 
-                
+        .slider-scrollbar {
+            display: flex;
+        }
+
+        .slider-content {
+            display: flex;
+        }
+
+        .slider-content img {
+            flex: 0 0 auto;
+            /* 图片不要缩放 */
+            margin-right: 10px;
+            /* 图片之间的间距 */
+            max-width: 100%;
+            /* 图片最大宽度 */
+            height: auto;
+            /* 自动计算高度 */
+        }
+    </style>
+
+    <div class="horizontal-line">
+        <h2 class="before-text"><b>籌碼學策略</b></span></h2>
+        <div class="line"></div>
+    </div>
+    
+    <div class="slider-container">
+        <div class="slider-scrollbar">
+            <div class="slider-content">
+                <img src="__CDN__/assets/img/logo.jpg" alt="Image 1">
+                <img src="__CDN__/assets/img/logo.jpg" alt="Image 2">
+                <img src="__CDN__/assets/img/logo.jpg" alt="Image 3">
+                <!-- 添加更多图片 -->
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
         </div>
+    </div>
 
-        <h2 class="title"><span><b>算牌策略</b></span></h2>
-        <!-- Video Carousel -->
-        <div id="videoCarousel2" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
-            <!-- Carousel Inner -->
-            <div class="carousel-inner">
-                <!-- Carousel Item 1 -->
-                <div class="carousel-item active">
-                    <div class="row">
-                        <!-- Video Card 1 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 1</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 2 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 3 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 3</h5>
-                                <p>Description of the video.</p>
-                            </div>
+    <!-- Video Carousel -->
+    <div id="videoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner"> <!-- 添加圆角样式类 -->
+                            <h5 class="mt-2">Video Title 1</h5>
+                            <p>Description of the video.</p>
                         </div>
                     </div>
-                </div>
-                <!-- Add more carousel items here -->
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-1</h5>
-                                <p>Description of the video.</p>
-                            </div>
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner">
+                            <h5 class="mt-2">Video Title 2</h5>
+                            <p>Description of the video.</p>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-2</h5>
-                                <p>Description of the video.</p>
-                            </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner">
+                            <h5 class="mt-2">Video Title 3</h5>
+                            <p>Description of the video.</p>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Add more video cards here -->
                     </div>
                 </div>
             </div>
-            <!-- Carousel Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel2" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel2" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
 
-        <h2 class="title"><span><b>牌路打法</b></span></h2>
-        <!-- Video Carousel -->
-        <div id="videoCarousel3" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
-            <!-- Carousel Inner -->
-            <div class="carousel-inner">
-                <!-- Carousel Item 1 -->
-                <div class="carousel-item active">
-                    <div class="row">
-                        <!-- Video Card 1 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 1</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 2 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 3 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 3</h5>
-                                <p>Description of the video.</p>
-                            </div>
+            <div class="carousel-item">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner">
+
+                            <h5 class="mt-2">Video Title 4-1</h5>
+                            <p>Description of the video.</p>
                         </div>
                     </div>
-                </div>
-                <!-- Add more carousel items here -->
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-1</h5>
-                                <p>Description of the video.</p>
-                            </div>
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner">
+                            <h5 class="mt-2">Video Title 4-2</h5>
+                            <p>Description of the video.</p>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Add more video cards here -->
                     </div>
+                    <div class="col-lg-4">
+                        <div class="video-card rounded-corner">
+                            <h5 class="mt-2">Video Title 4-3</h5>
+                            <p>Description of the video.</p>
+                        </div>
+                    </div>
+                    <!-- Add more video cards here -->
                 </div>
             </div>
-            <!-- Carousel Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel3" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel3" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
 
 
-        <h2 class="title"><span><b>心態學</b></span></h2>
-        <!-- Video Carousel -->
-        <div id="videoCarousel4" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
-            <!-- Carousel Inner -->
-            <div class="carousel-inner">
-                <!-- Carousel Item 1 -->
-                <div class="carousel-item active">
-                    <div class="row">
-                        <!-- Video Card 1 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 1</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 2 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Video Card 3 -->
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Add more carousel items here -->
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-1</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-2</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="video-card rounded-corner">
-                                
-                                <h5 class="mt-2">Video Title 4-3</h5>
-                                <p>Description of the video.</p>
-                            </div>
-                        </div>
-                        <!-- Add more video cards here -->
-                    </div>
-                </div>
-            </div>
-            <!-- Carousel Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel4" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel4" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <!-- Add more carousel items here -->
+
+
         </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    
+    <div class="horizontal-line">
+        <h2 class="before-text"><b>算牌策略</b></span></h2>
+        <div class="line"></div>
+    </div>
+    
+    <div class="horizontal-line">
+        <h2 class="before-text"><b>牌路打法</b></span></h2>
+        <div class="line"></div>
+    </div>
+    
+    <div class="horizontal-line">
+        <h2 class="before-text"><b>心態學</b></span></h2>
+        <div class="line"></div>
+    </div>
+    <!-- Add more carousels here -->
+
 </div>
