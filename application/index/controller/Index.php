@@ -228,4 +228,8 @@ class Index extends Frontend
     {
         return $this->view->fetch();
     }
+    public function strategy4()
+    {
+        return $this->view->fetch();
+    }
 }
