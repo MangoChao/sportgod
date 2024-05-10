@@ -1,0 +1,21 @@
+<video id="video_player"></video>
+
+<script src="__CDN__/assets/libs/hls/hls.js"></script>
+<script>
+var url ="/uploads/test/41307.m3u8";//m3u8地址
+        var video = document.getElementById('video_player');
+        if(Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                video.play();
+            });
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
+            video.addEventListener('loadedmetadata',function() {
+                video.play();
+            });
+        }
+</script>
