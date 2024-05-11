@@ -1,0 +1,112 @@
+
+<!-- <video controlslist="nodownload" preload="true" controls="true" playsinline  class="video-js vjs-big-play-centered vjs-fluid" data-setup="{}" style="object-fit: contain !important;">
+    <source src="/uploads/test/test153.mp4" type="video/mp4">
+    瀏覽器不支援此播放器
+</video>	 -->
+<!-- <video controlslist="nodownload" preload="true" controls="true" playsinline  class="video-js vjs-big-play-centered vjs-fluid" data-setup="{}" style="object-fit: contain !important;">
+    <source src="/uploads/test/ssis280.mp4" type="video/mp4">
+    瀏覽器不支援此播放器
+</video>	 -->
+
+<video controls="true" id="video_player"></video>
+<!-- <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+<video
+    id="my-video"
+    class="video-js"
+    controls
+    preload="auto"
+    width="640"
+    height="264"
+    data-setup="{}"
+  >
+    <source src="./uploads/test/sone153.ts" type="video/mp2t" />
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a
+      web browser that
+      <a href="https://videojs.com/html5-video-support/" target="_blank"
+        >supports HTML5 video</a
+      >
+    </p>
+  </video> -->
+
+<!-- <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script> -->
+  <!-- <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script> -->
+  <!-- <video id="my-video" class="video-js vjs-default-skin" controls></video>
+
+  <script>
+    var player = videojs('my-video', {
+      autoplay: true,
+      controls: true,
+      fluid: true,
+      sources: [{
+        src: '/uploads/test/sone153.ts',
+        type: 'video/mp2t'
+      }]
+    });
+  </script> -->
+
+
+<script src="__CDN__/assets/libs/hls/hls.js"></script>
+<script>
+//     const mediaSource = new MediaSource();
+//     const videoPlayer = document.getElementById('video_player');
+// videoPlayer.src = URL.createObjectURL(mediaSource);
+// const sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
+// fetch('/uploads/test/2024_05_11 03_58_44.ts')
+//   .then(response => response.arrayBuffer())
+//   .then(arrayBuffer => {
+//     sourceBuffer.appendBuffer(arrayBuffer);
+//   });
+//   sourceBuffer.addEventListener('updateend', function() {
+//   if (!sourceBuffer.updating && !mediaSource.updating) {
+//     fetch('your-ts-stream-url')
+//       .then(response => response.arrayBuffer())
+//       .then(arrayBuffer => {
+//         sourceBuffer.appendBuffer(arrayBuffer);
+//       });
+//   }
+// });
+// videoPlayer.play();
+
+		// 	var hlsUrl = '/uploads/test/sone153.ts';
+		// 	// var tagUrl = 'https://syndication.exosrv.com/splash.php?idzone=3377419';
+		// 	var tagUrl = '';
+		// 	var hasVtt = 1;
+		// 	var vttUrl = '/uploads/test/sone153.ts';
+		// 	// var video = document.querySelector('video');
+        // var video = document.getElementById('video_player');
+			
+		// 	if (Hls.isSupported()) {
+		// 		var hls = new Hls({
+		// 			maxBufferSize: 1*1000*1000
+		// 		});
+		// 		hls.loadSource(hlsUrl);
+		// 		hls.attachMedia(video);
+		// 	} else {
+		// 		video.src = hlsUrl;
+		// 	}
+
+		// 	new Plyr(video, {
+		// 		ratio: '16:9',
+		// 		fullscreen: {enabled: true, fallback: true, iosNative: true},
+		// 		ads: {enabled: true, tagUrl: tagUrl},
+		// 		previewThumbnails: {enabled: hasVtt, src: vttUrl}
+		// 	});
+		
+        var url ='/uploads/test/playlist.m3u8';
+        var video = document.getElementById('video_player');
+        if(Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                video.play();
+            });
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
+            video.addEventListener('loadedmetadata',function() {
+                video.play();
+            });
+        }
+</script>
