@@ -1687,3 +1687,53 @@ h2.purple-line-title hr{
     text-align: center; /* 文字水平居中 */
     padding-top: 10px; /* 图片和文字之间的间距 */
 }
+
+/*控制影片外框的*/
+.card-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .card {
+    width: 300px;
+    border: 1px solid #000;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+  .card img {
+    width: 100%;
+    height: auto;
+  }
+  .card-content {
+    padding: 15px;
+  }
+  .card-content h3 {
+    font-size: 16px;
+    margin: 10px 0;
+  }
+  .card-content p {
+    font-size: 14px;
+    color: #555;
+  }
+  .card-content .date {
+    font-size: 12px;
+    color: #999;
+  }
+  .card-content .title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .card-content .description {
+    font-size: 14px;
+    color: #555;
+  }
+
+
+  /*用來控制列的高度*/
+  .spacer::before {
+    content: '';
+    display: block;
+    height: 20px; /* 调整高度以增加更多或更少的空间 */
+}
