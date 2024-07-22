@@ -1,24 +1,14 @@
+<div id="spritespin-preview"></div>
 
-<video controls="true" id="video_player"></video>
-<script src="__CDN__/assets/libs/hls/hls.js"></script>
+
+<script src='https://unpkg.com/spritespin@beta/release/spritespin.js' type='text/javascript'></script>
 <script>
-        var url ='/uploads/ssni288/movie.m3u8';
-        // var url ='/uploads/dcv137/movie.m3u8';
-        // var url ='/uploads/test/playlist.m3u8';
-        // var url ='/uploads/test2/ssis280.m3u8';
-        var video = document.getElementById('video_player');
-        if(Hls.isSupported()) {
-            var hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED,function() {
-                video.play();
-            });
-        }
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = url;
-            video.addEventListener('loadedmetadata',function() {
-                video.play();
-            });
-        }
+    SpriteSpin.create({
+        target: '#spritespin-preview',
+        source: SpriteSpin.source('https://360views.3dmodels.org/original/Yamaha/054_Yamaha_R15_2020/Yamaha_R15_2020_360_1080_200-{frame}.jpg', {
+            frame: [1, 200],
+            digits: 3,
+        })
+    })
+
 </script>
