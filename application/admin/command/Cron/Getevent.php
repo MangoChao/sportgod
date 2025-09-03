@@ -19,7 +19,7 @@ class Getevent extends Command
 {
     protected $taskName = '抓取賽事';
     protected $site = [];
-    protected $gameurl = "https://ag.bl868.net";
+    protected $gameurl = "https://agiv-2.hau888.net";
 
     protected function configure(){
         $this->setName('Getevent')->setDescription("抓取賽事");
