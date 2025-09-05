@@ -77,6 +77,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
         },
         pred:function(){
             Controller.liffinit(function(line_user_id){
+                console.log("call checkrichmenu");
                 let options = {
                     url: Config.url.api+'/line/checkrichmenu/line_user_id/'+line_user_id, 
                     success: function (ret) {
@@ -437,7 +438,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 if(liffContext.userId){
                     $('#line_user_id').val(liffContext.userId);
                     if($('#form_line_user_id')) $('#form_line_user_id').val(liffContext.userId);
-                    // $('#get_uid_loding').hide();
+                    $('#get_uid_loding').hide();
                     $('#content-container').show();
                     
                     if (typeof callback === 'function') {
