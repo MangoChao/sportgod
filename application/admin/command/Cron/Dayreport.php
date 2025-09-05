@@ -26,7 +26,7 @@ class Dayreport extends Command
 {
     protected $taskName = '日結算';
     protected $site = [];
-    protected $gameurl = "https://ag.bl868.net";
+    protected $gameurl = "https://agiv-2.hau888.net";
 
     protected function configure(){
         $this->setName('Dayreport')->setDescription("日結算");
@@ -37,10 +37,11 @@ class Dayreport extends Command
         $this->site = Config::get("site");
         // $this->Eventreport();
         $this->Geteventcat();
-        $this->Titlereport();
-        if(date('w') == 2){
-            $this->Weekreport();
-        }
+        $this->ClearEvent();
+        // $this->Titlereport();
+        // if(date('w') == 2){
+        //     $this->Weekreport();
+        // }
     }
     
     public function Eventreport()
@@ -285,7 +286,6 @@ class Dayreport extends Command
         }
     }
 
-    
     public function Geteventcat()
     {
         try {
@@ -424,7 +424,61 @@ class Dayreport extends Command
             Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
         }
     }
-    
+    /**
+     * 清除 starttime 在 3 個月前的賽事，並關聯刪除 Eventparam
+     */
+    public function ClearEvent()
+    {
+        try {
+            $func_name = 'ClearEvent';
+            $modelEvent = new Event;
+            $modelEventparam = new Eventparam;
+
+            // 以現在為基準往前 3 個月的截止 timestamp（int）
+            // 若你想更明確用「台北時間」去算三個月前，也可先 set timezone 再 strtotime
+            // date_default_timezone_set('Asia/Taipei');
+            $cutoffTs = strtotime('-3 months');
+
+            // 取出需清除的 event_id 清單（用 event_id 關聯）
+            $eventIds = $modelEvent
+                ->where('starttime', '<', $cutoffTs)
+                ->column('event_id');
+
+            if (empty($eventIds)) {
+                Log::notice("[command][Cron][{$func_name}] nothing to delete (cutoff={$cutoffTs}).");
+                return;
+            }
+
+            // 交易 + 分批刪除，避免 IN(...) 過長
+            \think\Db::startTrans();
+            try {
+                $deletedParams = 0;
+                $deletedEvents = 0;
+
+                foreach (array_chunk($eventIds, 1000) as $chunk) {
+                    // 先刪關聯表
+                    $deletedParams += $modelEventparam->where('event_id', 'in', $chunk)->delete();
+                    // 再刪主表
+                    $deletedEvents += $modelEvent->where('event_id', 'in', $chunk)->delete();
+                }
+
+                \think\Db::commit();
+                Log::notice("[command][Cron][{$func_name}] cutoff={$cutoffTs}, events=" . count($eventIds) .
+                            ", eventparam_deleted={$deletedParams}, event_deleted={$deletedEvents}");
+            } catch (\Throwable $ex) {
+                \think\Db::rollback();
+                Log::notice("[command][Cron][{$func_name}] ROLLBACK: " . $ex->getMessage());
+            }
+
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][ClearEvent] ValidateException :" . $e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][ClearEvent] PDOException :" . $e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][ClearEvent] Exception :" . $e->getMessage());
+        }
+    }
+
     public function Titlereport()
     {
         try {
