@@ -77,6 +77,7 @@ class Getevent extends Command
                         $bigscore  = false; //大小
                         $eventdata = [];
                         if(sizeof($content_arr)>0){
+                            $seen = [];  // 本輪已處理過的賽事 key
                             // Log::notice($content_arr);
                             foreach($content_arr as $content_line){
                                 $content_line = trim($content_line);
@@ -94,10 +95,23 @@ class Getevent extends Command
                                     ];
                                 }
                                 if(strpos($content_line, '</tr>') !== false){ //偵測行結束
-                                    $trstart = false; 
+                                    $trstart = false;
                                     $tdrow = 0;
-                                    if(sizeof($eventdata) > 0){
-                                        $this->upEvent($eventdata);
+                                    if (!empty($eventdata)) {
+                                        // 用能唯一識別「同一場」的欄位組 key（與你查 DB 的條件一致）
+                                        $ekey = implode('|', [
+                                            $eventdata['event_category_id'] ?? '',
+                                            trim($eventdata['master'] ?? ''),
+                                            trim($eventdata['guests'] ?? ''),
+                                            $eventdata['starttime'] ?? '',
+                                        ]);
+
+                                        if (empty($seen[$ekey])) {
+                                            $seen[$ekey] = true;          // 記起來：本輪處理過
+                                            $this->upEvent($eventdata);   // 只讓第一筆（最新）進來
+                                        } else {
+                                            // 可選：Log::notice("skip dup ".$ekey);
+                                        }
                                     }
                                     $eventdata = [];
                                 }
@@ -208,7 +222,7 @@ class Getevent extends Command
             $mEvent = $modelEvent->where("event_category_id = '".$data['event_category_id']."' AND master = '".$data['master']."' AND guests = '".$data['guests']."' AND starttime = '".$data['starttime']."' ")->find();
             if($mEvent){
                 if(($mEvent->master_refund != $data['master_refund'] AND $data['master_refund'] != '0') OR 
-                ($mEvent->guests_refund != $data['guests_refund'] AND $data['master_refund'] != '0') OR 
+                ($mEvent->guests_refund != $data['guests_refund'] AND $data['guests_refund'] != '0') OR 
                 ($mEvent->bigscore != $data['bigscore'] AND $data['bigscore'] != '0')){
                     // Log::notice($mEvent->id);
                     // Log::notice($data['master_refund']);
