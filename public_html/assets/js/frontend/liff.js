@@ -426,11 +426,14 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
 
         // },
         liffinit:function(callback){
+            $("#debug_log").html("liffinit...");
             liff.init({liffId: Config.site.liffid}).then(() => {
+                $("#debug_log").html($("#debug_log").html()+"<br>"+"liff.getContext()");
                 var liffContext = liff.getContext();
                 if(Config.suid != '----'){
                     liffContext.userId = Config.suid;
                 }
+                $("#debug_log").html($("#debug_log").html()+"<br>"+"userId:"+liffContext.userId);
                 if(liffContext.userId){
                     $('#line_user_id').val(liffContext.userId);
                     if($('#form_line_user_id')) $('#form_line_user_id').val(liffContext.userId);
@@ -441,7 +444,8 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                         callback(liffContext.userId);
                     }
                 }else{
-                    $('#error_msg').text('發生錯誤');
+                    // $('#error_msg').text('發生錯誤');
+                    $("#debug_log").html($("#debug_log").html()+"<br>"+"發生錯誤");
                     Layer.msg('發生錯誤');
                 }
             });
