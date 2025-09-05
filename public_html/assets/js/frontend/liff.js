@@ -437,7 +437,7 @@ define(['jquery', 'bootstrap', 'frontend', 'form', 'template'], function ($, und
                 if(liffContext.userId){
                     $('#line_user_id').val(liffContext.userId);
                     if($('#form_line_user_id')) $('#form_line_user_id').val(liffContext.userId);
-                    $('#get_uid_loding').hide();
+                    // $('#get_uid_loding').hide();
                     $('#content-container').show();
                     
                     if (typeof callback === 'function') {
