@@ -439,10 +439,10 @@ class Dayreport extends Command
             // date_default_timezone_set('Asia/Taipei');
             $cutoffTs = strtotime('-3 months');
 
-            // 取出需清除的 event_id 清單（用 event_id 關聯）
+            // 取出需清除的 event_id 清單（用 id 關聯）
             $eventIds = $modelEvent
                 ->where('starttime', '<', $cutoffTs)
-                ->column('event_id');
+                ->column('id');
 
             if (empty($eventIds)) {
                 Log::notice("[command][Cron][{$func_name}] nothing to delete (cutoff={$cutoffTs}).");
@@ -459,7 +459,7 @@ class Dayreport extends Command
                     // 先刪關聯表
                     $deletedParams += $modelEventparam->where('event_id', 'in', $chunk)->delete();
                     // 再刪主表
-                    $deletedEvents += $modelEvent->where('event_id', 'in', $chunk)->delete();
+                    $deletedEvents += $modelEvent->where('id', 'in', $chunk)->delete();
                 }
 
                 \think\Db::commit();
