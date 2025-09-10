@@ -17,12 +17,12 @@ class Line extends Api
     protected $noNeedRight = ['*'];
 
     protected $LineBot = null;
-    
+
     protected $webhook_events_type = null;
 
     protected $webhook_replyToken = null;
     protected $webhook_postback_data = null;
-    
+
     //source
     protected $webhook_userId = null;
     protected $webhook_type = null;
@@ -37,30 +37,25 @@ class Line extends Api
     {
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'line_bot']);
-        
+
         $channel_access_token = Config::get("site.line_channel_access_token");
         $this->LineBot = new LineBot($channel_access_token);
     }
-    
+
     public function index()
     {
         $this->success('請求成功');
     }
-    
+
     public function webhook()
     {
         $post = $this->request->post();
-        Log::info('------------------webhook------------------');
-        Log::info($post);
-        Log::info('-------------------------------------------');
-        // $params = [
-        //     'request_to_json' => json_encode($post),
-        // ];
-        // model('Linewebhooklog')::create($params);
-        //紀錄事件
+        // Log::info('------------------webhook------------------');
+        // Log::info($post);
+        // Log::info('-------------------------------------------');
 
         $events = $post['events'] ?? null;
-        if(is_array($events) AND sizeof($events)>0){
+        if (is_array($events) and sizeof($events) > 0) {
             foreach ($events as $e) {
                 $this->webhook_events_type = $e['type'] ?? null;
                 $source = $e['source'] ?? null;
@@ -72,7 +67,7 @@ class Line extends Api
                     $this->webhook_userId = $source['userId'] ?? null;
                     $this->webhook_type = $source['type'] ?? null;
                     $this->webhook_groupId = $source['groupId'] ?? null;
-                    if($this->webhook_userId) $this->checkUser($this->webhook_userId);
+                    if ($this->webhook_userId) $this->checkUser($this->webhook_userId);
 
                     if ($this->webhook_events_type) {
                         switch ($this->webhook_events_type) {
@@ -102,30 +97,34 @@ class Line extends Api
             }
         }
     }
-    
+
     private function webhook_message_event()
     {
         $message = $this->webhook_events_message_text;
         $message_lower = trim(strtolower($message));
+
+        Log::notice("收到指令:" . $message . "");
+        Log::notice("編譯指令:" . $message_lower . "");
         $isSys = true;
         if ($isSys) {
             switch ($message_lower) {
                 default:
-                    $this->sendReplyMessage($message_lower);
+                    // $this->sendReplyMessage($message_lower);
                     break;
-                case "#nuid":
+                case "events":
+                    $eventlist = $this->eventlist();
+                    $this->sendReplyMessage($this->formatEventListForLine($eventlist));
                     break;
                 case "#uid":
                     break;
             }
         } else {
-
         }
     }
-    
+
     private function webhook_postback_event()
     {
-        if($this->webhook_postback_data){
+        if ($this->webhook_postback_data) {
             $postback_data = [];
             parse_str($this->webhook_postback_data, $postback_data);
             Log::notice($postback_data);
@@ -135,32 +134,35 @@ class Line extends Api
             // }
         }
     }
-    
+
     public function checkUser($line_user_id)
     {
         $mUser = model('User')->get(['line_user_id' => $line_user_id, 'status' => 1]);
-        if($mUser){
-
-        }else{
+        if ($mUser) {
+        } else {
             $mUser = model('Userfree')->get(['line_user_id' => $line_user_id]);
-            if(!$mUser){
+            if (!$mUser) {
                 $params = [
                     'line_user_id' => $line_user_id,
                 ];
                 model('Userfree')::create($params);
                 return 0;
-            }else{
+            } else {
                 return 1;
             }
         }
     }
-    
+
     private function sendReplyMessage($reText)
     {
         $messages_obj = [
             [
                 'type' => 'text',
                 'text' => $reText,
+            ],
+            [
+                'type' => 'text',
+                'text' => '測試',
             ]
         ];
         $this->sendReplyMessageCus($messages_obj);
@@ -199,4 +201,122 @@ class Line extends Api
         }
     }
 
+    public function eventlist($cid = 0)
+    {
+        $table_data_list = [];
+        $startdate = date('Y-m-d');
+        $starttime = time();
+        $starttime_next = strtotime($startdate . " +1 day");
+        $day = 1;
+        do {
+            $starttime_fiter = "starttime > " . $starttime . " AND starttime < " . $starttime_next;
+            if ($cid != 0) {
+                $mEvent = model('Event')->where("event_category_id = " . $cid . " AND " . $starttime_fiter)->select();
+            } else {
+                $mEvent = model('Event')->where(" " . $starttime_fiter)->select();
+            }
+            if ($mEvent) {
+                foreach ($mEvent as $v) {
+                    $guests_refund_box = '';
+                    $master_refund_box = '';
+                    if ($v->guests_refund != '') {
+                        if ($v->guests_refund == '0') {
+                            $guests_refund_box = '<span class="refund_box">盤口未開</span>';
+                        } else {
+                            $guests_refund_box = '<span class="refund_box">' . $v->guests_refund . '</span>';
+                        }
+                    } else {
+                        if ($v->master_refund == '0') {
+                            $master_refund_box = '<span class="refund_box">盤口未開</span>';
+                        } else {
+                            $master_refund_box = '<span class="refund_box">' . $v->master_refund . '</span>';
+                        }
+                    }
+                    $v->team_str = '<span class="text-black">' . $v->guests . '</span>&nbsp;' . $guests_refund_box . '<br><span class="text-info">' . $v->master . '</span><span class="text-danger">(主)</span>&nbsp;' . $master_refund_box;
+                    $v->refund_str = '<span class="text-info">' . $v->guests_refund . '&nbsp;</span><br><span class="text-info">' . $v->master_refund . '&nbsp;</span>';
+                    $v->bigscore_str = '<span class="text-info">' . $v->bigscore . '&nbsp;</span><br><span class="text-info">&nbsp;</span>';
+                }
+                $table_data_list[$startdate] = $mEvent;
+            }
+            $starttime = $starttime_next;
+            $startdate = date("Y-m-d", $starttime);
+            $starttime_next = strtotime($startdate . " +1 day");
+            $day++;
+        } while ($day <= 5);
+
+        return $table_data_list;
+    }
+
+    /**
+     * 將 eventlist() 產生的 $table_data_list 轉成 LINE 純文字訊息陣列
+     * - 會自動分段避免超過 LINE 單則 5000 字限制（保守抓 4800）
+     * - 格式：每一天一個大標，底下多場用項目符號，含(主)隊、盤口/大小
+     */
+    function formatEventListForLine(array $table_data_list, int $maxChars = 4800): array
+    {
+        // 將 refund 值正規化：'0' => '未開'，''/null => '-'，其他直接顯示
+        $fmtRefund = function ($val) {
+            if ($val === '0') return '未開';
+            if ($val === '' || $val === null) return '-';
+            return (string)$val;
+        };
+
+        $messages = [];
+        $buf = '';
+
+        if (empty($table_data_list)) {
+            return ['目前無預測'];
+        }
+
+        foreach ($table_data_list as $date => $events) {
+            // 日期抬頭
+            $sectionHeader = "📅 {$date}\n";
+            if (mb_strlen($buf . $sectionHeader, 'UTF-8') > $maxChars) {
+                $messages[] = rtrim($buf);
+                $buf = '';
+            }
+            $buf .= $sectionHeader;
+
+            foreach ($events as $ev) {
+                // 嘗試帶上時間（若資料表有 starttime）
+                $timePart = '';
+                if (isset($ev->starttime) && $ev->starttime) {
+                    $timePart = date('H:i', (int)$ev->starttime) . ' ';
+                }
+
+                // 隊名與主客
+                $guestName  = (string)($ev->guests ?? '');
+                $masterName = (string)($ev->master ?? '');
+                $titleLine  = "• {$timePart}{$guestName} vs {$masterName}(主)\n";
+
+                // 盤口（讓分/賠率等）— 兩邊都顯示，沒有就以「-」或「未開」
+                $guestRefund = $fmtRefund($ev->guests_refund ?? null);
+                $masterRefund = $fmtRefund($ev->master_refund ?? null);
+                $refundLine  = "  盤口：客 {$guestRefund} ／ 主 {$masterRefund}\n";
+
+                // 大小分（若沒有就用「-」）
+                $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
+                $bigLine  = "  大小：{$bigscore}\n";
+
+                $one = $titleLine . $refundLine . $bigLine;
+
+                // 加上空行區隔
+                $one .= "\n";
+
+                if (mb_strlen($buf . $one, 'UTF-8') > $maxChars) {
+                    // 先送出前一段，再把這場塞到新的段落
+                    $messages[] = rtrim($buf);
+                    $buf = $sectionHeader . $one; // 保留抬頭，讓分段後可讀
+                } else {
+                    $buf .= $one;
+                }
+            }
+        }
+
+        if (trim($buf) !== '') {
+            $messages[] = rtrim($buf);
+        }
+
+        return $messages;
+    }
 }
