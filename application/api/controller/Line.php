@@ -74,7 +74,7 @@ class Line extends Api
                     $this->webhook_groupId = $source['groupId'] ?? null;
                     if($this->webhook_userId) $this->checkUser($this->webhook_userId);
 
-                    if ($this->webhook_type and $this->webhook_groupId) {
+                    if ($this->webhook_events_type) {
                         switch ($this->webhook_events_type) {
                             case 'message':
                                 $this->webhook_events_message_id = $e['message']['id'] ?? null;
@@ -108,7 +108,6 @@ class Line extends Api
         $message = $this->webhook_events_message_text;
         $message_lower = trim(strtolower($message));
         $isSys = true;
-
         if ($isSys) {
             switch ($message_lower) {
                 default:
