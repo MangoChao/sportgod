@@ -103,8 +103,8 @@ class Line extends Api
         $message = $this->webhook_events_message_text;
         $message_lower = trim(strtolower($message));
 
-        Log::notice("收到指令:" . $message . "");
-        Log::notice("編譯指令:" . $message_lower . "");
+        // Log::notice("收到指令:" . $message . "");
+        // Log::notice("編譯指令:" . $message_lower . "");
         $isSys = true;
         if ($isSys) {
             switch ($message_lower) {
@@ -112,16 +112,9 @@ class Line extends Api
                     // $this->sendReplyMessage($message_lower);
                     break;
                 case "events":
-                    $eventlist = $this->eventlist();
-                    $textMessages = $this->formatEventListForLine($eventlist);
-                    $replyChunks = array_slice($textMessages, 0, 5);
-                    $messages_obj = [];
-                    foreach ($replyChunks as $txt) {
-                        $messages_obj[] = [
-                            'type' => 'text',
-                            'text' => $txt,
-                        ];
-                    }
+                    $table_data_list = $this->eventlist();
+                    $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 每 bubble 8 場
+                    $messages_obj = array_slice($flexMessages, 0, 5);
                     $this->sendReplyMessageCus($messages_obj);
                     break;
                 case "#uid":
@@ -320,6 +313,139 @@ class Line extends Api
 
         if (trim($buf) !== '') {
             $messages[] = rtrim($buf);
+        }
+
+        return $messages;
+    }
+    /**
+     * 建一列「可點擊的賽事 row」：顯示時間、對戰與盤口/大小；整列可點
+     */
+    function buildEventRowBox($ev): array
+    {
+        $time = (isset($ev->starttime) && $ev->starttime) ? date('H:i', (int)$ev->starttime) : '--:--';
+        $guest = (string)($ev->guests ?? '');
+        $master = (string)($ev->master ?? '');
+        $guestRefund = ($ev->guests_refund ?? '') === '' ? '-' : (string)$ev->guests_refund;
+        $masterRefund = ($ev->master_refund ?? '') === '' ? '-' : (string)$ev->master_refund;
+        $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
+
+        $title = "{$time}  {$guest} vs {$master}(主)";
+        $sub   = "盤口：客 {$guestRefund} ／ 主 {$masterRefund}　大小：{$bigscore}";
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "md",
+            "action" => [
+                "type" => "postback",
+                "label" => "detail",
+                // 這裡帶你資料庫的 event_id（假設欄位是 id）
+                "data" => "event:{$ev->id}|cmd:detail",
+                "displayText" => "{$title}"
+            ],
+            "contents" => [
+                [
+                    "type" => "text",
+                    "text" => $title,
+                    "wrap" => true,
+                    "weight" => "bold",
+                    "size" => "sm"
+                ],
+                [
+                    "type" => "text",
+                    "text" => $sub,
+                    "wrap" => true,
+                    "size" => "xs",
+                    "color" => "#666666"
+                ],
+                ["type" => "separator", "margin" => "md"]
+            ]
+        ];
+    }
+
+    /**
+     * 一天一個 bubble；若當天場次太多，分頁（bubble 標題會顯示 Page 2/3…）
+     * @param string $date  e.g., '2025-09-10'
+     * @param array  $events 該日的 Event 物件陣列
+     * @param int    $rowsPerBubble 每個 bubble 容納幾列（建議 8~10）
+     */
+    function buildDayBubbles(string $date, array $events, int $rowsPerBubble = 8): array
+    {
+        $bubbles = [];
+        $chunks = array_chunk($events, $rowsPerBubble);
+        $totalPages = count($chunks);
+
+        foreach ($chunks as $idx => $chunk) {
+            $page = $idx + 1;
+            $title = "📅 {$date}" . ($totalPages > 1 ? "（Page {$page}/{$totalPages}）" : "");
+            $rows = [];
+            foreach ($chunk as $ev) {
+                $rows[] = $this->buildEventRowBox($ev);
+            }
+            // 去掉最後一個 row 的分隔線，比較漂亮
+            if (!empty($rows)) {
+                $last = &$rows[count($rows) - 1]["contents"];
+                if (!empty($last) && end($last)["type"] === "separator") array_pop($last);
+            }
+
+            $bubbles[] = [
+                "type" => "bubble",
+                "size" => "mega",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => $title,
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "sm",
+                    "contents" => $rows
+                ]
+            ];
+        }
+        return $bubbles;
+    }
+
+    /**
+     * 將 $table_data_list（date => [events...]）轉成「多個 Flex 訊息」
+     * - 每個 Flex 訊息是一個 carousel（最多 10 個 bubbles）
+     * - 回傳為 LINE Messaging API 的 message 陣列（可直接拿去 reply/push）
+     */
+    function tableDataListToFlexMessages(array $table_data_list, int $rowsPerBubble = 8): array
+    {
+        // 先把所有日的 bubbles 串起來
+        $allBubbles = [];
+        foreach ($table_data_list as $date => $events) {
+            if (!is_array($events) || empty($events)) continue;
+            $dayBubbles = $this->buildDayBubbles($date, $events, $rowsPerBubble);
+            $allBubbles = array_merge($allBubbles, $dayBubbles);
+        }
+        if (empty($allBubbles)) {
+            // 沒資料時，回一則簡單文字
+            return [[
+                "type" => "text",
+                "text" => "目前沒有賽事資訊。"
+            ]];
+        }
+
+        // 10 個 bubble 為一個 carousel（LINE 限制）
+        $messages = [];
+        foreach (array_chunk($allBubbles, 10) as $bubblesPage) {
+            $messages[] = [
+                "type" => "flex",
+                "altText" => "賽事清單",
+                "contents" => [
+                    "type" => "carousel",
+                    "contents" => $bubblesPage
+                ]
+            ];
         }
 
         return $messages;
