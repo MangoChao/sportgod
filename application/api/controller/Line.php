@@ -113,7 +113,16 @@ class Line extends Api
                     break;
                 case "events":
                     $eventlist = $this->eventlist();
-                    $this->sendReplyMessage($this->formatEventListForLine($eventlist));
+                    $textMessages = $this->formatEventListForLine($eventlist);
+                    $replyChunks = array_slice($textMessages, 0, 5);
+                    $messages_obj = [];
+                    foreach ($replyChunks as $txt) {
+                        $messages_obj[] = [
+                            'type' => 'text',
+                            'text' => $txt,
+                        ];
+                    }
+                    $this->sendReplyMessageCus($messages_obj);
                     break;
                 case "#uid":
                     break;
@@ -159,10 +168,6 @@ class Line extends Api
             [
                 'type' => 'text',
                 'text' => $reText,
-            ],
-            [
-                'type' => 'text',
-                'text' => '測試',
             ]
         ];
         $this->sendReplyMessageCus($messages_obj);
@@ -242,7 +247,7 @@ class Line extends Api
             $startdate = date("Y-m-d", $starttime);
             $starttime_next = strtotime($startdate . " +1 day");
             $day++;
-        } while ($day <= 5);
+        } while ($day <= 1);
 
         return $table_data_list;
     }
