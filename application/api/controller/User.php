@@ -8,6 +8,9 @@ use app\common\library\Sms;
 use fast\Random;
 use think\Validate;
 use think\Log;
+use think\Exception;
+use think\exception\PDOException;
+use think\exception\ValidateException;
 
 /**
  * 会员接口
@@ -827,7 +830,7 @@ class User extends Api
         return $mPred;
     }
     
-    public function predEvent($mEvent = false, $pred_type = 1)
+    public function predEvent($mEvent = null, $pred_type = 1)
     {
         if($mEvent){
             $randomPred = [
@@ -1182,37 +1185,6 @@ class User extends Api
 
         Sms::flush($mobile, 'changemobile');
         $this->success();
-    }
-
-    /**
-     * 第三方登录
-     *
-     * @param string $platform 平台名称
-     * @param string $code     Code码
-     */
-    public function third()
-    {
-        $url = url('user/index');
-        $platform = $this->request->request("platform");
-        $code = $this->request->request("code");
-        $config = get_addon_config('third');
-        if (!$config || !isset($config[$platform])) {
-            $this->error(__('Invalid parameters'));
-        }
-        $app = new \addons\third\library\Application($config);
-        //通过code换access_token和绑定会员
-        $result = $app->{$platform}->getUserInfo(['code' => $code]);
-        if ($result) {
-            $loginret = \addons\third\library\Service::connect($platform, $result);
-            if ($loginret) {
-                $data = [
-                    'userinfo'  => $this->auth->getUserinfo(),
-                    'thirdinfo' => $result
-                ];
-                $this->success(__('Logged in successful'), $data);
-            }
-        }
-        $this->error(__('Operation failed'), $url);
     }
 
     /**
