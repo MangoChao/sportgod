@@ -38,7 +38,6 @@ class Line extends Api
     
     public function webhook()
     {
-        exit;
         $post = $this->request->post();
         Log::info('------------------webhook------------------');
         Log::info($post);
