@@ -100,99 +100,14 @@ class User extends Api
         $this->success('已套用稱號');
     }
 
-    public function pred(){
+    public function pred($id = null, $paramsRefund = [], $paramsBigs = [], $line = false){
         Log::init(['type' => 'File', 'log_name' => 'pred']);
-
         if(!$this->auth->id){
             $this->error('請先登入');
         }
-        $mUser = model('User')->get(['id'=> $this->auth->id, 'status'=> 1]);
-        if(!$mUser){
-            $this->error('無權操作');
-        }
-
-        $params_refund = $this->request->post("refund/a", []);
-        $params_bigs = $this->request->post("bigs/a", []);
-        Log::notice($params_bigs);
-
-        $mAnalyst = model('Analyst')->where('user_id = '.$this->auth->id)->find();
-        if(!$mAnalyst){
-            $params = [
-                'user_id' => $this->auth->id,
-                'analyst_name' => $mUser->nickname,
-                'avatar' => $mUser->avatar,
-                'status' => 1,
-                'admin_id' => 0,
-                'autopred' => 0,
-                'free' => 1,
-            ];
-            $mAnalyst = model('Analyst')::create($params);
-        }
-
-        if(sizeof($params_refund) > 0){
-            foreach($params_refund as $k=>$v){
-                $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
-                if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 2")->find();
-                    if($mPred){
-                        $mPred->master_refund = $mEvent->master_refund;
-                        $mPred->guests_refund = $mEvent->guests_refund;
-                        $mPred->bigscore = $mEvent->bigscore;
-                        $mPred->winteam = $v;
-                        $mPred->save();
-                    }else{
-                        $params = [
-                            'event_id' => $mEvent->id,
-                            'analyst_id' => $mAnalyst->id,
-                            'winteam' => $v,
-                            'master_refund' => $mEvent->master_refund,
-                            'guests_refund' => $mEvent->guests_refund,
-                            'bigscore' => $mEvent->bigscore,
-                            'isauto' => 0,
-                            'comply' => 0,
-                            'pred_type' => 2,
-                            'predtime' => time()
-                        ];
-                        $mPred = model('Pred')::create($params);
-                    }
-                }else{
-                    Log::notice("[".__METHOD__."] 查無賽事");
-                }
-            }
-        }
-        
-        if(sizeof($params_bigs) > 0){
-            foreach($params_bigs as $k=>$v){
-                $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
-                if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 1")->find();
-                    if($mPred){
-                        $mPred->master_refund = $mEvent->master_refund;
-                        $mPred->guests_refund = $mEvent->guests_refund;
-                        $mPred->bigscore = $mEvent->bigscore;
-                        $mPred->bigsmall = $v;
-                        $mPred->save();
-                    }else{
-                        $params = [
-                            'event_id' => $mEvent->id,
-                            'analyst_id' => $mAnalyst->id,
-                            'bigsmall' => $v,
-                            'master_refund' => $mEvent->master_refund,
-                            'guests_refund' => $mEvent->guests_refund,
-                            'bigscore' => $mEvent->bigscore,
-                            'isauto' => 0,
-                            'comply' => 0,
-                            'pred_type' => 1,
-                            'predtime' => time()
-                        ];
-                        $mPred = model('Pred')::create($params);
-                    }
-                }else{
-                    Log::notice("[".__METHOD__."] 查無賽事");
-                }
-            }
-        }
-
+        $paramsRefund = $this->request->post("refund/a", []);
+        $paramsBigs = $this->request->post("bigs/a", []);
+        parent::pred($this->auth->id, $paramsRefund, $paramsBigs, $line);
         $this->success('預測完成');
     }
 

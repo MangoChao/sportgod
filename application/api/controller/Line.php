@@ -183,26 +183,17 @@ class Line extends Api
                     return;
                 }
 
-                // 可選：開賽前鎖（這裡先示範 60 秒前鎖）
-                $ev = model('Event')->find($eventId);
-                if ($ev && isset($ev->starttime) && time() >= ((int)$ev->starttime - 60)) {
-                    $this->sendReplyMessage("⛔ 已進入開賽前鎖定時間，無法送出。");
-                    return;
+                // 轉成 pred() 需要的兩個陣列
+                [$paramsRefund, $paramsBigs] = $this->buildPredParamsFromState($eventId, $state);
+
+                $res = $this->createPred($userId, $paramsRefund, $paramsBigs);
+                if ($res) {
+                    $replyMessage = "✅ 已送出你的預測！(event:{$eventId})";
+                } else {
+                    $replyMessage = "預測失敗, 請聯絡客服";
                 }
-
-                // 寫 DB（你專案有自己的 DB 包裝可替換）
-                $now = time();
-                $winnerSql = ($winner !== '') ? "'{$winner}'" : "NULL";
-                $totalSql  = ($total  !== '') ? "'{$total}'"   : "NULL";
-                $sql = "
-                INSERT INTO user_prediction (user_id, event_id, winner, total, created_at, updated_at)
-                VALUES (?, ?, {$winnerSql}, {$totalSql}, ?, ?)
-                ON DUPLICATE KEY UPDATE winner = VALUES(winner), total = VALUES(total), updated_at = VALUES(updated_at)
-            ";
-                db()->query($sql, [$userId, $eventId, $now, $now]);
-
                 $this->clearPredState($userId, $eventId);
-                $this->sendReplyMessage("✅ 已送出你的預測！(event:{$eventId})");
+                $this->sendReplyMessage($replyMessage);
                 break;
 
             default:
@@ -223,16 +214,16 @@ class Line extends Api
         return "🎯 選擇預測\n{$title}\n勝負：{$w}　大小：{$t}\n（可繼續點下方按鈕切換，完成後按「送出」）";
     }
 
-private function replyWithQuickReply(string $text, int $eventId): void
-{
-    // 你已經有 sendReplyMessageCus()，可以直接用它送含 quickReply 的訊息
-    $messages_obj = [[
-        "type" => "text",
-        "text" => $text,
-        "quickReply" => $this->quickReplyForPrediction($eventId)
-    ]];
-    $this->sendReplyMessageCus($messages_obj);
-}
+    private function replyWithQuickReply(string $text, int $eventId): void
+    {
+        // 你已經有 sendReplyMessageCus()，可以直接用它送含 quickReply 的訊息
+        $messages_obj = [[
+            "type" => "text",
+            "text" => $text,
+            "quickReply" => $this->quickReplyForPrediction($eventId)
+        ]];
+        $this->sendReplyMessageCus($messages_obj);
+    }
 
     public function checkUser($line_user_id)
     {
@@ -537,62 +528,105 @@ private function replyWithQuickReply(string $text, int $eventId): void
         return $messages;
     }
 
-private function quickReplyForPrediction(int $eventId): array
-{
-    $mk = function($label, $data) {
+    private function quickReplyForPrediction(int $eventId): array
+    {
+        $mk = function ($label, $data) {
+            return [
+                "type" => "action",
+                "action" => [
+                    "type" => "postback",
+                    "label" => $label,
+                    "data"  => $data,
+                    "displayText" => $label
+                ]
+            ];
+        };
+
         return [
-            "type" => "action",
-            "action" => [
-                "type" => "postback",
-                "label" => $label,
-                "data"  => $data,
-                "displayText" => $label
+            "items" => [
+                $mk("主勝",  "cmd=toggle&event={$eventId}&type=winner&value=home"),
+                $mk("客勝",  "cmd=toggle&event={$eventId}&type=winner&value=away"),
+                $mk("大分",  "cmd=toggle&event={$eventId}&type=total&value=over"),
+                $mk("小分",  "cmd=toggle&event={$eventId}&type=total&value=under"),
+                $mk("清除",  "cmd=clear&event={$eventId}"),
+                $mk("送出",  "cmd=submit&event={$eventId}")
             ]
         ];
-    };
-
-    return [
-        "items" => [
-            $mk("主勝",  "cmd=toggle&event={$eventId}&type=winner&value=home"),
-            $mk("客勝",  "cmd=toggle&event={$eventId}&type=winner&value=away"),
-            $mk("大分",  "cmd=toggle&event={$eventId}&type=total&value=over"),
-            $mk("小分",  "cmd=toggle&event={$eventId}&type=total&value=under"),
-            $mk("清除",  "cmd=clear&event={$eventId}"),
-            $mk("送出",  "cmd=submit&event={$eventId}")
-        ]
-    ];
-}
+    }
 
     private function predKey(string $userId, int $eventId): string
-{
-    return "pred:session:{$userId}:{$eventId}";
-}
+    {
+        return "pred:session:{$userId}:{$eventId}";
+    }
 
-private function getPredState(string $userId, int $eventId): array
-{
-    $redis = getRedis();
-    $h = $redis->hGetAll($this->predKey($userId, $eventId)) ?: [];
-    return [
-        'winner' => $h['winner'] ?? '',
-        'total'  => $h['total']  ?? '',
-    ];
-}
+    private function getPredState(string $userId, int $eventId): array
+    {
+        $redis = getRedis();
+        $h = $redis->hGetAll($this->predKey($userId, $eventId)) ?: [];
+        return [
+            'winner' => $h['winner'] ?? '',
+            'total'  => $h['total']  ?? '',
+        ];
+    }
 
-private function setPredState(string $userId, int $eventId, array $state): void
-{
-    $redis = getRedis();
-    $key = $this->predKey($userId, $eventId);
-    $redis->hMset($key, [
-        'winner' => $state['winner'] ?? '',
-        'total'  => $state['total']  ?? '',
-        'ts'     => time(),
-    ]);
-    $redis->expire($key, 1800); // 30 分鐘
-}
+    private function setPredState(string $userId, int $eventId, array $state): void
+    {
+        $redis = getRedis();
+        $key = $this->predKey($userId, $eventId);
+        $redis->hMset($key, [
+            'winner' => $state['winner'] ?? '',
+            'total'  => $state['total']  ?? '',
+            'ts'     => time(),
+        ]);
+        $redis->expire($key, 1800); // 30 分鐘
+    }
 
-private function clearPredState(string $userId, int $eventId): void
-{
-    $redis = getRedis();
-    $redis->del($this->predKey($userId, $eventId));
-}
+    private function clearPredState(string $userId, int $eventId): void
+    {
+        $redis = getRedis();
+        $redis->del($this->predKey($userId, $eventId));
+    }
+
+    // 將 getPredState() 的 winner/total 轉成 DB 需要的 1/0
+    private function buildPredParamsFromState(int $eventId, array $state): array
+    {
+        $paramsRefund = [];
+        $paramsBigs   = [];
+
+        // 勝負 winner: 'home' | 'away' | ''
+        if (!empty($state['winner'])) {
+            // home = 1（主場）、away = 0（客場）
+            $paramsRefund[$eventId] = ($state['winner'] === 'home') ? 1 : 0;
+        }
+
+        // 大小 total: 'over' | 'under' | ''
+        if (!empty($state['total'])) {
+            // over = 1（大）、under = 0（小）
+            $paramsBigs[$eventId] = ($state['total'] === 'over') ? 1 : 0;
+        }
+
+        return [$paramsRefund, $paramsBigs];
+    }
+
+    private function createPred($userId, $paramsRefund, $paramsBigs)
+    {
+        try {
+            $m = model('UserFree')->where('line_user_id', $userId)->find();
+            if (!$m) {
+                Log::notice("UserFree 查無");
+                return false;
+            }
+            $this->pred($m->id, $paramsRefund, $paramsBigs, true);
+        } catch (ValidateException $e) {
+            Log::notice("ValidateException :" . $e->getMessage());
+            return false;
+        } catch (PDOException $e) {
+            Log::notice("PDOException :" . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::notice("Exception :" . $e->getMessage());
+            return false;
+        }
+        return true;
+    }
 }
