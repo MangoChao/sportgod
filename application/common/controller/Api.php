@@ -454,7 +454,7 @@ class Api
             foreach($paramsRefund as $k=>$v){
                 $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
                 if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 2")->find();
+                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 1")->find();
                     if($mPred){
                         $mPred->master_refund = $mEvent->master_refund;
                         $mPred->guests_refund = $mEvent->guests_refund;
@@ -471,7 +471,7 @@ class Api
                             'bigscore' => $mEvent->bigscore,
                             'isauto' => 0,
                             'comply' => 0,
-                            'pred_type' => 2,
+                            'pred_type' => 1,
                             'predtime' => time()
                         ];
                         $mPred = model('Pred')::create($params);
@@ -486,7 +486,7 @@ class Api
             foreach($paramsBigs as $k=>$v){
                 $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
                 if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 1")->find();
+                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 2")->find();
                     if($mPred){
                         $mPred->master_refund = $mEvent->master_refund;
                         $mPred->guests_refund = $mEvent->guests_refund;
@@ -503,7 +503,7 @@ class Api
                             'bigscore' => $mEvent->bigscore,
                             'isauto' => 0,
                             'comply' => 0,
-                            'pred_type' => 1,
+                            'pred_type' => 2,
                             'predtime' => time()
                         ];
                         $mPred = model('Pred')::create($params);
