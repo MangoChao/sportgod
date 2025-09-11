@@ -49,6 +49,7 @@ class Line extends Api
 
     public function webhook()
     {
+        $this->request->filter([]);
         $post = $this->request->post();
         Log::info('------------------webhook------------------');
         Log::info($post);
@@ -274,11 +275,6 @@ private function replyWithQuickReply(string $text, int $eventId): void
         Log::notice('response_sendReplyMessage:');
         Log::notice($response_sendReplyMessage);
         Log::notice('-------------------------------------------');
-        if (is_array($response_sendReplyMessage) and sizeof($response_sendReplyMessage) == 0) {
-            Log::notice('回應成功');
-        } else {
-            Log::notice('回應失敗');
-        }
     }
 
 
@@ -288,11 +284,6 @@ private function replyWithQuickReply(string $text, int $eventId): void
         Log::notice('response_sendReplyMessage:');
         Log::notice($response_sendReplyMessage);
         Log::notice('-------------------------------------------');
-        if (is_array($response_sendReplyMessage) and sizeof($response_sendReplyMessage) == 0) {
-            Log::notice('回應成功');
-        } else {
-            Log::notice('回應失敗');
-        }
     }
 
     public function eventlist($cid = 0)
