@@ -49,6 +49,10 @@ class Line extends Api
 
     public function webhook()
     {
+        $redis = getRedis();
+        $redis->set("test","789");
+        echo $redis->get("test");
+        return;
         $post = $this->request->post();
         // Log::info('------------------webhook------------------');
         // Log::info($post);
@@ -111,9 +115,9 @@ class Line extends Api
                 default:
                     // $this->sendReplyMessage($message_lower);
                     break;
-                case "events":
+                case "賽事":
                     $table_data_list = $this->eventlist();
-                    $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 每 bubble 8 場
+                    $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
                     $messages_obj = array_slice($flexMessages, 0, 5);
                     $this->sendReplyMessageCus($messages_obj);
                     break;

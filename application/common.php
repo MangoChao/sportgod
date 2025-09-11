@@ -608,3 +608,26 @@ if (!function_exists('getTimeDescribe')) {
 
     }
 }
+
+$GLOBALS['redis'] = redisInit();
+function redisInit()
+{
+    $redis = null;
+    if (extension_loaded('redis')) {
+        $redisConfig = \think\Config::get("redis");
+        if($redisConfig){
+            $redisClass = new \app\common\library\token\driver\Redis($redisConfig);
+            $redis = $redisClass->handler();
+        }
+    }else{
+        // \think\Log::notice("need redis");
+    }
+    return $redis;
+}
+
+if (!function_exists('getRedis')) {
+    function getRedis()
+    {
+        return $GLOBALS['redis'];
+    }
+}

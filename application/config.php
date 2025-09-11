@@ -18,7 +18,7 @@ return [
     // 应用命名空间
     'app_namespace'          => 'app',
     // 应用调试模式
-    'app_debug'              => Env::get('app.debug', true),
+    'app_debug'              => Env::get('app.debug', false),
     // 应用Trace
     'app_trace'              => Env::get('app.trace', false),
     // 应用模式状态
@@ -216,6 +216,11 @@ return [
         'httponly'  => '',
         // 是否使用 setcookie
         'setcookie' => true,
+    ],
+    'redis' => [
+        'host'        => '127.0.0.1',
+        'port'        => 6379,
+        'password'    => '123456'
     ],
     //分页配置
     'paginate'               => [
