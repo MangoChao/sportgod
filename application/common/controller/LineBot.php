@@ -44,12 +44,12 @@ class LineBot
         return $this->chResponse($response);
     }
 
-    public function deleteRichMenu($rich_menu_id){
-        $url = 'https://api.line.me/v2/bot/richmenu/'.$rich_menu_id;
-        $params = [];
-        $response = Http::delete($url, json_encode($params), $this->http_options);
-        return $this->chResponse($response);
-    }
+    // public function deleteRichMenu($rich_menu_id){
+    //     $url = 'https://api.line.me/v2/bot/richmenu/'.$rich_menu_id;
+    //     $params = [];
+    //     $response = Http::delete($url, json_encode($params), $this->http_options);
+    //     return $this->chResponse($response);
+    // }
     
     public function uploadRichMenuImage($rich_menu_id, $img_url){
         $url = 'https://api-data.line.me/v2/bot/richmenu/'.$rich_menu_id.'/content';
@@ -97,12 +97,12 @@ class LineBot
         return $this->chResponse($response);
     }
     
-    public function unlinkRichMenuFromUser($user_id){
-        $url = 'https://api.line.me/v2/bot/user/'.$user_id.'/richmenu';
-        $params = [];
-        $response = Http::delete($url, json_encode($params), $this->http_options);
-        return $this->chResponse($response);
-    }
+    // public function unlinkRichMenuFromUser($user_id){
+    //     $url = 'https://api.line.me/v2/bot/user/'.$user_id.'/richmenu';
+    //     $params = [];
+    //     $response = Http::delete($url, json_encode($params), $this->http_options);
+    //     return $this->chResponse($response);
+    // }
     
     public function sendReplyMessage($replyToken, $messages){
         $url = 'https://api.line.me/v2/bot/message/reply';
