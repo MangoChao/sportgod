@@ -330,12 +330,12 @@ class Line extends Api
                 ];
             }
             // 依 pred_type 寫入；較新的 predtime 覆蓋較舊的
-            if ((int)$r->pred_type === 2) { // 勝負
+            if ((int)$r->pred_type === 1) { // 勝負
                 if ($r->predtime >= $byEvent[$eid]['_win_predtime']) {
                     $byEvent[$eid]['winteam']       = $r->winteam;
                     $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
                 }
-            } elseif ((int)$r->pred_type === 1) { // 大小
+            } elseif ((int)$r->pred_type === 2) { // 大小
                 if ($r->predtime >= $byEvent[$eid]['_big_predtime']) {
                     $byEvent[$eid]['bigsmall']      = $r->bigsmall;
                     $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
