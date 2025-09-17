@@ -112,6 +112,10 @@ class Line extends Api
                 default:
                     // $this->sendReplyMessage($message_lower);
                     break;
+                case "1":
+                    $messages_obj = $this->buildMainMenuFlex();
+                    $this->sendReplyMessageCus($messages_obj);
+                    break;
                 case "賽事":
                     $table_data_list = $this->eventlist();
                     $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
@@ -124,6 +128,7 @@ class Line extends Api
         } else {
         }
     }
+
     public function webhook_postback_event()
     {
         $data = $this->webhook_postback_data ?? '';
@@ -145,7 +150,7 @@ class Line extends Api
                 $msg = $this->buildPreviewText($eventId, '', '');
                 $this->replyWithQuickReply($msg, $eventId);
                 break;
-
+                
             case 'toggle':
                 $type  = $p['type']  ?? '';
                 $value = $p['value'] ?? '';
@@ -200,6 +205,81 @@ class Line extends Api
                 $this->sendReplyMessage("尚未支援的操作。");
                 break;
         }
+    }
+
+    private function buildMainMenuFlex(): array
+    {
+        return [[
+            "type" => "flex",
+            "altText" => "主選單",
+            "contents" => [
+                "type" => "bubble",
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "md",
+                    "contents" => [
+                        ["type" => "text", "text" => "🏁 開始使用", "weight" => "bold", "size" => "lg"],
+                        ["type" => "separator", "margin" => "sm"],
+                        // 勝率排行榜
+                        [
+                            "type" => "button",
+                            "style" => "primary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "勝率排行榜",
+                                "data"  => json_encode(["cmd" => "menu", "action" => "winrate"], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "勝率排行榜"
+                            ]
+                        ],
+                        // 獲利排行榜
+                        [
+                            "type" => "button",
+                            "style" => "primary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "獲利排行榜",
+                                "data"  => json_encode(["cmd" => "menu", "action" => "profit"], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "獲利排行榜"
+                            ]
+                        ],
+                        // 我的預測
+                        [
+                            "type" => "button",
+                            "style" => "secondary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "我的預測",
+                                "data"  => json_encode(["cmd" => "menu", "action" => "mine"], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "我的預測"
+                            ]
+                        ],
+                        // 預測結果
+                        [
+                            "type" => "button",
+                            "style" => "secondary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "預測結果",
+                                "data"  => json_encode(["cmd" => "menu", "action" => "results"], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "預測結果"
+                            ]
+                        ],
+                        // 活動圖
+                        [
+                            "type" => "button",
+                            "style" => "secondary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "活動圖",
+                                "data"  => json_encode(["cmd" => "menu", "action" => "heatmap"], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "活動圖"
+                            ]
+                        ],
+                    ]
+                ]
+            ]
+        ]];
     }
 
     private function buildPreviewText(int $eventId, string $winner, string $total): string

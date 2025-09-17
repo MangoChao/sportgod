@@ -433,6 +433,7 @@ class Dayreport extends Command
             $func_name = 'ClearEvent';
             $modelEvent = new Event;
             $modelEventparam = new Eventparam;
+            $modelPred = new Pred;
 
             // 以現在為基準往前 3 個月的截止 timestamp（int）
             // 若你想更明確用「台北時間」去算三個月前，也可先 set timezone 再 strtotime
