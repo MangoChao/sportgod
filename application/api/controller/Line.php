@@ -131,12 +131,12 @@ class Line extends Api
 
     public function webhook_postback_event()
     {
-        $data = $this->webhook_postback_data ?? '';
-        $p = [];
-        parse_str($data, $p); // 這裡因為我們用 cmd=...&event=...，可直接 parse
+        $raw = $this->webhook_postback_data ?? '';
+        $p = json_decode($raw, true);
 
         $cmd = $p['cmd'] ?? null;
         $eventId = isset($p['event']) ? (int)$p['event'] : 0;
+        $action  = $p['action'] ?? null;
         $userId = $this->webhook_userId;
 
         if (!$userId || !$eventId) {
@@ -145,12 +145,15 @@ class Line extends Api
         }
 
         switch ($cmd) {
+            case 'menu':
+                $this->handleMainMenuAction($action);
+                return;
             case 'pick':
                 $this->setPredState($userId, $eventId, ['winner' => '', 'total' => '']);
                 $msg = $this->buildPreviewText($eventId, '', '');
                 $this->replyWithQuickReply($msg, $eventId);
                 break;
-                
+
             case 'toggle':
                 $type  = $p['type']  ?? '';
                 $value = $p['value'] ?? '';
@@ -207,6 +210,57 @@ class Line extends Api
         }
     }
 
+    // 主選單分流：這裡只先實作 'mine'，其他 action 可再補
+    private function handleMainMenuAction(?string $action): void
+    {
+        switch ($action) {
+            case 'mine':
+                // 就像之前輸入「賽事」那條路徑：列出賽事清單，讓用戶點賽事開始預測
+                $this->sendTodayEventsList(); // ←看下面方法
+                return;
+
+            case 'winrate':
+            case 'profit':
+            case 'results':
+            case 'heatmap':
+                // 先回占位文字，之後你再換成實作
+                $this->sendReplyMessageCus([[
+                    "type" => "text",
+                    "text" => "功能開發中：{$action}"
+                ]]);
+                return;
+
+            default:
+                // 回主選單
+                $messages_obj = $this->buildMainMenuFlex();
+                $this->sendReplyMessageCus($messages_obj);
+                return;
+        }
+    }
+
+    /**
+     * 送出「今天（或你原本 eventlist 設定的日數）」的賽事清單
+     * 行為與你之前輸入「賽事」時相同
+     */
+    private function sendTodayEventsList(int $cid = 0): void
+    {
+        $table_data_list = $this->eventlist($cid);
+
+        if (empty($table_data_list)) {
+            $this->sendReplyMessage($this->webhook_replyToken, [[
+                "type" => "text",
+                "text" => "今天暫無賽事。"
+            ]]);
+            return;
+        }
+
+        // 每個 bubble 8 場，可調
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8);
+        // 一次 reply 最多 5 則
+        $messages_obj = array_slice($flexMessages, 0, 5);
+        $this->sendReplyMessageCus($messages_obj);
+    }
+
     private function buildMainMenuFlex(): array
     {
         return [[
@@ -219,7 +273,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "spacing" => "md",
                     "contents" => [
-                        ["type" => "text", "text" => "🏁 開始使用", "weight" => "bold", "size" => "lg"],
+                        ["type" => "text", "text" => "選單", "weight" => "bold", "size" => "lg"],
                         ["type" => "separator", "margin" => "sm"],
                         // 勝率排行榜
                         [
