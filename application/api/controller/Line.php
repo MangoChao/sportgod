@@ -548,6 +548,7 @@ class Line extends Api
 
         return $messages;
     }
+
     /**
      * 建一列「可點擊的賽事 row」：顯示時間、對戰與盤口/大小；整列可點
      */
@@ -571,8 +572,12 @@ class Line extends Api
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
-                "data" => "cmd=pick&event={$ev->id}",
-                "displayText" => "{$title}"
+                // JSON 格式，避免 &amp; 問題
+                "data" => json_encode([
+                    "cmd"   => "pick",
+                    "event" => (int)$ev->id
+                ], JSON_UNESCAPED_UNICODE),
+                "displayText" => $title
             ],
             "contents" => [
                 [
