@@ -303,7 +303,7 @@ class Line extends Api
 
         // 連 Event 取隊名與時間；依你實際 ORM 寫法微調
         $list = model('Pred')->alias('p')
-            ->join('Event e', 'e.id = p.event_id')
+            ->join('event e', 'e.id = p.event_id')
             ->where('p.analyst_id = ' . $analystId . ' AND e.starttime >= ' . $start . ' AND e.starttime < ' . $end)
             ->order('e.starttime asc')
             ->select();
