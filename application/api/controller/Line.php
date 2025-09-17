@@ -274,49 +274,87 @@ class Line extends Api
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
         $myPredMsgs = [];
         if ($analystId) {
-            $preds = $this->fetchTodayMyPreds($analystId);
-            $myPredMsgs = $this->buildMyPredsBubble($preds); // 這裡回傳的是 [ 一則 flex ]
+            $combined = $this->fetchTodayMyPredsCombined($analystId);
+            $myPredMsgs = $this->buildMyPredsBubbleCombined($combined); // 一則 flex
         }
 
-        // 3) 合併，尊重 LINE 一次最多 5 則
+        // 3) 合併並尊重「一次最多 5 則」
         $messages = $flexMessages;
-        // 預留 1 格給我的預測
         $maxForList = 5 - (empty($myPredMsgs) ? 0 : count($myPredMsgs));
         if ($maxForList < 0) $maxForList = 0;
 
         $messages = array_slice($messages, 0, $maxForList);
         if (!empty($myPredMsgs)) {
-            // 放在最後一則
-            foreach ($myPredMsgs as $m) {
-                $messages[] = $m;
-            }
+            foreach ($myPredMsgs as $m) { $messages[] = $m; }
         }
 
         // 4) 送出
         $this->sendReplyMessageCus($messages);
     }
 
-    private function fetchTodayMyPreds(int $analystId): array
+    /**
+     * 取「今天」我的預測，並把同一場的 pred_type=1/2 合併
+     * - 以 predtime 較新者覆蓋同類型
+     * - 回傳為已合併的列表，依開賽時間排序
+     */
+    private function fetchTodayMyPredsCombined(int $analystId): array
     {
         $start = strtotime('today');
         $end   = strtotime('tomorrow');
 
-        // 連 Event 取隊名與時間；依你實際 ORM 寫法微調
-        $list = model('Pred')->alias('p')
-            ->join('event e', 'e.id = p.event_id')
+        // 把今天該分析師所有（大小/勝負）都抓出來
+        $rows = model('Pred')->alias('p')
+            ->join('Event e', 'e.id = p.event_id')
             ->where('p.analyst_id = ' . $analystId . ' AND e.starttime >= ' . $start . ' AND e.starttime < ' . $end)
-            ->order('e.starttime asc')
+            ->order('p.predtime desc')              // 讓較新的排前面，方便合併時「新覆蓋舊」
             ->select();
 
-        return $list ?: [];
+        if (!$rows) return [];
+
+        // 合併：以 event_id 為 key
+        $byEvent = [];
+        foreach ($rows as $r) {
+            $eid = (int)$r->event_id;
+            if (!isset($byEvent[$eid])) {
+                $byEvent[$eid] = [
+                    'event_id'     => $eid,
+                    'starttime'    => (int)$r->starttime,
+                    'guests'       => (string)$r->guests,
+                    'master'       => (string)$r->master,
+                    // 兩種預測，初始化為 null
+                    'winteam'      => null,  // 1=主、0=客
+                    'bigsmall'     => null,  // 1=大、0=小
+                    // 記錄各自最新的 predtime
+                    '_win_predtime' => 0,
+                    '_big_predtime' => 0,
+                ];
+            }
+            // 依 pred_type 寫入；較新的 predtime 覆蓋較舊的
+            if ((int)$r->pred_type === 2) { // 勝負
+                if ($r->predtime >= $byEvent[$eid]['_win_predtime']) {
+                    $byEvent[$eid]['winteam']       = $r->winteam;
+                    $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
+                }
+            } elseif ((int)$r->pred_type === 1) { // 大小
+                if ($r->predtime >= $byEvent[$eid]['_big_predtime']) {
+                    $byEvent[$eid]['bigsmall']      = $r->bigsmall;
+                    $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
+                }
+            }
+        }
+
+        // 轉成索引陣列並依開賽時間排序
+        $list = array_values($byEvent);
+        usort($list, function ($a, $b) {
+            return ($a['starttime'] <=> $b['starttime']);
+        });
+
+        return $list;
     }
 
-    private function buildMyPredsBubble(array $preds): array
+    private function buildMyPredsBubbleCombined(array $combined): array
     {
-        $rows = [];
-
-        if (empty($preds)) {
-            // 沒有預測就回一個簡短的 bubble
+        if (empty($combined)) {
             return [[
                 "type" => "flex",
                 "altText" => "我的今日預測",
@@ -347,18 +385,17 @@ class Line extends Api
             ]];
         }
 
-        foreach ($preds as $p) {
-            $time  = isset($p->starttime) ? date('H:i', (int)$p->starttime) : '--:--';
-            $title = "{$time}  {$p->guests} vs {$p->master}(主)";
+        $rows = [];
+        foreach ($combined as $it) {
+            $time  = $it['starttime'] ? date('H:i', (int)$it['starttime']) : '--:--';
+            $title = "{$time}  {$it['guests']} vs {$it['master']}(主)";
 
-            // 可能 Pred 只下了其中一種，另一個為 NULL
-            $winnerText = isset($p->winteam) && $p->winteam !== '' && $p->winteam !== null
-                ? (($p->winteam == 1) ? '主勝' : '客勝')
-                : '未選';
+            // 你的 enum：winteam 1=主、0=客；bigsmall 1=大、0=小
+            $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
+                : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
 
-            $totalText = isset($p->bigsmall) && $p->bigsmall !== '' && $p->bigsmall !== null
-                ? (($p->bigsmall == 1) ? '大分' : '小分')
-                : '未選';
+            $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
+                : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
 
             $sub = "勝負：{$winnerText}　大小：{$totalText}";
 
@@ -371,20 +408,19 @@ class Line extends Api
                     ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
                     ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
                 ],
-                //（可選）提供「修改」入口：點了再進 pick 流程
+                // （可選）給一鍵修改入口
                 // "action" => [
-                //     "type" => "postback",
-                //     "label" => "修改",
-                //     "data"  => json_encode(["cmd"=>"pick","event"=>(int)$p->event_id], JSON_UNESCAPED_UNICODE),
-                //     "displayText" => "修改預測"
-                // ],
+                //   "type" => "postback",
+                //   "label" => "修改",
+                //   "data"  => json_encode(["cmd"=>"pick","event"=>$it['event_id']], JSON_UNESCAPED_UNICODE),
+                //   "displayText" => "修改預測"
+                // ]
             ];
             $rows[] = ["type" => "separator", "margin" => "md"];
         }
-        // 去除最後一條分隔線
         if (!empty($rows)) array_pop($rows);
 
-        $count = count($preds);
+        $count = count($combined);
 
         return [[
             "type" => "flex",
