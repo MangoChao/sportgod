@@ -116,11 +116,11 @@ class Line extends Api
                     $messages_obj = $this->buildMainMenuFlex();
                     $this->sendReplyMessageCus($messages_obj);
                     break;
-                case "賽事":
-                    $table_data_list = $this->eventlist();
-                    $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
-                    $messages_obj = array_slice($flexMessages, 0, 5);
-                    $this->sendReplyMessageCus($messages_obj);
+                    // case "賽事":
+                    //     $table_data_list = $this->eventlist();
+                    //     $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
+                    //     $messages_obj = array_slice($flexMessages, 0, 5);
+                    //     $this->sendReplyMessageCus($messages_obj);
                     break;
                 case "#uid":
                     break;
@@ -257,14 +257,10 @@ class Line extends Api
         }
     }
 
-    /**
-     * 送出「今天（或你原本 eventlist 設定的日數）」的賽事清單
-     * 行為與你之前輸入「賽事」時相同
-     */
     private function sendTodayEventsList(int $cid = 0): void
     {
+        // 1) 賽事清單
         $table_data_list = $this->eventlist($cid);
-
         if (empty($table_data_list)) {
             $this->sendReplyMessage($this->webhook_replyToken, [[
                 "type" => "text",
@@ -272,12 +268,169 @@ class Line extends Api
             ]]);
             return;
         }
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 你原本的方法
 
-        // 每個 bubble 8 場，可調
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8);
-        // 一次 reply 最多 5 則
-        $messages_obj = array_slice($flexMessages, 0, 5);
-        $this->sendReplyMessageCus($messages_obj);
+        // 2) 我的今日預測（獨立 bubble）
+        $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
+        $myPredMsgs = [];
+        if ($analystId) {
+            $preds = $this->fetchTodayMyPreds($analystId);
+            $myPredMsgs = $this->buildMyPredsBubble($preds); // 這裡回傳的是 [ 一則 flex ]
+        }
+
+        // 3) 合併，尊重 LINE 一次最多 5 則
+        $messages = $flexMessages;
+        // 預留 1 格給我的預測
+        $maxForList = 5 - (empty($myPredMsgs) ? 0 : count($myPredMsgs));
+        if ($maxForList < 0) $maxForList = 0;
+
+        $messages = array_slice($messages, 0, $maxForList);
+        if (!empty($myPredMsgs)) {
+            // 放在最後一則
+            foreach ($myPredMsgs as $m) {
+                $messages[] = $m;
+            }
+        }
+
+        // 4) 送出
+        $this->sendReplyMessage($this->webhook_replyToken, $messages);
+    }
+
+    private function fetchTodayMyPreds(int $analystId): array
+    {
+        $start = strtotime('today');
+        $end   = strtotime('tomorrow');
+
+        // 連 Event 取隊名與時間；依你實際 ORM 寫法微調
+        $list = model('Pred')->alias('p')
+            ->join('Event e', 'e.id = p.event_id')
+            ->where('p.analyst_id = ' . $analystId . ' AND e.starttime >= ' . $start . ' AND e.starttime < ' . $end)
+            ->order('e.starttime asc')
+            ->select();
+
+        return $list ?: [];
+    }
+
+    private function buildMyPredsBubble(array $preds): array
+    {
+        $rows = [];
+
+        if (empty($preds)) {
+            // 沒有預測就回一個簡短的 bubble
+            return [[
+                "type" => "flex",
+                "altText" => "我的今日預測",
+                "contents" => [
+                    "type" => "bubble",
+                    "header" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => "📝 我的今日預測",
+                            "weight" => "bold",
+                            "size" => "md"
+                        ]]
+                    ],
+                    "body" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => "今天尚未有預測。",
+                            "size" => "sm",
+                            "color" => "#666666",
+                            "wrap" => true
+                        ]]
+                    ]
+                ]
+            ]];
+        }
+
+        foreach ($preds as $p) {
+            $time  = isset($p->starttime) ? date('H:i', (int)$p->starttime) : '--:--';
+            $title = "{$time}  {$p->guests} vs {$p->master}(主)";
+
+            // 可能 Pred 只下了其中一種，另一個為 NULL
+            $winnerText = isset($p->winteam) && $p->winteam !== '' && $p->winteam !== null
+                ? (($p->winteam == 1) ? '主勝' : '客勝')
+                : '未選';
+
+            $totalText = isset($p->bigsmall) && $p->bigsmall !== '' && $p->bigsmall !== null
+                ? (($p->bigsmall == 1) ? '大分' : '小分')
+                : '未選';
+
+            $sub = "勝負：{$winnerText}　大小：{$totalText}";
+
+            $rows[] = [
+                "type" => "box",
+                "layout" => "vertical",
+                "spacing" => "xs",
+                "margin" => "md",
+                "contents" => [
+                    ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+                    ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
+                ],
+                //（可選）提供「修改」入口：點了再進 pick 流程
+                // "action" => [
+                //     "type" => "postback",
+                //     "label" => "修改",
+                //     "data"  => json_encode(["cmd"=>"pick","event"=>(int)$p->event_id], JSON_UNESCAPED_UNICODE),
+                //     "displayText" => "修改預測"
+                // ],
+            ];
+            $rows[] = ["type" => "separator", "margin" => "md"];
+        }
+        // 去除最後一條分隔線
+        if (!empty($rows)) array_pop($rows);
+
+        $count = count($preds);
+
+        return [[
+            "type" => "flex",
+            "altText" => "我的今日預測",
+            "contents" => [
+                "type" => "bubble",
+                "size" => "mega",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "📝 我的今日預測（{$count}）",
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "sm",
+                    "contents" => $rows
+                ]
+            ]
+        ]];
+    }
+
+    private function getAnalystIdByLineUserId(string $lineUserId): ?int
+    {
+        $uf = model('UserFree')->where('line_user_id', $lineUserId)->find();
+        if (!$uf) return null;
+
+        $analyst = model('Analyst')->where('user_free = ' . $uf->id)->find();
+        if ($analyst) return (int)$analyst->id;
+
+        // 若不存在就幫他建一個（與你 pred() 的行為一致）
+        $analyst = model('Analyst')::create([
+            'user_free'    => $uf->id,
+            'analyst_name' => "Line用戶[{$uf->id}]",
+            'avatar'       => '',
+            'status'       => 1,
+            'admin_id'     => 0,
+            'autopred'     => 0,
+            'free'         => 1,
+        ]);
+        return (int)$analyst->id;
     }
 
     private function buildMainMenuFlex(): array
