@@ -688,13 +688,13 @@ class Line extends Api
 
     private function quickReplyForPrediction(int $eventId): array
     {
-        $mk = function ($label, $data) {
+        $mk = function ($label, array $payload) {
             return [
                 "type" => "action",
                 "action" => [
                     "type" => "postback",
                     "label" => $label,
-                    "data"  => $data,
+                    "data"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
                     "displayText" => $label
                 ]
             ];
@@ -702,15 +702,16 @@ class Line extends Api
 
         return [
             "items" => [
-                $mk("主勝",  "cmd=toggle&event={$eventId}&type=winner&value=home"),
-                $mk("客勝",  "cmd=toggle&event={$eventId}&type=winner&value=away"),
-                $mk("大分",  "cmd=toggle&event={$eventId}&type=total&value=over"),
-                $mk("小分",  "cmd=toggle&event={$eventId}&type=total&value=under"),
-                $mk("清除",  "cmd=clear&event={$eventId}"),
-                $mk("送出",  "cmd=submit&event={$eventId}")
+                $mk("主勝",  ["cmd" => "toggle", "event" => $eventId, "type" => "winner", "value" => "home"]),
+                $mk("客勝",  ["cmd" => "toggle", "event" => $eventId, "type" => "winner", "value" => "away"]),
+                $mk("大分",  ["cmd" => "toggle", "event" => $eventId, "type" => "total",  "value" => "over"]),
+                $mk("小分",  ["cmd" => "toggle", "event" => $eventId, "type" => "total",  "value" => "under"]),
+                $mk("清除",  ["cmd" => "clear",  "event" => $eventId]),
+                $mk("送出",  ["cmd" => "submit", "event" => $eventId])
             ]
         ];
     }
+
 
     private function predKey(string $userId, int $eventId): string
     {
