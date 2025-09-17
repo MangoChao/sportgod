@@ -304,7 +304,7 @@ class Line extends Api
 
         // 把今天該分析師所有（大小/勝負）都抓出來
         $rows = model('Pred')->alias('p')
-            ->join('Event e', 'e.id = p.event_id')
+            ->join('event e', 'e.id = p.event_id')
             ->where('p.analyst_id = ' . $analystId . ' AND e.starttime >= ' . $start . ' AND e.starttime < ' . $end)
             ->order('p.predtime desc')              // 讓較新的排前面，方便合併時「新覆蓋舊」
             ->select();
