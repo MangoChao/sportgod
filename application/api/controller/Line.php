@@ -135,11 +135,10 @@ class Line extends Api
         $p = json_decode($raw, true);
 
         $cmd = $p['cmd'] ?? null;
-        $eventId = isset($p['event']) ? (int)$p['event'] : 0;
         $action  = $p['action'] ?? null;
         $userId = $this->webhook_userId;
 
-        if (!$userId || !$eventId) {
+        if (!$userId) {
             $this->sendReplyMessage("參數錯誤，請重試。");
             return;
         }
@@ -149,12 +148,22 @@ class Line extends Api
                 $this->handleMainMenuAction($action);
                 return;
             case 'pick':
+                $eventId = isset($p['event']) ? (int)$p['event'] : 0;
+                if (!$eventId) {
+                    $this->sendReplyMessage("參數錯誤，請重試。");
+                    return;
+                }
                 $this->setPredState($userId, $eventId, ['winner' => '', 'total' => '']);
                 $msg = $this->buildPreviewText($eventId, '', '');
                 $this->replyWithQuickReply($msg, $eventId);
                 break;
 
             case 'toggle':
+                $eventId = isset($p['event']) ? (int)$p['event'] : 0;
+                if (!$eventId) {
+                    $this->sendReplyMessage("參數錯誤，請重試。");
+                    return;
+                }
                 $type  = $p['type']  ?? '';
                 $value = $p['value'] ?? '';
 
@@ -176,12 +185,22 @@ class Line extends Api
                 break;
 
             case 'clear':
+                $eventId = isset($p['event']) ? (int)$p['event'] : 0;
+                if (!$eventId) {
+                    $this->sendReplyMessage("參數錯誤，請重試。");
+                    return;
+                }
                 $this->setPredState($userId, $eventId, ['winner' => '', 'total' => '']);
                 $msg = $this->buildPreviewText($eventId, '', '');
                 $this->replyWithQuickReply($msg, $eventId);
                 break;
 
             case 'submit':
+                $eventId = isset($p['event']) ? (int)$p['event'] : 0;
+                if (!$eventId) {
+                    $this->sendReplyMessage("參數錯誤，請重試。");
+                    return;
+                }
                 $state = $this->getPredState($userId, $eventId);
                 $winner = $state['winner'] ?? '';
                 $total  = $state['total']  ?? '';
