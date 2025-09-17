@@ -262,7 +262,7 @@ class Line extends Api
         // 1) 賽事清單
         $table_data_list = $this->eventlist($cid);
         if (empty($table_data_list)) {
-            $this->sendReplyMessage($this->webhook_replyToken, [[
+            $this->sendReplyMessageCus([[
                 "type" => "text",
                 "text" => "今天暫無賽事。"
             ]]);
@@ -293,7 +293,7 @@ class Line extends Api
         }
 
         // 4) 送出
-        $this->sendReplyMessage($this->webhook_replyToken, $messages);
+        $this->sendReplyMessageCus($messages);
     }
 
     private function fetchTodayMyPreds(int $analystId): array
