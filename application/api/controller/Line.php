@@ -277,24 +277,25 @@ class Line extends Api
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單（你原本已有）
+        // 1) 賽事清單（原本就有）
         $table_data_list = $this->eventlist($cid);
         $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 可能多則
 
-        // 2) 我的今日預測（今天、未結算，用 carousel 一則）
+        // 2) 我的「今天起到未來」的預測（未結算、含未來）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
         $myPredMsgOne = []; // 最終只放一則（carousel或空）
         if ($analystId) {
-            $todayStart    = strtotime(date('Y-m-d 00:00:00'));
-            $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
+            $todayStart = strtotime(date('Y-m-d 00:00:00'));
+            // 抓到未來 180 天；需要更長就調整這個天數即可
+            $futureEnd  = strtotime(date('Y-m-d 00:00:00', strtotime('+180 days')));
 
-            $todayPending = $this->fetchPredsCombined($analystId, $todayStart, $tomorrowStart, false);
+            // 仍沿用既有查詢函式，時間範圍：今天起 ~ 未來
+            $todayAndFuture = $this->fetchPredsCombined($analystId, $todayStart, $futureEnd, 'pending');
 
-            // 用共用清單：showResult=false、useCarousel=true（回傳一則或一則空）
-            $tmp = $this->buildPredListBubbles($todayPending, "📝 我的今日預測", 8, false, true);
+            // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
+            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
             if (!empty($tmp)) {
-                // buildPredListBubbles 在空資料時也會回一則提示 bubble，所以直接取第一則即可
-                $myPredMsgOne[] = $tmp[0];
+                $myPredMsgOne[] = $tmp[0]; // 只取一則，避免超過 5 則上限
             }
         }
 
@@ -1285,8 +1286,8 @@ class Line extends Api
         $start = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $end   = time();
 
-        $pending = $this->fetchPredsCombined($analystId, $start, $end, false);
-        $settled = $this->fetchPredsCombined($analystId, $start, $end, true);
+        $pending = $this->fetchPredsCombined($analystId, $start, $end, 'pending');
+        $settled = $this->fetchPredsCombined($analystId, $start, $end, 'settled');
 
         $msgs = [];
         if (!empty($pending)) {

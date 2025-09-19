@@ -277,24 +277,25 @@ class Line extends Api
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單（你原本已有）
+        // 1) 賽事清單（原本就有）
         $table_data_list = $this->eventlist($cid);
         $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 可能多則
 
-        // 2) 我的今日預測（今天、未結算，用 carousel 一則）
+        // 2) 我的「今天起到未來」的預測（未結算、含未來）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
         $myPredMsgOne = []; // 最終只放一則（carousel或空）
         if ($analystId) {
-            $todayStart    = strtotime(date('Y-m-d 00:00:00'));
-            $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
+            $todayStart = strtotime(date('Y-m-d 00:00:00'));
+            // 抓到未來 180 天；需要更長就調整這個天數即可
+            $futureEnd  = strtotime(date('Y-m-d 00:00:00', strtotime('+180 days')));
 
-            $todayPending = $this->fetchPredsCombinedInRange($analystId, $todayStart, $tomorrowStart, false);
+            // 仍沿用既有查詢函式，時間範圍：今天起 ~ 未來
+            $todayAndFuture = $this->fetchPredsCombined($analystId, $todayStart, $futureEnd, false);
 
-            // 用共用清單：showResult=false、useCarousel=true（回傳一則或一則空）
-            $tmp = $this->buildPredListBubbles($todayPending, "📝 我的今日預測", 8, false, true);
+            // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
+            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
             if (!empty($tmp)) {
-                // buildPredListBubbles 在空資料時也會回一則提示 bubble，所以直接取第一則即可
-                $myPredMsgOne[] = $tmp[0];
+                $myPredMsgOne[] = $tmp[0]; // 只取一則，避免超過 5 則上限
             }
         }
 
@@ -632,25 +633,17 @@ class Line extends Api
     {
         $bubbles = [];
         $chunks = array_chunk($events, $rowsPerBubble);
-        $totalPages = count($chunks);
 
-        foreach ($chunks as $idx => $chunk) {
-            $page = $idx + 1;
-            // 標題只顯示日期；不再顯示頁次
-            $title = "📅 {$date}";
-
+        foreach ($chunks as $chunk) {
             $rows = [];
             foreach ($chunk as $ev) {
                 $rows[] = $this->buildEventRowBox($ev);
             }
-            // 去掉最後一列的分隔線
+            // 去掉最後一列的分隔線（若存在）
             if (!empty($rows)) {
                 $last = &$rows[count($rows) - 1]["contents"];
                 if (!empty($last) && end($last)["type"] === "separator") array_pop($last);
             }
-
-            // 統一分頁顯示：放在 footer
-            $footerText = "第 {$page} 頁 / 共 {$totalPages} 頁";
 
             $bubbles[] = [
                 "type" => "bubble",
@@ -660,7 +653,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => $title,
+                        "text" => "📅 {$date}",
                         "weight" => "bold",
                         "size" => "md"
                     ]]
@@ -671,44 +664,49 @@ class Line extends Api
                     "spacing" => "sm",
                     "contents" => $rows
                 ],
-                "footer" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => $footerText,
-                        "size" => "xxs",
-                        "color" => "#888888"
-                    ]]
-                ]
+                // 不在這裡放 footer（頁碼）
             ];
         }
+
         return $bubbles;
     }
 
-    /**
-     * 將 $table_data_list（date => [events...]）轉成「多個 Flex 訊息」
-     * - 每個 Flex 訊息是一個 carousel（最多 10 個 bubbles）
-     * - 回傳為 LINE Messaging API 的 message 陣列（可直接拿去 reply/push）
-     */
     function tableDataListToFlexMessages(array $table_data_list, int $rowsPerBubble = 8): array
     {
-        // 先把所有日的 bubbles 串起來
+        // 1) 先組出所有日期的 bubbles（不含頁碼）
         $allBubbles = [];
         foreach ($table_data_list as $date => $events) {
             if (!is_array($events) || empty($events)) continue;
             $dayBubbles = $this->buildDayBubbles($date, $events, $rowsPerBubble);
             $allBubbles = array_merge($allBubbles, $dayBubbles);
         }
+
         if (empty($allBubbles)) {
-            // 沒資料時，回一則簡單文字
             return [[
                 "type" => "text",
                 "text" => "目前沒有賽事資訊。"
             ]];
         }
 
-        // 10 個 bubble 為一個 carousel（LINE 限制）
+        // 2) 跨所有日期統一編號頁碼（從 1 到 total）
+        $total = count($allBubbles);
+        foreach ($allBubbles as $i => &$bubble) {
+            $pageNum = $i + 1;
+            // 補上 footer：第 X 頁 / 共 Y 頁
+            $bubble["footer"] = [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [[
+                    "type"   => "text",
+                    "text"   => "第 {$pageNum} 頁 / 共 {$total} 頁",
+                    "size"   => "xxs",
+                    "color"  => "#888888"
+                ]]
+            ];
+        }
+        unset($bubble);
+
+        // 3) 10 個 bubble 為一個 carousel（LINE 限制）
         $messages = [];
         foreach (array_chunk($allBubbles, 10) as $bubblesPage) {
             $messages[] = [
@@ -981,28 +979,31 @@ class Line extends Api
             return;
         }
 
-        // 近 7 天（含今天）
+        // 已結算：近 7 天（含今天），維持原邏輯
         $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-        $pending = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, false);
-        $settled = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, true);
+        // 未結算：不套日期（全部未結算）
+        $pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
+
+        // 已結算（近 7 天）
+        $settled = $this->fetchPredsCombined($analystId, $sevenDaysAgo, $tomorrowStart, 'settled');
 
         $messages = [];
 
-        // 1) 未結算（近7天）— 不顯示結果；多則 bubble 分頁
+        // 1) 未結算（全部）— 不顯示結果；多則 bubble 分頁
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "📝 未結算預測（近7天）", 8, false, false)
+            $this->buildPredListBubbles($pending, "📝 未結算預測", 8, false, true)
         );
 
         // 2) 已結算（近7天）— 顯示結果；多則 bubble 分頁
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false)
+            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true)
         );
 
-        // 3) 勝率（先留空）
+        // 3) 勝率 placeholder
         $messages[] = [
             "type" => "flex",
             "altText" => "勝率",
@@ -1036,20 +1037,29 @@ class Line extends Api
     }
 
     /**
-     * 取某分析師在指定日期區間的預測，並合併同場 pred_type
-     * pred_type: 1=讓分(winteam)、2=大小(bigsmall)
+     * 取某分析師的預測（可選日期範圍），並合併同場 pred_type
+     * @param int        $analystId
+     * @param int|null   $start     以 event.starttime 為基準（秒），可為 null
+     * @param int|null   $end       同上，可為 null（若 start/end 皆 null，則不套日期條件）
+     * @param string     $status    'pending' | 'settled' | 'all'
+     *   - pending: p.comply = 0
+     *   - settled: p.comply > 0
+     *   - all: 不限制
      */
-    private function fetchPredsCombinedInRange(int $analystId, int $start, int $end, bool $onlySettled = false): array
+    private function fetchPredsCombined(int $analystId, ?int $start, ?int $end, string $status = 'all'): array
     {
         $query = model('Pred')
             ->alias('p')
             ->join('event e', 'e.id = p.event_id')
             ->field('p.*, e.guests, e.master, e.starttime, e.guests_refund, e.master_refund, e.bigscore, e.guests_score, e.master_score')
-            ->where('p.analyst_id', $analystId)
-            ->where('e.starttime', '>=', $start)
-            ->where('e.starttime', '<',  $end);
+            ->where('p.analyst_id', $analystId);
 
-        if ($onlySettled) {
+        if ($start !== null) $query->where('e.starttime', '>=', $start);
+        if ($end   !== null) $query->where('e.starttime', '<',  $end);
+
+        if ($status === 'pending') {
+            $query->where('p.comply', '=', 0);
+        } elseif ($status === 'settled') {
             $query->where('p.comply', '>', 0);
         }
 
@@ -1058,9 +1068,9 @@ class Line extends Api
         $merged = [];
         foreach ($rows as $r) {
             $eid = (int)$r['event_id'];
-            $gs = $r['guests_score'];
-            $ms = $r['master_score'];
             if (!isset($merged[$eid])) {
+                $gs = $r['guests_score'];
+                $ms = $r['master_score'];
                 $merged[$eid] = [
                     'event_id'      => $eid,
                     'starttime'     => (int)$r['starttime'],
@@ -1078,7 +1088,6 @@ class Line extends Api
                 ];
             }
 
-            // 正確對應：1=讓分、2=大小
             if ((int)$r['pred_type'] === 1) {
                 $merged[$eid]['winteam']       = $r['winteam'];
                 $merged[$eid]['comply_refund'] = (int)$r['comply'];
@@ -1277,15 +1286,15 @@ class Line extends Api
         $start = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $end   = time();
 
-        $pending = $this->fetchPredsCombinedInRange($analystId, $start, $end, false);
-        $settled = $this->fetchPredsCombinedInRange($analystId, $start, $end, true);
+        $pending = $this->fetchPredsCombined($analystId, $start, $end, false);
+        $settled = $this->fetchPredsCombined($analystId, $start, $end, true);
 
         $msgs = [];
         if (!empty($pending)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, false));
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, true));
         }
         if (!empty($settled)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false));
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true));
         }
         if (empty($msgs)) {
             $msgs[] = ["type" => "text", "text" => "這位分析師近七天沒有預測"];
