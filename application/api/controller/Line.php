@@ -256,7 +256,7 @@ class Line extends Api
                 return;
         }
     }
-    
+
     private function sendTodayEventsList(int $cid = 0): void
     {
         // 1) 賽事清單
@@ -268,7 +268,7 @@ class Line extends Api
             ]]);
             return;
         }
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 你原本的方法
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 你原本的方法
 
         // 2) 我的今日預測（獨立 bubble）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
