@@ -145,6 +145,14 @@ class Line extends Api
             case 'menu':
                 $action = $p['action'] ?? '';
                 switch ($action) {
+                    case 'winrate':
+                        $this->sendAnalystRanking("winrate");
+                        break;
+
+                    case 'profit':
+                        $this->sendAnalystRanking("profit");
+                        break;
+
                     case 'mine':
                         $this->sendTodayEventsList();
                         break;
@@ -237,6 +245,14 @@ class Line extends Api
                 $this->clearPredState($userId, $eventId);
                 $this->sendReplyMessage($replyMessage);
                 break;
+            case 'analyst_result':
+                $analystId = (int)($p['analyst'] ?? 0);
+                if ($analystId > 0) {
+                    $this->sendAnalystPredResults($analystId);
+                } else {
+                    $this->sendReplyMessageCus(["分析師參數錯誤"]);
+                }
+                break;
 
             default:
                 $this->sendReplyMessage("尚未支援的操作。");
@@ -257,12 +273,7 @@ class Line extends Api
             $todayStart    = strtotime(date('Y-m-d 00:00:00'));
             $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-            $todayAll = $this->fetchMyPredsCombinedInRange($analystId, $todayStart, $tomorrowStart);
-
-            // 未結算（comply=0）
-            $todayPending = array_values(array_filter($todayAll, function ($it) {
-                return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
-            }));
+            $todayPending = $this->fetchPredsCombinedInRange($analystId, $todayStart, $tomorrowStart, false);
 
             // 用共用清單：showResult=false、useCarousel=true（回傳一則或一則空）
             $tmp = $this->buildPredListBubbles($todayPending, "📝 我的今日預測", 8, false, true);
@@ -529,11 +540,6 @@ class Line extends Api
         return $table_data_list;
     }
 
-    /**
-     * 將 eventlist() 產生的 $table_data_list 轉成 LINE 純文字訊息陣列
-     * - 自動分段避免超過 LINE 單則 5000 字（保守抓 4800）
-     * - 格式：每一天一個大標，底下多場用項目符號，含(主)隊、讓分/大小（用共用模板）
-     */
     function formatEventListForLine(array $table_data_list, int $maxChars = 4800): array
     {
         $messages = [];
@@ -553,38 +559,25 @@ class Line extends Api
             $buf .= $sectionHeader;
 
             foreach ($events as $ev) {
-                // 時間
-                $timePart = '';
-                if (isset($ev->starttime) && $ev->starttime) {
-                    $timePart = date('H:i', (int)$ev->starttime) . ' ';
-                }
+                $guest  = (string)($ev['guests'] ?? '');
+                $master = (string)($ev['master'] ?? '');
 
-                // 隊名與主客
-                $guestName  = (string)($ev->guests ?? '');
-                $masterName = (string)($ev->master ?? '');
+                // 第一行：隊伍
+                $line1 = "• {$guest} vs {$master}(主)\n";
 
-                // 第一行：時間 + 客 vs 主(主)
-                $titleLine  = "• {$timePart}{$guestName} vs {$masterName}(主)\n";
-
-                // 第二行：讓分/大小（統一用共用函式 formatListOddsLine）
-                // 傳入所需欄位即可；formatListOddsLine 會自動決定顯示「客讓」或「主讓」，並附上「大小」
+                // 第二行：時間 + 讓分/大小
+                $time = !empty($ev['starttime']) ? date('H:i', (int)$ev['starttime']) : '--:--';
                 $oddsLine = $this->formatListOddsLine([
-                    'guests_refund' => $ev->guests_refund ?? '',
-                    'master_refund' => $ev->master_refund ?? '',
-                    'bigscore'      => $ev->bigscore      ?? '',
+                    'guests_refund' => $ev['guests_refund'] ?? '',
+                    'master_refund' => $ev['master_refund'] ?? '',
+                    'bigscore'      => $ev['bigscore'] ?? '',
                 ]);
+                $line2 = $oddsLine !== '' ? "  {$time}  {$oddsLine}\n\n" : "  {$time}\n\n";
 
-                // 若完全沒資料，也給個預設
-                if ($oddsLine === '') {
-                    $oddsLine = '盤口未開';
-                }
-
-                $one = $titleLine . $oddsLine . "\n\n"; // 空行區隔
+                $one = $line1 . $line2;
 
                 if (mb_strlen($buf . $one, 'UTF-8') > $maxChars) {
-                    // 先送出前一段，再把這場塞到新的段落
                     $messages[] = rtrim($buf);
-                    // 新段落仍保留當天抬頭，提升可讀性
                     $buf = $sectionHeader . $one;
                 } else {
                     $buf .= $one;
@@ -605,13 +598,13 @@ class Line extends Api
         $master = (string)($ev['master'] ?? '');
         $teamLine = "{$guest} vs {$master}(主)";
 
-        $time  = (!empty($ev['starttime'])) ? date('m/d H:i', (int)$ev['starttime']) : '--:--';
+        $time = !empty($ev['starttime']) ? date('m/d H:i', (int)$ev['starttime']) : '--:--';
         $oddsOneLine = $this->formatListOddsLine([
             'guests_refund' => $ev['guests_refund'] ?? '',
             'master_refund' => $ev['master_refund'] ?? '',
             'bigscore'      => $ev['bigscore'] ?? '',
         ]);
-        $infoLine = "{$time}  {$oddsOneLine}";
+        $infoLine = $oddsOneLine !== '' ? ($time . '  ' . $oddsOneLine) : $time;
 
         return [
             "type" => "box",
@@ -649,7 +642,7 @@ class Line extends Api
 
         foreach ($chunks as $idx => $chunk) {
             $page = $idx + 1;
-            $title = "📅 {$date}" . ($totalPages > 1 ? "（Page {$page}/{$totalPages}）" : "");
+            $title = "📅 {$date}" . ($totalPages > 1 ? "(第{$page}頁/共{$totalPages}頁)" : "");
             $rows = [];
             foreach ($chunk as $ev) {
                 $rows[] = $this->buildEventRowBox($ev);
@@ -830,7 +823,6 @@ class Line extends Api
         $guest  = (string)($it['guests'] ?? '');
         $master = (string)($it['master'] ?? '');
         $teamLine = "{$guest} vs {$master}(主)";
-
         $time  = !empty($it['starttime']) ? date('m/d H:i', (int)$it['starttime']) : '--:--';
 
         $lines = [];
@@ -857,7 +849,7 @@ class Line extends Api
             }
         }
 
-        // 第二行先加上時間
+        // 第二行塞時間
         array_unshift($lines, $time);
 
         return [
@@ -918,10 +910,7 @@ class Line extends Api
             }
             if (!empty($rows)) array_pop($rows);
 
-            $bubbleTitle = $title;
-            if (count($chunks) > 1) {
-                $bubbleTitle .= "（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
-            }
+            $footerText = "第 " . ($pageIdx + 1) . " 頁 / 共 " . count($chunks) . " 頁";
 
             $bubbles[] = [
                 "type" => "bubble",
@@ -931,7 +920,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => $bubbleTitle,
+                        "text" => $title,
                         "weight" => "bold",
                         "size" => "md"
                     ]]
@@ -941,6 +930,16 @@ class Line extends Api
                     "layout" => "vertical",
                     "spacing" => "sm",
                     "contents" => $rows
+                ],
+                "footer" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => $footerText,
+                        "size" => "xxs",
+                        "color" => "#888888"
+                    ]]
                 ]
             ];
         }
@@ -977,15 +976,8 @@ class Line extends Api
         $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-        $all = $this->fetchMyPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart);
-
-        $pending = array_values(array_filter($all, function ($it) {
-            return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
-        }));
-
-        $settled = array_values(array_filter($all, function ($it) {
-            return (int)(isset($it['comply']) ? $it['comply'] : 0) > 0;
-        }));
+        $pending = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, false);
+        $settled = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, true);
 
         $messages = [];
 
@@ -1035,74 +1027,57 @@ class Line extends Api
     }
 
     /**
-     * 依時間窗抓取我的預測，合併同一場（讓分/大小），並帶出 comply
-     * - pred_type: 1=讓分(讓分, winteam), 2=大小(bigsmall)
-     * - comply: 0=未確認, 1=贏, 2=輸
-     * - $startTs（含）~ $endTs（不含）
+     * 取某分析師在指定日期區間的預測，並合併同場 pred_type
+     * pred_type: 1=讓分(winteam)、2=大小(bigsmall)
      */
-    private function fetchMyPredsCombinedInRange(int $analystId, int $startTs, int $endTs): array
+    private function fetchPredsCombinedInRange(int $analystId, int $start, int $end, bool $onlySettled = false): array
     {
-        $rows = model('Pred')->alias('p')
+        $query = model('Pred')
+            ->alias('p')
             ->join('event e', 'e.id = p.event_id')
+            ->field('p.*, e.guests, e.master, e.starttime, e.guests_refund, e.master_refund, e.bigscore, e.guests_score, e.master_score')
             ->where('p.analyst_id', $analystId)
-            ->where('e.starttime', '>=', $startTs)
-            ->where('e.starttime', '<',  $endTs)
-            ->order('p.predtime desc') // 新的覆蓋舊的
-            ->select();
+            ->where('e.starttime', '>=', $start)
+            ->where('e.starttime', '<',  $end);
 
-        if (!$rows) return [];
+        if ($onlySettled) {
+            $query->where('p.comply', '>', 0);
+        }
 
-        $byEvent = [];
+        $rows = $query->order('e.starttime desc')->select()->toArray();
+
+        $merged = [];
         foreach ($rows as $r) {
-            $eid = (int)$r->event_id;
-            if (!isset($byEvent[$eid])) {
-                $byEvent[$eid] = [
-                    'event_id'     => $eid,
-                    'starttime'    => (int)$r->starttime,
-                    'guests'       => (string)$r->guests,
-                    'master'       => (string)$r->master,
-                    'winteam'      => null, // 1=主、0=客
-                    'bigsmall'     => null, // 1=大、0=小
-                    'comply_refund' => 0,  // 讓分輸贏
-                    'comply_big'    => 0,  // 大小輸贏
-                    'comply'        => 0,
-                    '_win_predtime' => 0,
-                    '_big_predtime' => 0,
-                    'guests_score' => (int)$r->guests_score,
-                    'master_score' => (int)$r->master_score,
-                    'master_refund' => (string)$r->master_refund,
-                    'guests_refund' => (string)$r->guests_refund,
-                    'bigscore'     => (string)$r->bigscore,
+            $eid = (int)$r['event_id'];
+            if (!isset($merged[$eid])) {
+                $merged[$eid] = [
+                    'event_id'      => $eid,
+                    'starttime'     => (int)$r['starttime'],
+                    'guests'        => (string)$r['guests'],
+                    'master'        => (string)$r['master'],
+                    'guests_refund' => (string)$r['guests_refund'],
+                    'master_refund' => (string)$r['master_refund'],
+                    'bigscore'      => (string)$r['bigscore'],
+                    'guests_score'  => $r['guests_score'] === '' ? null : (int)$r['guests_score'],
+                    'master_score'  => $r['master_score'] === '' ? null : (int)$r['master_score'],
+                    'winteam'       => null, // 讓分的預測方向
+                    'bigsmall'      => null, // 大小的預測方向
+                    'comply_refund' => 0,    // 讓分結果：0未確認 1贏 2輸
+                    'comply_big'    => 0,    // 大小結果：0未確認 1贏 2輸
                 ];
             }
 
-            if ((int)$r->pred_type === 1) { // 讓分
-                if ((int)$r->predtime >= $byEvent[$eid]['_win_predtime']) {
-                    $byEvent[$eid]['winteam'] = $r->winteam;
-                    $byEvent[$eid]['comply_refund'] = (int)$r->comply;
-                    $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
-                }
-            } elseif ((int)$r->pred_type === 2) { // 大小
-                if ((int)$r->predtime >= $byEvent[$eid]['_big_predtime']) {
-                    $byEvent[$eid]['bigsmall'] = $r->bigsmall;
-                    $byEvent[$eid]['comply_big'] = (int)$r->comply;
-                    $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
-                }
-            }
-
-            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0）
-            $complyVal = (int)$r->comply;
-            if ($complyVal > $byEvent[$eid]['comply']) {
-                $byEvent[$eid]['comply'] = $complyVal;
+            // 正確對應：1=讓分、2=大小
+            if ((int)$r['pred_type'] === 1) {
+                $merged[$eid]['winteam']       = $r['winteam'];
+                $merged[$eid]['comply_refund'] = (int)$r['comply'];
+            } elseif ((int)$r['pred_type'] === 2) {
+                $merged[$eid]['bigsmall']   = $r['bigsmall'];
+                $merged[$eid]['comply_big'] = (int)$r['comply'];
             }
         }
 
-        $list = array_values($byEvent);
-        usort($list, function ($a, $b) {
-            return $a['starttime'] <=> $b['starttime'];
-        });
-
-        return $list;
+        return array_values($merged);
     }
 
     // ===== 共用工具：盤口/大小/比分 顯示 =====
@@ -1198,5 +1173,112 @@ class Line extends Api
             return "比分 {$ev['guests_score']} : {$ev['master_score']}";
         }
         return "";
+    }
+
+    private function fetchTopAnalysts(int $limit = 10): array
+    {
+        $rows = model('Analyst')
+            ->alias('a')
+            ->join('pred p', 'p.analyst_id = a.id')
+            ->field('a.*, COUNT(p.id) AS pred_count')
+            ->group('a.id')
+            ->having('pred_count > 0')
+            ->order('a.id asc') // 先假裝這就是排名
+            ->limit($limit)
+            ->select();
+
+        return $rows ? $rows->toArray() : [];
+    }
+
+    private function buildAnalystRow(array $a): array
+    {
+        $name = (string)($a['analyst_name'] ?? '分析師');
+        $id   = (int)($a['id'] ?? 0);
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "md",
+            "action" => [
+                "type" => "postback",
+                "label" => "查看預測結果",
+                "data"  => json_encode(["cmd" => "analyst_result", "analyst" => $id], JSON_UNESCAPED_UNICODE),
+                "displayText" => "查看 {$name} 的預測"
+            ],
+            "contents" => [
+                ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm"],
+            ]
+        ];
+    }
+
+    private function sendAnalystRanking(string $type)
+    {
+        $title = $type === 'winrate' ? "🏆 勝率排行榜" : "💰 獲利排行榜";
+        $analysts = $this->fetchTopAnalysts(10);
+
+        if (empty($analysts)) {
+            $this->sendReplyMessageCus([["type" => "text", "text" => "目前沒有分析師預測資料"]]);
+            return;
+        }
+
+        $chunks = array_chunk($analysts, 8);
+        $bubbles = [];
+        for ($i = 0; $i < count($chunks); $i++) {
+            $rows = [];
+            foreach ($chunks[$i] as $a) $rows[] = $this->buildAnalystRow($a);
+
+            $footer = "第 " . ($i + 1) . " 頁 / 共 " . count($chunks) . " 頁";
+
+            $bubbles[] = [
+                "type" => "bubble",
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => array_merge(
+                        [["type" => "text", "text" => $title, "weight" => "bold", "size" => "md"]],
+                        $rows
+                    )
+                ],
+                "footer" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => $footer,
+                        "size" => "xxs",
+                        "color" => "#888888"
+                    ]]
+                ]
+            ];
+        }
+
+        $msg = [
+            "type" => "flex",
+            "altText" => $title,
+            "contents" => ["type" => "carousel", "contents" => $bubbles]
+        ];
+        $this->sendReplyMessageCus([$msg]);
+    }
+
+    private function sendAnalystPredResults(int $analystId)
+    {
+        $start = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
+        $end   = time();
+
+        $pending = $this->fetchPredsCombinedInRange($analystId, $start, $end, false);
+        $settled = $this->fetchPredsCombinedInRange($analystId, $start, $end, true);
+
+        $msgs = [];
+        if (!empty($pending)) {
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, false));
+        }
+        if (!empty($settled)) {
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false));
+        }
+        if (empty($msgs)) {
+            $msgs[] = ["type" => "text", "text" => "這位分析師近七天沒有預測"];
+        }
+        $this->sendReplyMessageCus($msgs);
     }
 }
