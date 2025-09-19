@@ -1120,12 +1120,6 @@ class Line extends Api
                     $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
                 }
             }
-
-            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0）
-            $complyVal = (int)$r->comply;
-            if ($complyVal > $byEvent[$eid]['comply']) {
-                $byEvent[$eid]['comply'] = $complyVal;
-            }
         }
 
         $list = array_values($byEvent);
