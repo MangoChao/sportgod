@@ -1126,25 +1126,32 @@ class Line extends Api
             return;
         }
 
-        $all = $this->fetchTodayMyPredsCombined($analystId); // 你原本的取法，含 comply
-        $pending = array_filter($all, function($it) {
+        // 時間窗
+        $todayStart    = strtotime(date('Y-m-d 00:00:00'));
+        $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
+        $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days'))); // 含今天共7天
+
+        // 未結算（今天）
+        $todayAll = $this->fetchMyPredsCombinedInRange($analystId, $todayStart, $tomorrowStart);
+        $pending  = array_values(array_filter($todayAll, function ($it) {
             return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
-        });
+        }));
 
-        $settled = array_filter($all, function($it) {
+        // 已結算（近 7 天）
+        $last7All = $this->fetchMyPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart);
+        $settled  = array_values(array_filter($last7All, function ($it) {
             return (int)(isset($it['comply']) ? $it['comply'] : 0) > 0;
-        });
-
+        }));
 
         $messages = [];
 
-        // 未結算
-        $messages = array_merge($messages, $this->buildPredListBubbles(array_values($pending), "📝 未結算預測", 8, false));
+        // 1) 未結算（與「我的今日預測」同版型，不顯示結果）
+        $messages = array_merge($messages, $this->buildPredListBubbles($pending, "📝 未結算預測（今天）", 8, false));
 
-        // 已結算
-        $messages = array_merge($messages, $this->buildPredListBubbles(array_values($settled), "📊 已結算預測", 8, true));
+        // 2) 已結算（近 7 天，顯示 comply 結果）
+        $messages = array_merge($messages, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true));
 
-        // 勝率（先留空）
+        // 3) 勝率（先保留一顆空的）
         $messages[] = [
             "type" => "flex",
             "altText" => "勝率",
@@ -1155,7 +1162,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => "📈 勝率",
+                        "text" => "📈 勝率（近7天）",
                         "weight" => "bold",
                         "size" => "md"
                     ]]
@@ -1173,6 +1180,70 @@ class Line extends Api
             ]
         ];
 
-        $this->sendReplyMessageCus(array_slice($messages, 0, 5)); // 保證不超過 5
+        // 一次最多 5 則
+        $this->sendReplyMessageCus(array_slice($messages, 0, 5));
+    }
+
+    /**
+     * 依時間窗抓取我的預測，合併同一場（勝負/大小），並帶出 comply
+     * - pred_type: 1=讓分(勝負, winteam), 2=大小(bigsmall)
+     * - comply: 0=未確認, 1=贏, 2=輸
+     * - $startTs（含）~ $endTs（不含）
+     */
+    private function fetchMyPredsCombinedInRange(int $analystId, int $startTs, int $endTs): array
+    {
+        $rows = model('Pred')->alias('p')
+            ->join('event e', 'e.id = p.event_id')
+            ->where('p.analyst_id', $analystId)
+            ->where('e.starttime', '>=', $startTs)
+            ->where('e.starttime', '<',  $endTs)
+            ->order('p.predtime desc') // 新的覆蓋舊的
+            ->select();
+
+        if (!$rows) return [];
+
+        $byEvent = [];
+        foreach ($rows as $r) {
+            $eid = (int)$r->event_id;
+            if (!isset($byEvent[$eid])) {
+                $byEvent[$eid] = [
+                    'event_id'     => $eid,
+                    'starttime'    => (int)$r->starttime,
+                    'guests'       => (string)$r->guests,
+                    'master'       => (string)$r->master,
+                    'winteam'      => null, // 1=主、0=客
+                    'bigsmall'     => null, // 1=大、0=小
+                    'comply'       => 0,    // 0=未確認, 1=贏, 2=輸（若同場兩筆不同，以較大者覆蓋：2 > 1 > 0）
+                    '_win_predtime' => 0,
+                    '_big_predtime' => 0,
+                ];
+            }
+
+            // 合併勝負/大小（以較新的 pred 覆蓋）
+            if ((int)$r->pred_type === 1) { // 讓分/勝負
+                if ((int)$r->predtime >= $byEvent[$eid]['_win_predtime']) {
+                    $byEvent[$eid]['winteam']       = $r->winteam;
+                    $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
+                }
+            } elseif ((int)$r->pred_type === 2) { // 大小
+                if ((int)$r->predtime >= $byEvent[$eid]['_big_predtime']) {
+                    $byEvent[$eid]['bigsmall']      = $r->bigsmall;
+                    $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
+                }
+            }
+
+            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0），表示只要有一筆已輸就視為輸，已贏會被 2 蓋掉
+            $complyVal = (int)$r->comply;
+            if ($complyVal > $byEvent[$eid]['comply']) {
+                $byEvent[$eid]['comply'] = $complyVal;
+            }
+        }
+
+        $list = array_values($byEvent);
+        usort($list, function ($a, $b) {
+            return $a['starttime'] <=> $b['starttime'];
+        });
+
+        return $list;
     }
 }
