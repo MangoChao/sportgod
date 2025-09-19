@@ -1044,7 +1044,7 @@ class Line extends Api
             $query->where('p.comply', '>', 0);
         }
 
-        $rows = $query->order('e.starttime desc')->select()->toArray();
+        $rows = $query->order('e.starttime desc')->select();
 
         $merged = [];
         foreach ($rows as $r) {
