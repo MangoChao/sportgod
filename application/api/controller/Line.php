@@ -246,180 +246,48 @@ class Line extends Api
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單（你原有的）
+        // 1) 賽事清單（你原本已有）
         $table_data_list = $this->eventlist($cid);
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 仍然是多則可能的 flex
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 可能多則
 
-        // 2) 我的今日預測（合併同場 → carousel 一則；每頁 5 筆）
+        // 2) 我的今日預測（今天、未結算，用 carousel 一則）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
-        $myPredMsgs = [];
+        $myPredMsgOne = []; // 最終只放一則（carousel或空）
         if ($analystId) {
-            $combined  = $this->fetchTodayMyPredsCombined($analystId); // 已依 pred_type: 1=讓分, 2=大小
-            $myPredMsgs = $this->buildMyPredsCarouselCombined($combined, 5);
-            // 上面回傳的是「一則」flex（carousel），或無資料時一則簡短 bubble
-        }
+            $todayStart    = strtotime(date('Y-m-d 00:00:00'));
+            $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-        // 3) 合併：我的預測優先，接著補賽事清單（一次最多 5 則）
-        $maxTotal = 5;
-        $messages = [];
+            $todayAll = $this->fetchMyPredsCombinedInRange($analystId, $todayStart, $tomorrowStart);
 
-        // 先放「我的預測」（一則）
-        if (!empty($myPredMsgs)) {
-            $messages[] = $myPredMsgs[0];
-        }
+            // 未結算（comply=0）
+            $todayPending = array_values(array_filter($todayAll, function ($it) {
+                return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
+            }));
 
-        // 再補賽事清單至不超過 5 則
-        $remain = $maxTotal - count($messages);
-        if ($remain > 0 && !empty($flexMessages)) {
-            foreach (array_slice($flexMessages, 0, $remain) as $m) {
-                $messages[] = $m;
+            // 用共用清單：showResult=false、useCarousel=true（回傳一則或一則空）
+            $tmp = $this->buildPredListBubbles($todayPending, "📝 我的今日預測", 8, false, true);
+            if (!empty($tmp)) {
+                // buildPredListBubbles 在空資料時也會回一則提示 bubble，所以直接取第一則即可
+                $myPredMsgOne[] = $tmp[0];
             }
         }
 
-        // 沒東西就給提示
+        // 3) 合併：我的預測先、再補賽事；總數 ≤ 5
+        $messages = [];
+        foreach ($myPredMsgOne as $m) $messages[] = $m;
+
+        $remain = 5 - count($messages);
+        if ($remain > 0 && !empty($flexMessages)) {
+            foreach (array_slice($flexMessages, 0, $remain) as $m) $messages[] = $m;
+        }
+
         if (empty($messages)) {
             $messages = [["type" => "text", "text" => "今天暫無賽事與預測。"]];
         }
 
-        // 4) 發送（用你指定的封裝）
         $this->sendReplyMessageCus($messages);
     }
 
-    /**
-     * 將「我的今日預測（合併同場）」做成一則 Flex（carousel）
-     * - 每頁 $rowsPerPage 筆（預設 5）
-     * - 總是把第 1 頁放在第一個 bubble，使用者打開就看到（1/N）
-     */
-    private function buildMyPredsCarouselCombined(array $combined, int $rowsPerPage = 5): array
-    {
-        // 沒資料：回一顆簡短 bubble
-        if (empty($combined)) {
-            return [[
-                "type" => "flex",
-                "altText" => "我的今日預測",
-                "contents" => [
-                    "type" => "bubble",
-                    "header" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [[
-                            "type" => "text",
-                            "text" => "📝 我的今日預測",
-                            "weight" => "bold",
-                            "size" => "md"
-                        ]]
-                    ],
-                    "body" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [[
-                            "type" => "text",
-                            "text" => "今天尚未有預測。",
-                            "size" => "sm",
-                            "color" => "#666666",
-                            "wrap" => true
-                        ]]
-                    ]
-                ]
-            ]];
-        }
-
-        // 分頁（每頁 rowsPerPage 筆）
-        $chunks = array_chunk($combined, $rowsPerPage);
-        $bubbles = [];
-
-        foreach ($chunks as $pageIdx => $chunk) {
-            $rows = [];
-            foreach ($chunk as $it) {
-                $rows[] = $this->buildCompactMyPredRow($it); // 你前面已加入的緊湊列
-                $rows[] = ["type" => "separator", "margin" => "xs"];
-            }
-            if (!empty($rows)) array_pop($rows);
-
-            $title = "📝 我的今日預測（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
-
-            $bubbles[] = [
-                "type" => "bubble",
-                "size" => "mega",
-                "header" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => $title,
-                        "weight" => "bold",
-                        "size" => "md"
-                    ]]
-                ],
-                "body" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "spacing" => "xs",
-                    "contents" => $rows
-                ]
-            ];
-        }
-
-        // 一則 Flex，內容是 carousel（包含所有頁）
-        return [[
-            "type" => "flex",
-            "altText" => "我的今日預測",
-            "contents" => [
-                "type" => "carousel",
-                "contents" => $bubbles
-            ]
-        ]];
-    }
-
-    /**
-     * 緊湊版「我的今日預測」單列
-     * 期望 $it 結構：
-     * [
-     *   'event_id'  => int,
-     *   'starttime' => int,
-     *   'guests'    => string,
-     *   'master'    => string,
-     *   'winteam'   => null|0|1,   // 1=主勝, 0=客勝, null/''=未選
-     *   'bigsmall'  => null|0|1,   // 1=大分, 0=小分, null/''=未選
-     * ]
-     */
-    private function buildCompactMyPredRow(array $it): array
-    {
-        $time  = !empty($it['starttime']) ? date('H:i', (int)$it['starttime']) : '--:--';
-        $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
-
-        // 1=主、0=客
-        $winnerText = (!isset($it['winteam']) || $it['winteam'] === '' || $it['winteam'] === null)
-            ? '未選'
-            : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
-
-        // 1=大、0=小
-        $totalText = (!isset($it['bigsmall']) || $it['bigsmall'] === '' || $it['bigsmall'] === null)
-            ? '未選'
-            : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-
-        $sub = "勝負：{$winnerText}  大小：{$totalText}";
-
-        return [
-            "type" => "box",
-            "layout" => "vertical",
-            "spacing" => "xs",
-            "margin"  => "xs",
-            "action" => [
-                "type" => "postback",
-                "label" => "修改",
-                "data"  => json_encode([
-                    "cmd"   => "pick",
-                    "event" => (int)$it['event_id']
-                ], JSON_UNESCAPED_UNICODE),
-                "displayText" => "修改預測"
-            ],
-            "contents" => [
-                ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
-                ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
-            ]
-        ];
-    }
     private function fetchTodayMyPredsCombined(int $analystId): array
     {
         $start = strtotime(date('Y-m-d 00:00:00'));
@@ -999,29 +867,24 @@ class Line extends Api
 
         $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
             : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
-
         $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
             : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-
         $sub = "勝負：{$winnerText}　大小：{$totalText}";
 
-        // 如果要顯示結果
-        $resultLine = null;
+        $contents = [
+            ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+            ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true]
+        ];
+
         if ($showResult) {
             $resultMap = [0 => '⏳ 未確認', 1 => '✅ 命中', 2 => '❌ 未中'];
-            $resultLine = [
+            $contents[] = [
                 "type" => "text",
                 "text" => "結果：" . ($resultMap[$it['comply']] ?? '⏳ 未確認'),
                 "size" => "xs",
                 "color" => "#333333"
             ];
         }
-
-        $contents = [
-            ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
-            ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
-        ];
-        if ($resultLine) $contents[] = $resultLine;
 
         return [
             "type" => "box",
@@ -1038,7 +901,7 @@ class Line extends Api
         ];
     }
 
-    private function buildPredListBubbles(array $preds, string $title, int $rowsPerBubble = 8, bool $showResult = false): array
+    private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 8, bool $showResult = false, bool $useCarousel = true): array
     {
         if (empty($preds)) {
             return [[
@@ -1071,8 +934,8 @@ class Line extends Api
             ]];
         }
 
-        $chunks = array_chunk($preds, $rowsPerBubble);
-        $messages = [];
+        $chunks = array_chunk($preds, $rowsPerPage);
+        $bubbles = [];
 
         foreach ($chunks as $pageIdx => $chunk) {
             $rows = [];
@@ -1087,7 +950,7 @@ class Line extends Api
                 $bubbleTitle .= "（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
             }
 
-            $bubble = [
+            $bubbles[] = [
                 "type" => "bubble",
                 "size" => "mega",
                 "header" => [
@@ -1107,15 +970,26 @@ class Line extends Api
                     "contents" => $rows
                 ]
             ];
-
-            $messages[] = [
-                "type" => "flex",
-                "altText" => $title,
-                "contents" => $bubble
-            ];
         }
 
-        return $messages;
+        if ($useCarousel) {
+            return [[
+                "type" => "flex",
+                "altText" => $title,
+                "contents" => [
+                    "type" => "carousel",
+                    "contents" => $bubbles
+                ]
+            ]];
+        } else {
+            return array_map(function ($bubble) use ($title) {
+                return [
+                    "type" => "flex",
+                    "altText" => $title,
+                    "contents" => $bubble
+                ];
+            }, $bubbles);
+        }
     }
 
     private function sendMyPredResultsPage(): void
@@ -1126,32 +1000,35 @@ class Line extends Api
             return;
         }
 
-        // 時間窗
-        $todayStart    = strtotime(date('Y-m-d 00:00:00'));
+        // 近 7 天（含今天）
+        $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
-        $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days'))); // 含今天共7天
 
-        // 未結算（今天）
-        $todayAll = $this->fetchMyPredsCombinedInRange($analystId, $todayStart, $tomorrowStart);
-        $pending  = array_values(array_filter($todayAll, function ($it) {
+        $all = $this->fetchMyPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart);
+
+        $pending = array_values(array_filter($all, function ($it) {
             return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
         }));
 
-        // 已結算（近 7 天）
-        $last7All = $this->fetchMyPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart);
-        $settled  = array_values(array_filter($last7All, function ($it) {
+        $settled = array_values(array_filter($all, function ($it) {
             return (int)(isset($it['comply']) ? $it['comply'] : 0) > 0;
         }));
 
         $messages = [];
 
-        // 1) 未結算（與「我的今日預測」同版型，不顯示結果）
-        $messages = array_merge($messages, $this->buildPredListBubbles($pending, "📝 未結算預測（今天）", 8, false));
+        // 1) 未結算（近7天）— 不顯示結果；多則 bubble 分頁
+        $messages = array_merge(
+            $messages,
+            $this->buildPredListBubbles($pending, "📝 未結算預測（近7天）", 8, false, false)
+        );
 
-        // 2) 已結算（近 7 天，顯示 comply 結果）
-        $messages = array_merge($messages, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true));
+        // 2) 已結算（近7天）— 顯示結果；多則 bubble 分頁
+        $messages = array_merge(
+            $messages,
+            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false)
+        );
 
-        // 3) 勝率（先保留一顆空的）
+        // 3) 勝率（先留空）
         $messages[] = [
             "type" => "flex",
             "altText" => "勝率",
@@ -1213,26 +1090,28 @@ class Line extends Api
                     'master'       => (string)$r->master,
                     'winteam'      => null, // 1=主、0=客
                     'bigsmall'     => null, // 1=大、0=小
-                    'comply'       => 0,    // 0=未確認, 1=贏, 2=輸（若同場兩筆不同，以較大者覆蓋：2 > 1 > 0）
+                    'comply'       => 0,    // 0=未確認, 1=贏, 2=輸
                     '_win_predtime' => 0,
                     '_big_predtime' => 0,
                 ];
             }
 
-            // 合併勝負/大小（以較新的 pred 覆蓋）
-            if ((int)$r->pred_type === 1) { // 讓分/勝負
+            // 勝負/讓分
+            if ((int)$r->pred_type === 1) {
                 if ((int)$r->predtime >= $byEvent[$eid]['_win_predtime']) {
                     $byEvent[$eid]['winteam']       = $r->winteam;
                     $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
                 }
-            } elseif ((int)$r->pred_type === 2) { // 大小
+            }
+            // 大小
+            elseif ((int)$r->pred_type === 2) {
                 if ((int)$r->predtime >= $byEvent[$eid]['_big_predtime']) {
                     $byEvent[$eid]['bigsmall']      = $r->bigsmall;
                     $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
                 }
             }
 
-            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0），表示只要有一筆已輸就視為輸，已贏會被 2 蓋掉
+            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0）
             $complyVal = (int)$r->comply;
             if ($complyVal > $byEvent[$eid]['comply']) {
                 $byEvent[$eid]['comply'] = $complyVal;
