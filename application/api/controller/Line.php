@@ -1097,6 +1097,7 @@ class Line extends Api
                     'bigsmall'     => null, // 1=大、0=小
                     'comply_refund' => 0,  // 讓分輸贏
                     'comply_big'    => 0,  // 大小輸贏
+                    'comply'        => 0, 
                     '_win_predtime' => 0,
                     '_big_predtime' => 0,
                     'guests_score' => (int)$r->guests_score,
@@ -1119,6 +1120,12 @@ class Line extends Api
                     $byEvent[$eid]['comply_big'] = (int)$r->comply;
                     $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
                 }
+            }
+
+            // 結算狀態：若同場兩筆不同，就用最大值（2>1>0）
+            $complyVal = (int)$r->comply;
+            if ($complyVal > $byEvent[$eid]['comply']) {
+                $byEvent[$eid]['comply'] = $complyVal;
             }
         }
 
