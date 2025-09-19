@@ -155,11 +155,11 @@ class Line extends Api
                         break;
 
                     case 'heatmap':
-                        $this->sendReplyMessageCus([["type" => "text", "text" => "活動圖功能開發中"]]);
+                        $this->sendReplyMessage("活動圖功能開發中");
                         break;
 
                     default:
-                        $this->sendReplyMessageCus([["type" => "text", "text" => "尚未支援的選單功能"]]);
+                        $this->sendReplyMessage("尚未支援的選單功能");
                         break;
                 }
                 break;
