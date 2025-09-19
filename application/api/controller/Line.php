@@ -599,17 +599,17 @@ class Line extends Api
         return $messages;
     }
 
-    function buildEventRowBox($ev): array
+    function buildEventRowBox(array $ev): array
     {
-        $time = (isset($ev->starttime) && $ev->starttime) ? date('H:i', (int)$ev->starttime) : '--:--';
-        $guest = (string)($ev->guests ?? '');
-        $master = (string)($ev->master ?? '');
+        $time = (!empty($ev['starttime'])) ? date('H:i', (int)$ev['starttime']) : '--:--';
+        $guest  = (string)($ev['guests'] ?? '');
+        $master = (string)($ev['master'] ?? '');
 
         // ✅ 用共用工具產出「客讓/主讓 + 大小」的一行
         $oddsOneLine = $this->formatListOddsLine([
-            'guests_refund' => $ev->guests_refund ?? '',
-            'master_refund' => $ev->master_refund ?? '',
-            'bigscore'      => $ev->bigscore ?? '',
+            'guests_refund' => $ev['guests_refund'] ?? '',
+            'master_refund' => $ev['master_refund'] ?? '',
+            'bigscore'      => $ev['bigscore'] ?? '',
         ]);
 
         $title = "{$time}  {$guest} vs {$master}(主)";
@@ -622,12 +622,27 @@ class Line extends Api
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
-                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev['id'] ?? ''], JSON_UNESCAPED_UNICODE),
-                "displayText" => "{$title}"
+                "data"  => json_encode([
+                    "cmd"   => "pick",
+                    "event" => (int)($ev['id'] ?? 0)
+                ], JSON_UNESCAPED_UNICODE),
+                "displayText" => $title
             ],
             "contents" => [
-                ["type" => "text", "text" => $title, "wrap" => true, "weight" => "bold", "size" => "sm"],
-                ["type" => "text", "text" => $oddsOneLine, "wrap" => true, "size" => "xs", "color" => "#666666"],
+                [
+                    "type" => "text",
+                    "text" => $title,
+                    "wrap" => true,
+                    "weight" => "bold",
+                    "size" => "sm"
+                ],
+                [
+                    "type" => "text",
+                    "text" => $oddsOneLine,
+                    "wrap" => true,
+                    "size" => "xs",
+                    "color" => "#666666"
+                ],
                 ["type" => "separator", "margin" => "md"]
             ]
         ];
