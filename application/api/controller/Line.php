@@ -632,25 +632,17 @@ class Line extends Api
     {
         $bubbles = [];
         $chunks = array_chunk($events, $rowsPerBubble);
-        $totalPages = count($chunks);
 
-        foreach ($chunks as $idx => $chunk) {
-            $page = $idx + 1;
-            // 標題只顯示日期；不再顯示頁次
-            $title = "📅 {$date}";
-
+        foreach ($chunks as $chunk) {
             $rows = [];
             foreach ($chunk as $ev) {
                 $rows[] = $this->buildEventRowBox($ev);
             }
-            // 去掉最後一列的分隔線
+            // 去掉最後一列的分隔線（若存在）
             if (!empty($rows)) {
                 $last = &$rows[count($rows) - 1]["contents"];
                 if (!empty($last) && end($last)["type"] === "separator") array_pop($last);
             }
-
-            // 統一分頁顯示：放在 footer
-            $footerText = "第 {$page} 頁 / 共 {$totalPages} 頁";
 
             $bubbles[] = [
                 "type" => "bubble",
@@ -660,7 +652,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => $title,
+                        "text" => "📅 {$date}",
                         "weight" => "bold",
                         "size" => "md"
                     ]]
@@ -671,44 +663,49 @@ class Line extends Api
                     "spacing" => "sm",
                     "contents" => $rows
                 ],
-                "footer" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => $footerText,
-                        "size" => "xxs",
-                        "color" => "#888888"
-                    ]]
-                ]
+                // 不在這裡放 footer（頁碼）
             ];
         }
+
         return $bubbles;
     }
 
-    /**
-     * 將 $table_data_list（date => [events...]）轉成「多個 Flex 訊息」
-     * - 每個 Flex 訊息是一個 carousel（最多 10 個 bubbles）
-     * - 回傳為 LINE Messaging API 的 message 陣列（可直接拿去 reply/push）
-     */
     function tableDataListToFlexMessages(array $table_data_list, int $rowsPerBubble = 8): array
     {
-        // 先把所有日的 bubbles 串起來
+        // 1) 先組出所有日期的 bubbles（不含頁碼）
         $allBubbles = [];
         foreach ($table_data_list as $date => $events) {
             if (!is_array($events) || empty($events)) continue;
             $dayBubbles = $this->buildDayBubbles($date, $events, $rowsPerBubble);
             $allBubbles = array_merge($allBubbles, $dayBubbles);
         }
+
         if (empty($allBubbles)) {
-            // 沒資料時，回一則簡單文字
             return [[
                 "type" => "text",
                 "text" => "目前沒有賽事資訊。"
             ]];
         }
 
-        // 10 個 bubble 為一個 carousel（LINE 限制）
+        // 2) 跨所有日期統一編號頁碼（從 1 到 total）
+        $total = count($allBubbles);
+        foreach ($allBubbles as $i => &$bubble) {
+            $pageNum = $i + 1;
+            // 補上 footer：第 X 頁 / 共 Y 頁
+            $bubble["footer"] = [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [[
+                    "type"   => "text",
+                    "text"   => "第 {$pageNum} 頁 / 共 {$total} 頁",
+                    "size"   => "xxs",
+                    "color"  => "#888888"
+                ]]
+            ];
+        }
+        unset($bubble);
+
+        // 3) 10 個 bubble 為一個 carousel（LINE 限制）
         $messages = [];
         foreach (array_chunk($allBubbles, 10) as $bubblesPage) {
             $messages[] = [
