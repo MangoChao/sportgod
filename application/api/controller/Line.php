@@ -1240,7 +1240,7 @@ class Line extends Api
 
     /**
      * 建構「預測結果」頁面 messages（共用：自己 / 指定分析師）
-     * - 未結算：沿用你現有的規則（若你先前已調整成「不設日期」就用 pending 全部；否則就用近7天）
+     * - 未結算：沿用你現有的規則（若你先前已調整成「不設日期」就用 pending 全部；否則就用近14天）
      * - 已結算：近 7 天
      * - 勝率：placeholder
      * - 每一段使用 carousel（同一則訊息左右滑），最後再統一切到最多 5 則
@@ -1248,28 +1248,28 @@ class Line extends Api
     private function buildPredResultsPageMessages(int $analystId): array
     {
         // === 時間範圍 ===
-        $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
-        $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
+        $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-13 days')));
+        $tomorrowStart   = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
         // === 未結算 ===
         // 若你要「未結算不設日期」，改成：$pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
-        $pending = $this->fetchPredsCombined($analystId, $sevenDaysAgo, $tomorrowStart, 'pending');
+        $pending = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'pending');
 
-        // === 已結算（近7天）===
-        $settled = $this->fetchPredsCombined($analystId, $sevenDaysAgo, $tomorrowStart, 'settled');
+        // === 已結算（近14天）===
+        $settled = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'settled');
 
         $messages = [];
 
         // 1) 未結算（carousel: 同一則裡可左右滑）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, true)
+            $this->buildPredListBubbles($pending, "⏳ 未結算預測（近14天）", 8, false, true)
         );
 
         // 2) 已結算（carousel）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true)
+            $this->buildPredListBubbles($settled, "📊 已結算預測（近14天）", 8, true, true)
         );
 
         // 3) 勝率 placeholder（維持你原本的樣式）
@@ -1283,7 +1283,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => "📈 勝率（近7天）",
+                        "text" => "📈 勝率（近14天）",
                         "weight" => "bold",
                         "size" => "md"
                     ]]
