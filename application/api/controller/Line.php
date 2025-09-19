@@ -257,38 +257,67 @@ class Line extends Api
         }
     }
 
+    /**
+     * 合併：把賽事 bubbles + 我的今日預測 bubble 放進同一個 carousel
+     * - 最多 10 個 bubbles（LINE 限制）
+     * - 只回「一則」訊息：type=flex
+     */
+    private function buildUnifiedEventsAndMyPredsFlex(array $table_data_list, array $myPredsCombined, int $rowsPerBubble = 8): array
+    {
+        // 1) 先做賽事 bubbles（你原本的方法）
+        $eventBubbles = [];
+        foreach ($table_data_list as $date => $events) {
+            if (!is_array($events) || empty($events)) continue;
+            // 你現有的：buildDayBubbles($date, $events, $rowsPerBubble)
+            $dayBubbles = $this->buildDayBubbles($date, $events, $rowsPerBubble);
+
+            // 建議：把 row 的 margin / spacing 降到更緊湊
+            foreach ($dayBubbles as &$b) {
+                if (isset($b['body']['spacing'])) $b['body']['spacing'] = 'xs';
+                // 如果你在 row 裡有 "margin":"md" 的 separator，可以改成 "xs"
+            }
+            unset($b);
+
+            $eventBubbles = array_merge($eventBubbles, $dayBubbles);
+        }
+
+        // 2) 我的今日預測（合併版）→ 單一 bubble
+        $myPredBubbleMsgs = $this->buildMyPredsBubbleCombined($myPredsCombined); // 回傳的是 [ 一則 flex ]
+        $myPredBubble = $myPredBubbleMsgs[0]['contents']; // 取出 bubble 本體
+
+        // 3) 合併到同一個 carousel，最多 10 個 bubble
+        $allBubbles = $eventBubbles;
+        // 最後插入「我的今日預測」這顆
+        $allBubbles[] = $myPredBubble;
+        $allBubbles = array_slice($allBubbles, 0, 10);
+
+        // 4) 打包成「一則」flex 訊息
+        $oneMessage = [
+            "type" => "flex",
+            "altText" => "賽事清單與我的今日預測",
+            "contents" => [
+                "type" => "carousel",
+                "contents" => $allBubbles
+            ]
+        ];
+
+        // 回傳「一則」訊息（陣列）
+        return [$oneMessage];
+    }
+
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單
+        // 賽事資料
         $table_data_list = $this->eventlist($cid);
-        if (empty($table_data_list)) {
-            $this->sendReplyMessageCus([[
-                "type" => "text",
-                "text" => "今天暫無賽事。"
-            ]]);
-            return;
-        }
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 你原本的方法
 
-        // 2) 我的今日預測（獨立 bubble）
+        // 我的今日預測（合併同場）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
-        $myPredMsgs = [];
-        if ($analystId) {
-            $combined = $this->fetchTodayMyPredsCombined($analystId);
-            $myPredMsgs = $this->buildMyPredsBubbleCombined($combined); // 一則 flex
-        }
+        $combined = $analystId ? $this->fetchTodayMyPredsCombined($analystId) : [];
 
-        // 3) 合併並尊重「一次最多 5 則」
-        $messages = $flexMessages;
-        $maxForList = 5 - (empty($myPredMsgs) ? 0 : count($myPredMsgs));
-        if ($maxForList < 0) $maxForList = 0;
+        // 一則訊息：carousel（賽事 + 我的今日預測）
+        $messages = $this->buildUnifiedEventsAndMyPredsFlex($table_data_list, $combined, 8);
 
-        $messages = array_slice($messages, 0, $maxForList);
-        if (!empty($myPredMsgs)) {
-            foreach ($myPredMsgs as $m) { $messages[] = $m; }
-        }
-
-        // 4) 送出
+        // 發送（你指定要用這個）
         $this->sendReplyMessageCus($messages);
     }
 
