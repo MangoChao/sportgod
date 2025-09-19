@@ -435,7 +435,7 @@ class Line extends Api
         $title = "{$ev->guests} vs {$ev->master}(主)\n時間：" . date('Y-m-d H:i', (int)$ev->starttime);
         $w = $winner === '' ? '未選' : ($winner === 'home' ? '主勝' : '客勝');
         $t = $total  === '' ? '未選' : ($total  === 'over' ? '大分' : '小分');
-        return "🎯 選擇預測\n{$title}\n勝負：{$w}　大小：{$t}\n（可繼續點下方按鈕切換，完成後按「送出」）";
+        return "🎯 選擇預測\n{$title}\n讓分：{$w}　大小：{$t}\n（可繼續點下方按鈕切換，完成後按「送出」）";
     }
 
     private function replyWithQuickReply(string $text, int $eventId): void
@@ -823,7 +823,7 @@ class Line extends Api
         $paramsRefund = [];
         $paramsBigs   = [];
 
-        // 勝負 winner: 'home' | 'away' | ''
+        // 讓分 winner: 'home' | 'away' | ''
         if (!empty($state['winner'])) {
             // home = 1（主場）、away = 0（客場）
             $paramsRefund[$eventId] = ($state['winner'] === 'home') ? 1 : 0;
@@ -869,7 +869,7 @@ class Line extends Api
             : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
         $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
             : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-        $sub = "勝負：{$winnerText}　大小：{$totalText}";
+        $sub = "讓分：{$winnerText}　大小：{$totalText}";
 
         $contents = [
             ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
@@ -1062,8 +1062,8 @@ class Line extends Api
     }
 
     /**
-     * 依時間窗抓取我的預測，合併同一場（勝負/大小），並帶出 comply
-     * - pred_type: 1=讓分(勝負, winteam), 2=大小(bigsmall)
+     * 依時間窗抓取我的預測，合併同一場（讓分/大小），並帶出 comply
+     * - pred_type: 1=讓分(讓分, winteam), 2=大小(bigsmall)
      * - comply: 0=未確認, 1=贏, 2=輸
      * - $startTs（含）~ $endTs（不含）
      */
@@ -1096,7 +1096,7 @@ class Line extends Api
                 ];
             }
 
-            // 勝負/讓分
+            // 讓分/讓分
             if ((int)$r->pred_type === 1) {
                 if ((int)$r->predtime >= $byEvent[$eid]['_win_predtime']) {
                     $byEvent[$eid]['winteam']       = $r->winteam;
