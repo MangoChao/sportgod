@@ -288,7 +288,7 @@ class Line extends Api
             $todayStart    = strtotime(date('Y-m-d 00:00:00'));
             $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-            $todayPending = $this->fetchPredsCombinedInRange($analystId, $todayStart, $tomorrowStart, false);
+            $todayPending = $this->fetchPredsCombined($analystId, $todayStart, $tomorrowStart, false);
 
             // 用共用清單：showResult=false、useCarousel=true（回傳一則或一則空）
             $tmp = $this->buildPredListBubbles($todayPending, "📝 我的今日預測", 8, false, true);
@@ -978,19 +978,22 @@ class Line extends Api
             return;
         }
 
-        // 近 7 天（含今天）
+        // 已結算：近 7 天（含今天），維持原邏輯
         $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-        $pending = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, false);
-        $settled = $this->fetchPredsCombinedInRange($analystId, $sevenDaysAgo, $tomorrowStart, true);
+        // 未結算：不套日期（全部未結算）
+        $pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
+
+        // 已結算（近 7 天）
+        $settled = $this->fetchPredsCombined($analystId, $sevenDaysAgo, $tomorrowStart, 'settled');
 
         $messages = [];
 
-        // 1) 未結算（近7天）— 不顯示結果；多則 bubble 分頁
+        // 1) 未結算（全部）— 不顯示結果；多則 bubble 分頁
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "📝 未結算預測（近7天）", 8, false, false)
+            $this->buildPredListBubbles($pending, "📝 未結算預測", 8, false, false)
         );
 
         // 2) 已結算（近7天）— 顯示結果；多則 bubble 分頁
@@ -999,7 +1002,7 @@ class Line extends Api
             $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false)
         );
 
-        // 3) 勝率（先留空）
+        // 3) 勝率 placeholder
         $messages[] = [
             "type" => "flex",
             "altText" => "勝率",
@@ -1033,20 +1036,29 @@ class Line extends Api
     }
 
     /**
-     * 取某分析師在指定日期區間的預測，並合併同場 pred_type
-     * pred_type: 1=讓分(winteam)、2=大小(bigsmall)
+     * 取某分析師的預測（可選日期範圍），並合併同場 pred_type
+     * @param int        $analystId
+     * @param int|null   $start     以 event.starttime 為基準（秒），可為 null
+     * @param int|null   $end       同上，可為 null（若 start/end 皆 null，則不套日期條件）
+     * @param string     $status    'pending' | 'settled' | 'all'
+     *   - pending: p.comply = 0
+     *   - settled: p.comply > 0
+     *   - all: 不限制
      */
-    private function fetchPredsCombinedInRange(int $analystId, int $start, int $end, bool $onlySettled = false): array
+    private function fetchPredsCombined(int $analystId, ?int $start, ?int $end, string $status = 'all'): array
     {
         $query = model('Pred')
             ->alias('p')
             ->join('event e', 'e.id = p.event_id')
             ->field('p.*, e.guests, e.master, e.starttime, e.guests_refund, e.master_refund, e.bigscore, e.guests_score, e.master_score')
-            ->where('p.analyst_id', $analystId)
-            ->where('e.starttime', '>=', $start)
-            ->where('e.starttime', '<',  $end);
+            ->where('p.analyst_id', $analystId);
 
-        if ($onlySettled) {
+        if ($start !== null) $query->where('e.starttime', '>=', $start);
+        if ($end   !== null) $query->where('e.starttime', '<',  $end);
+
+        if ($status === 'pending') {
+            $query->where('p.comply', '=', 0);
+        } elseif ($status === 'settled') {
             $query->where('p.comply', '>', 0);
         }
 
@@ -1055,9 +1067,9 @@ class Line extends Api
         $merged = [];
         foreach ($rows as $r) {
             $eid = (int)$r['event_id'];
-            $gs = $r['guests_score'];
-            $ms = $r['master_score'];
             if (!isset($merged[$eid])) {
+                $gs = $r['guests_score'];
+                $ms = $r['master_score'];
                 $merged[$eid] = [
                     'event_id'      => $eid,
                     'starttime'     => (int)$r['starttime'],
@@ -1075,7 +1087,6 @@ class Line extends Api
                 ];
             }
 
-            // 正確對應：1=讓分、2=大小
             if ((int)$r['pred_type'] === 1) {
                 $merged[$eid]['winteam']       = $r['winteam'];
                 $merged[$eid]['comply_refund'] = (int)$r['comply'];
@@ -1274,8 +1285,8 @@ class Line extends Api
         $start = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
         $end   = time();
 
-        $pending = $this->fetchPredsCombinedInRange($analystId, $start, $end, false);
-        $settled = $this->fetchPredsCombinedInRange($analystId, $start, $end, true);
+        $pending = $this->fetchPredsCombined($analystId, $start, $end, false);
+        $settled = $this->fetchPredsCombined($analystId, $start, $end, true);
 
         $msgs = [];
         if (!empty($pending)) {
