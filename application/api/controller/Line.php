@@ -259,40 +259,48 @@ class Line extends Api
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單
+        // 1) 賽事清單（你原本的）
         $table_data_list = $this->eventlist($cid);
-        if (empty($table_data_list)) {
-            $this->sendReplyMessageCus([[
-                "type" => "text",
-                "text" => "今天暫無賽事。"
-            ]]);
-            return;
-        }
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 你原本的方法
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 可能多則
 
-        // 2) 我的今日預測（獨立 bubble）
+        // 2) 我的今日預測（合併同場 → 多 bubble 分頁）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
-        $myPredMsgs = [];
+        $myPredBubbles = [];
         if ($analystId) {
-            $combined = $this->fetchTodayMyPredsCombined($analystId);
+            $combined = $this->fetchTodayMyPredsCombined($analystId); // 你已修正 pred_type 對應
             $myPredBubbles = $this->buildMyPredsBubblesCombined($combined, 5);
         }
 
+        // 3) 合併：我的預測優先顯示；若今天有賽事，至少保留 1 格給賽事清單
         $messages = [];
-        if (!empty($myPredMsgs)) {
-            foreach ($myPredMsgs as $m) {
-                $messages[] = $m;
-            }
+        $hasEvents = !empty($flexMessages);
+        $maxTotal = 5;
+
+        if ($hasEvents) {
+            // 若有賽事，至少留 1 格
+            $maxMyPred = $maxTotal - 1;
+        } else {
+            // 沒有賽事就把名額都給我的預測
+            $maxMyPred = $maxTotal;
         }
-        // 預留剩餘名額給賽事清單
-        $remain = 5 - count($messages);
-        if ($remain > 0) {
+
+        // 放我的預測（頁數可能 >1，但最多放 $maxMyPred 則）
+        foreach (array_slice($myPredBubbles, 0, $maxMyPred) as $m) {
+            $messages[] = $m;
+        }
+
+        // 再放賽事清單（把剩餘名額補滿）
+        $remain = $maxTotal - count($messages);
+        if ($remain > 0 && $hasEvents) {
             foreach (array_slice($flexMessages, 0, $remain) as $m) {
                 $messages[] = $m;
             }
         }
 
         // 4) 送出
+        if (empty($messages)) {
+            $messages = [["type" => "text", "text" => "今天暫無賽事與預測。"]];
+        }
         $this->sendReplyMessageCus($messages);
     }
 
