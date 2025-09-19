@@ -1125,8 +1125,14 @@ class Line extends Api
         }
 
         $all = $this->fetchTodayMyPredsCombined($analystId); // 你原本的取法，含 comply
-        $pending = array_filter($all, fn($it) => (int)($it['comply'] ?? 0) === 0);
-        $settled = array_filter($all, fn($it) => (int)($it['comply'] ?? 0) > 0);
+        $pending = array_filter($all, function($it) {
+            return (int)(isset($it['comply']) ? $it['comply'] : 0) === 0;
+        });
+
+        $settled = array_filter($all, function($it) {
+            return (int)(isset($it['comply']) ? $it['comply'] : 0) > 0;
+        });
+
 
         $messages = [];
 
