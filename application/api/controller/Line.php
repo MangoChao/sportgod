@@ -862,25 +862,36 @@ class Line extends Api
 
     private function buildPredRow(array $it, bool $showResult = false): array
     {
-        $time  = !empty($it['starttime']) ? date('H:i', (int)$it['starttime']) : '--:--';
+        $time  = !empty($it['starttime']) ? date('m/d H:i', (int)$it['starttime']) : '--:--';
         $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
 
-        $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
-            : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
-        $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
-            : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-        $sub = "讓分：{$winnerText}　大小：{$totalText}";
+        // 顯示比分與盤口
+        $scoreLine = "比分：{$it['guests_score']} - {$it['master_score']}";
+        $handicap  = "盤口：客 {$it['guests_refund']} ／ 主 {$it['master_refund']}　大小：{$it['bigscore']}";
 
         $contents = [
             ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
-            ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true]
+            ["type" => "text", "text" => $scoreLine, "size" => "xs", "color" => "#444444"],
+            ["type" => "text", "text" => $handicap,  "size" => "xs", "color" => "#666666", "wrap" => true],
         ];
 
-        if ($showResult) {
-            $resultMap = [0 => '⏳ 未確認', 1 => '✅ 命中', 2 => '❌ 未中'];
+        // 顯示預測
+        $map = [0 => '⏳', 1 => '✅', 2 => '❌'];
+
+        if ($it['winteam'] !== null && $it['winteam'] !== '') {
+            $winnerText = ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
             $contents[] = [
                 "type" => "text",
-                "text" => "結果：" . ($resultMap[$it['comply']] ?? '⏳ 未確認'),
+                "text" => "{$map[$it['comply_refund']]} 讓分：{$winnerText}",
+                "size" => "xs",
+                "color" => "#333333"
+            ];
+        }
+        if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
+            $totalText = ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
+            $contents[] = [
+                "type" => "text",
+                "text" => "{$map[$it['comply_big']]} 大小：{$totalText}",
                 "size" => "xs",
                 "color" => "#333333"
             ];
@@ -891,12 +902,6 @@ class Line extends Api
             "layout" => "vertical",
             "spacing" => "xs",
             "margin"  => "xs",
-            "action" => [
-                "type" => "postback",
-                "label" => "查看",
-                "data"  => json_encode(["cmd" => "pick", "event" => (int)$it['event_id']], JSON_UNESCAPED_UNICODE),
-                "displayText" => "查看預測"
-            ],
             "contents" => $contents
         ];
     }
@@ -1090,23 +1095,28 @@ class Line extends Api
                     'master'       => (string)$r->master,
                     'winteam'      => null, // 1=主、0=客
                     'bigsmall'     => null, // 1=大、0=小
-                    'comply'       => 0,    // 0=未確認, 1=贏, 2=輸
+                    'comply_refund' => 0,  // 讓分輸贏
+                    'comply_big'    => 0,  // 大小輸贏
                     '_win_predtime' => 0,
                     '_big_predtime' => 0,
+                    'guests_score' => (int)$r->guests_score,
+                    'master_score' => (int)$r->master_score,
+                    'master_refund' => (string)$r->master_refund,
+                    'guests_refund' => (string)$r->guests_refund,
+                    'bigscore'     => (string)$r->bigscore,
                 ];
             }
 
-            // 讓分/讓分
-            if ((int)$r->pred_type === 1) {
+            if ((int)$r->pred_type === 1) { // 讓分
                 if ((int)$r->predtime >= $byEvent[$eid]['_win_predtime']) {
-                    $byEvent[$eid]['winteam']       = $r->winteam;
+                    $byEvent[$eid]['winteam'] = $r->winteam;
+                    $byEvent[$eid]['comply_refund'] = (int)$r->comply;
                     $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
                 }
-            }
-            // 大小
-            elseif ((int)$r->pred_type === 2) {
+            } elseif ((int)$r->pred_type === 2) { // 大小
                 if ((int)$r->predtime >= $byEvent[$eid]['_big_predtime']) {
-                    $byEvent[$eid]['bigsmall']      = $r->bigsmall;
+                    $byEvent[$eid]['bigsmall'] = $r->bigsmall;
+                    $byEvent[$eid]['comply_big'] = (int)$r->comply;
                     $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
                 }
             }
