@@ -278,14 +278,14 @@ class Line extends Api
             $myPredMsgs = $this->buildMyPredsBubbleCombined($combined); // 一則 flex
         }
 
-        // 3) 合併並尊重「一次最多 5 則」
-        $messages = $flexMessages;
-        $maxForList = 5 - (empty($myPredMsgs) ? 0 : count($myPredMsgs));
-        if ($maxForList < 0) $maxForList = 0;
-
-        $messages = array_slice($messages, 0, $maxForList);
+        $messages = [];
         if (!empty($myPredMsgs)) {
             foreach ($myPredMsgs as $m) { $messages[] = $m; }
+        }
+        // 預留剩餘名額給賽事清單
+        $remain = 5 - count($messages);
+        if ($remain > 0) {
+            foreach (array_slice($flexMessages, 0, $remain) as $m) { $messages[] = $m; }
         }
 
         // 4) 送出
