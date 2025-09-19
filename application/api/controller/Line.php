@@ -149,8 +149,7 @@ class Line extends Api
                         $this->sendTodayEventsList();
                         break;
 
-                    case 'result':
-                        // 📊 預測結果頁面
+                    case 'results':
                         $this->sendMyPredResultsPage();
                         break;
 
