@@ -131,22 +131,38 @@ class Line extends Api
 
     public function webhook_postback_event()
     {
-        $raw = $this->webhook_postback_data ?? '';
-        $p = json_decode($raw, true);
-
-        $cmd = $p['cmd'] ?? null;
-        $action  = $p['action'] ?? null;
-        $userId = $this->webhook_userId;
-
-        if (!$userId) {
+        $data = $this->webhook_postback_data ?? '';
+        $p = json_decode($data, true);
+        if (!is_array($p)) {
             $this->sendReplyMessage("參數錯誤，請重試。");
             return;
         }
 
+        $cmd = $p['cmd'] ?? null;
+        $userId = $this->webhook_userId;
+
         switch ($cmd) {
             case 'menu':
-                $this->handleMainMenuAction($action);
-                return;
+                $action = $p['action'] ?? '';
+                switch ($action) {
+                    case 'mine':
+                        $this->sendTodayEventsList();
+                        break;
+
+                    case 'result':
+                        // 📊 預測結果頁面
+                        $this->sendMyPredResultsPage();
+                        break;
+
+                    case 'heatmap':
+                        $this->sendReplyMessageCus([["type" => "text", "text" => "活動圖功能開發中"]]);
+                        break;
+
+                    default:
+                        $this->sendReplyMessageCus([["type" => "text", "text" => "尚未支援的選單功能"]]);
+                        break;
+                }
+                break;
             case 'pick':
                 $eventId = isset($p['event']) ? (int)$p['event'] : 0;
                 if (!$eventId) {
@@ -226,34 +242,6 @@ class Line extends Api
             default:
                 $this->sendReplyMessage("尚未支援的操作。");
                 break;
-        }
-    }
-
-    // 主選單分流：這裡只先實作 'mine'，其他 action 可再補
-    private function handleMainMenuAction(?string $action): void
-    {
-        switch ($action) {
-            case 'mine':
-                // 就像之前輸入「賽事」那條路徑：列出賽事清單，讓用戶點賽事開始預測
-                $this->sendTodayEventsList(); // ←看下面方法
-                return;
-
-            case 'winrate':
-            case 'profit':
-            case 'results':
-            case 'heatmap':
-                // 先回占位文字，之後你再換成實作
-                $this->sendReplyMessageCus([[
-                    "type" => "text",
-                    "text" => "功能開發中：{$action}"
-                ]]);
-                return;
-
-            default:
-                // 回主選單
-                $messages_obj = $this->buildMainMenuFlex();
-                $this->sendReplyMessageCus($messages_obj);
-                return;
         }
     }
 
@@ -433,65 +421,43 @@ class Line extends Api
             ]
         ];
     }
-
-    /**
-     * 取「今天」我的預測，並把同一場的 pred_type=1/2 合併
-     * - 以 predtime 較新者覆蓋同類型
-     * - 回傳為已合併的列表，依開賽時間排序
-     */
     private function fetchTodayMyPredsCombined(int $analystId): array
     {
-        $start = strtotime('today');
-        $end   = strtotime('tomorrow');
-
-        // 把今天該分析師所有（大小/勝負）都抓出來
         $rows = model('Pred')->alias('p')
             ->join('event e', 'e.id = p.event_id')
-            ->where('p.analyst_id = ' . $analystId . ' AND e.starttime >= ' . $start . ' AND e.starttime < ' . $end)
-            ->order('p.predtime desc')              // 讓較新的排前面，方便合併時「新覆蓋舊」
+            ->where('p.analyst_id = ' . $analystId)
+            ->whereDay('e.starttime') // 當日
+            ->order('e.starttime asc')
             ->select();
 
         if (!$rows) return [];
 
-        // 合併：以 event_id 為 key
         $byEvent = [];
         foreach ($rows as $r) {
             $eid = (int)$r->event_id;
             if (!isset($byEvent[$eid])) {
                 $byEvent[$eid] = [
-                    'event_id'     => $eid,
-                    'starttime'    => (int)$r->starttime,
-                    'guests'       => (string)$r->guests,
-                    'master'       => (string)$r->master,
-                    // 兩種預測，初始化為 null
-                    'winteam'      => null,  // 1=主、0=客
-                    'bigsmall'     => null,  // 1=大、0=小
-                    // 記錄各自最新的 predtime
-                    '_win_predtime' => 0,
-                    '_big_predtime' => 0,
+                    'event_id'  => $eid,
+                    'starttime' => (int)$r->starttime,
+                    'guests'    => (string)$r->guests,
+                    'master'    => (string)$r->master,
+                    'winteam'   => null,
+                    'bigsmall'  => null,
+                    'comply'    => 0, // 預設未結算
                 ];
             }
-            // 依 pred_type 寫入；較新的 predtime 覆蓋較舊的
-            if ((int)$r->pred_type === 1) { // 勝負
-                if ($r->predtime >= $byEvent[$eid]['_win_predtime']) {
-                    $byEvent[$eid]['winteam']       = $r->winteam;
-                    $byEvent[$eid]['_win_predtime'] = (int)$r->predtime;
-                }
-            } elseif ((int)$r->pred_type === 2) { // 大小
-                if ($r->predtime >= $byEvent[$eid]['_big_predtime']) {
-                    $byEvent[$eid]['bigsmall']      = $r->bigsmall;
-                    $byEvent[$eid]['_big_predtime'] = (int)$r->predtime;
-                }
+            if ((int)$r->pred_type === 1) {
+                $byEvent[$eid]['winteam'] = $r->winteam;
+            } elseif ((int)$r->pred_type === 2) {
+                $byEvent[$eid]['bigsmall'] = $r->bigsmall;
+            }
+            // ⚡ 新增：記錄 comply 狀態（若同場有多筆，以非 0 優先）
+            if ((int)$r->comply > 0) {
+                $byEvent[$eid]['comply'] = (int)$r->comply;
             }
         }
 
-        // 轉成索引陣列並依開賽時間排序
-        $list = array_values($byEvent);
-        usort($list, function ($a, $b) {
-            return ($a['starttime'] <=> $b['starttime']);
-        });
-
-        return $list;
+        return array_values($byEvent);
     }
 
     private function getAnalystIdByLineUserId(string $lineUserId): ?int
@@ -1022,5 +988,183 @@ class Line extends Api
             return false;
         }
         return true;
+    }
+
+    private function buildPredRow(array $it, bool $showResult = false): array
+    {
+        $time  = !empty($it['starttime']) ? date('H:i', (int)$it['starttime']) : '--:--';
+        $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
+
+        $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
+            : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
+
+        $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
+            : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
+
+        $sub = "勝負：{$winnerText}　大小：{$totalText}";
+
+        // 如果要顯示結果
+        $resultLine = null;
+        if ($showResult) {
+            $resultMap = [0 => '⏳ 未確認', 1 => '✅ 命中', 2 => '❌ 未中'];
+            $resultLine = [
+                "type" => "text",
+                "text" => "結果：" . ($resultMap[$it['comply']] ?? '⏳ 未確認'),
+                "size" => "xs",
+                "color" => "#333333"
+            ];
+        }
+
+        $contents = [
+            ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+            ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
+        ];
+        if ($resultLine) $contents[] = $resultLine;
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin"  => "xs",
+            "action" => [
+                "type" => "postback",
+                "label" => "查看",
+                "data"  => json_encode(["cmd" => "pick", "event" => (int)$it['event_id']], JSON_UNESCAPED_UNICODE),
+                "displayText" => "查看預測"
+            ],
+            "contents" => $contents
+        ];
+    }
+
+    private function buildPredListBubbles(array $preds, string $title, int $rowsPerBubble = 8, bool $showResult = false): array
+    {
+        if (empty($preds)) {
+            return [[
+                "type" => "flex",
+                "altText" => $title,
+                "contents" => [
+                    "type" => "bubble",
+                    "header" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => $title,
+                            "weight" => "bold",
+                            "size" => "md"
+                        ]]
+                    ],
+                    "body" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => "沒有資料。",
+                            "size" => "sm",
+                            "color" => "#666666",
+                            "wrap" => true
+                        ]]
+                    ]
+                ]
+            ]];
+        }
+
+        $chunks = array_chunk($preds, $rowsPerBubble);
+        $messages = [];
+
+        foreach ($chunks as $pageIdx => $chunk) {
+            $rows = [];
+            foreach ($chunk as $it) {
+                $rows[] = $this->buildPredRow($it, $showResult);
+                $rows[] = ["type" => "separator", "margin" => "xs"];
+            }
+            if (!empty($rows)) array_pop($rows);
+
+            $bubbleTitle = $title;
+            if (count($chunks) > 1) {
+                $bubbleTitle .= "（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
+            }
+
+            $bubble = [
+                "type" => "bubble",
+                "size" => "mega",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => $bubbleTitle,
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "sm",
+                    "contents" => $rows
+                ]
+            ];
+
+            $messages[] = [
+                "type" => "flex",
+                "altText" => $title,
+                "contents" => $bubble
+            ];
+        }
+
+        return $messages;
+    }
+
+    private function sendMyPredResultsPage(): void
+    {
+        $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
+        if (!$analystId) {
+            $this->sendReplyMessageCus([["type" => "text", "text" => "尚未綁定帳號。"]]);
+            return;
+        }
+
+        $all = $this->fetchTodayMyPredsCombined($analystId); // 你原本的取法，含 comply
+        $pending = array_filter($all, fn($it) => (int)($it['comply'] ?? 0) === 0);
+        $settled = array_filter($all, fn($it) => (int)($it['comply'] ?? 0) > 0);
+
+        $messages = [];
+
+        // 未結算
+        $messages = array_merge($messages, $this->buildPredListBubbles(array_values($pending), "📝 未結算預測", 8, false));
+
+        // 已結算
+        $messages = array_merge($messages, $this->buildPredListBubbles(array_values($settled), "📊 已結算預測", 8, true));
+
+        // 勝率（先留空）
+        $messages[] = [
+            "type" => "flex",
+            "altText" => "勝率",
+            "contents" => [
+                "type" => "bubble",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "📈 勝率",
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "敬請期待。",
+                        "size" => "sm",
+                        "color" => "#666666"
+                    ]]
+                ]
+            ]
+        ];
+
+        $this->sendReplyMessageCus(array_slice($messages, 0, 5)); // 保證不超過 5
     }
 }
