@@ -1190,7 +1190,7 @@ class Line extends Api
         return $rows ? $rows : [];
     }
 
-    private function buildAnalystRow(array $a): array
+    private function buildAnalystRow($a): array
     {
         $name = (string)($a['analyst_name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
