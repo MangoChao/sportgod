@@ -275,21 +275,161 @@ class Line extends Api
         $myPredMsgs = [];
         if ($analystId) {
             $combined = $this->fetchTodayMyPredsCombined($analystId);
-            $myPredMsgs = $this->buildMyPredsBubbleCombined($combined); // 一則 flex
+            $myPredBubbles = $this->buildMyPredsBubblesCombined($combined, 5);
         }
 
         $messages = [];
         if (!empty($myPredMsgs)) {
-            foreach ($myPredMsgs as $m) { $messages[] = $m; }
+            foreach ($myPredMsgs as $m) {
+                $messages[] = $m;
+            }
         }
         // 預留剩餘名額給賽事清單
         $remain = 5 - count($messages);
         if ($remain > 0) {
-            foreach (array_slice($flexMessages, 0, $remain) as $m) { $messages[] = $m; }
+            foreach (array_slice($flexMessages, 0, $remain) as $m) {
+                $messages[] = $m;
+            }
         }
 
         // 4) 送出
         $this->sendReplyMessageCus($messages);
+    }
+
+    /**
+     * 將「我的今日預測（合併同場）」切成多個 bubble，每個 bubble 最多 $rowsPerBubble 列
+     * 回傳的是「Flex 訊息陣列」（每個元素都是一則 flex bubble message）
+     */
+    private function buildMyPredsBubblesCombined(array $combined, int $rowsPerBubble = 8): array
+    {
+        if (empty($combined)) {
+            // 無資料也用一顆簡短 bubble
+            return [[
+                "type" => "flex",
+                "altText" => "我的今日預測",
+                "contents" => [
+                    "type" => "bubble",
+                    "header" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => "📝 我的今日預測",
+                            "weight" => "bold",
+                            "size" => "md"
+                        ]]
+                    ],
+                    "body" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [[
+                            "type" => "text",
+                            "text" => "今天尚未有預測。",
+                            "size" => "sm",
+                            "color" => "#666666",
+                            "wrap" => true
+                        ]]
+                    ]
+                ]
+            ]];
+        }
+
+        // 切塊
+        $chunks = array_chunk($combined, $rowsPerBubble);
+        $messages = [];
+
+        foreach ($chunks as $pageIdx => $chunk) {
+            $rows = [];
+            foreach ($chunk as $it) {
+                $rows[] = $this->buildCompactMyPredRow($it); // 這是你前面已加的緊湊 row
+                $rows[] = ["type" => "separator", "margin" => "xs"];
+            }
+            if (!empty($rows)) array_pop($rows);
+
+            $title = "📝 我的今日預測";
+            if (count($chunks) > 1) {
+                $title .= "（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
+            }
+
+            $bubble = [
+                "type" => "bubble",
+                "size" => "mega",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => $title,
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "xs",
+                    "contents" => $rows
+                ]
+            ];
+
+            $messages[] = [
+                "type" => "flex",
+                "altText" => "我的今日預測",
+                "contents" => $bubble
+            ];
+        }
+
+        return $messages;
+    }
+
+    /**
+     * 緊湊版「我的今日預測」單列
+     * 期望 $it 結構：
+     * [
+     *   'event_id'  => int,
+     *   'starttime' => int,
+     *   'guests'    => string,
+     *   'master'    => string,
+     *   'winteam'   => null|0|1,   // 1=主勝, 0=客勝, null/''=未選
+     *   'bigsmall'  => null|0|1,   // 1=大分, 0=小分, null/''=未選
+     * ]
+     */
+    private function buildCompactMyPredRow(array $it): array
+    {
+        $time  = !empty($it['starttime']) ? date('H:i', (int)$it['starttime']) : '--:--';
+        $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
+
+        // 1=主、0=客
+        $winnerText = (!isset($it['winteam']) || $it['winteam'] === '' || $it['winteam'] === null)
+            ? '未選'
+            : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
+
+        // 1=大、0=小
+        $totalText = (!isset($it['bigsmall']) || $it['bigsmall'] === '' || $it['bigsmall'] === null)
+            ? '未選'
+            : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
+
+        $sub = "勝負：{$winnerText}  大小：{$totalText}";
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin"  => "xs",
+            "action" => [
+                "type" => "postback",
+                "label" => "修改",
+                "data"  => json_encode([
+                    "cmd"   => "pick",
+                    "event" => (int)$it['event_id']
+                ], JSON_UNESCAPED_UNICODE),
+                "displayText" => "修改預測"
+            ],
+            "contents" => [
+                ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+                ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
+            ]
+        ];
     }
 
     /**
@@ -350,102 +490,6 @@ class Line extends Api
         });
 
         return $list;
-    }
-
-    private function buildMyPredsBubbleCombined(array $combined): array
-    {
-        if (empty($combined)) {
-            return [[
-                "type" => "flex",
-                "altText" => "我的今日預測",
-                "contents" => [
-                    "type" => "bubble",
-                    "header" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [[
-                            "type" => "text",
-                            "text" => "📝 我的今日預測",
-                            "weight" => "bold",
-                            "size" => "md"
-                        ]]
-                    ],
-                    "body" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [[
-                            "type" => "text",
-                            "text" => "今天尚未有預測。",
-                            "size" => "sm",
-                            "color" => "#666666",
-                            "wrap" => true
-                        ]]
-                    ]
-                ]
-            ]];
-        }
-
-        $rows = [];
-        foreach ($combined as $it) {
-            $time  = $it['starttime'] ? date('H:i', (int)$it['starttime']) : '--:--';
-            $title = "{$time}  {$it['guests']} vs {$it['master']}(主)";
-
-            // 你的 enum：winteam 1=主、0=客；bigsmall 1=大、0=小
-            $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
-                : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
-
-            $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
-                : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-
-            $sub = "勝負：{$winnerText}　大小：{$totalText}";
-
-            $rows[] = [
-                "type" => "box",
-                "layout" => "vertical",
-                "spacing" => "xs",
-                "margin" => "md",
-                "contents" => [
-                    ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
-                    ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
-                ],
-                // （可選）給一鍵修改入口
-                // "action" => [
-                //   "type" => "postback",
-                //   "label" => "修改",
-                //   "data"  => json_encode(["cmd"=>"pick","event"=>$it['event_id']], JSON_UNESCAPED_UNICODE),
-                //   "displayText" => "修改預測"
-                // ]
-            ];
-            $rows[] = ["type" => "separator", "margin" => "md"];
-        }
-        if (!empty($rows)) array_pop($rows);
-
-        $count = count($combined);
-
-        return [[
-            "type" => "flex",
-            "altText" => "我的今日預測",
-            "contents" => [
-                "type" => "bubble",
-                "size" => "mega",
-                "header" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => "📝 我的今日預測（{$count}）",
-                        "weight" => "bold",
-                        "size" => "md"
-                    ]]
-                ],
-                "body" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "spacing" => "sm",
-                    "contents" => $rows
-                ]
-            ]
-        ]];
     }
 
     private function getAnalystIdByLineUserId(string $lineUserId): ?int
@@ -757,7 +801,7 @@ class Line extends Api
             "type" => "box",
             "layout" => "vertical",
             "spacing" => "xs",
-            "margin" => "md",
+            "margin" => "xs",
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
@@ -783,7 +827,7 @@ class Line extends Api
                     "size" => "xs",
                     "color" => "#666666"
                 ],
-                ["type" => "separator", "margin" => "md"]
+                ["type" => "separator", "margin" => "xs"]
             ]
         ];
     }
