@@ -993,13 +993,13 @@ class Line extends Api
         // 1) 未結算（全部）— 不顯示結果；多則 bubble 分頁
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "📝 未結算預測", 8, false, false)
+            $this->buildPredListBubbles($pending, "📝 未結算預測", 8, false, true)
         );
 
         // 2) 已結算（近7天）— 顯示結果；多則 bubble 分頁
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false)
+            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true)
         );
 
         // 3) 勝率 placeholder
@@ -1290,10 +1290,10 @@ class Line extends Api
 
         $msgs = [];
         if (!empty($pending)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, false));
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, true));
         }
         if (!empty($settled)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, false));
+            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true));
         }
         if (empty($msgs)) {
             $msgs[] = ["type" => "text", "text" => "這位分析師近七天沒有預測"];
