@@ -622,7 +622,7 @@ class Line extends Api
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
-                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev->id], JSON_UNESCAPED_UNICODE),
+                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev->id ?? ''], JSON_UNESCAPED_UNICODE),
                 "displayText" => "{$title}"
             ],
             "contents" => [
@@ -1196,7 +1196,7 @@ class Line extends Api
             isset($ev['guests_score'], $ev['master_score'])
             && is_numeric($ev['guests_score']) && is_numeric($ev['master_score'])
         ) {
-            return "賽果 {$ev['guests_score']} : {$ev['master_score']}";
+            return "比分 {$ev['guests_score']} : {$ev['master_score']}";
         }
         return "";
     }
