@@ -304,20 +304,197 @@ class Line extends Api
         // 回傳「一則」訊息（陣列）
         return [$oneMessage];
     }
+    private function buildCompactMyPredRow(array $it): array
+    {
+        $time  = $it['starttime'] ? date('H:i', (int)$it['starttime']) : '--:--';
+        $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
+
+        // enum：winteam 1=主、0=客；bigsmall 1=大、0=小
+        $winnerText = ($it['winteam'] === null || $it['winteam'] === '') ? '未選'
+            : ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
+
+        $totalText  = ($it['bigsmall'] === null || $it['bigsmall'] === '') ? '未選'
+            : ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
+
+        $sub = "勝負：{$winnerText}  大小：{$totalText}";
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "xs",
+            "action" => [
+                "type" => "postback",
+                "label" => "修改",
+                "data"  => json_encode(["cmd" => "pick", "event" => $it['event_id']], JSON_UNESCAPED_UNICODE),
+                "displayText" => "修改預測"
+            ],
+            "contents" => [
+                ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+                ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
+            ]
+        ];
+    }
+
+    /**
+     * 建立單一 bubble，同時包含：
+     *  - 上半部：今日可預測賽事（前 $maxEvents 筆）
+     *  - 下半部：我的今日預測（前 $maxPreds 筆）
+     *  - 底部：更多按鈕（postback）
+     */
+    private function buildUnifiedTodayBubble(array $eventsToday, array $myPredsCombined, int $maxEvents = 6, int $maxPreds = 4): array
+    {
+        // 上半部：賽事
+        $eventRows = [];
+        foreach (array_slice($eventsToday, 0, $maxEvents) as $ev) {
+            $eventRows[] = $this->buildCompactEventRow($ev);
+            $eventRows[] = ["type" => "separator", "margin" => "xs"];
+        }
+        if (!empty($eventRows)) array_pop($eventRows); // 去掉最後一條分隔線
+
+        // 下半部：我的預測
+        $predRows = [];
+        foreach (array_slice($myPredsCombined, 0, $maxPreds) as $it) {
+            $predRows[] = $this->buildCompactMyPredRow($it);
+            $predRows[] = ["type" => "separator", "margin" => "xs"];
+        }
+        if (!empty($predRows)) array_pop($predRows);
+
+        $hasMoreEvents = count($eventsToday) > $maxEvents;
+        $hasMorePreds  = count($myPredsCombined) > $maxPreds;
+
+        $footerBtns = [];
+        if ($hasMoreEvents) {
+            $footerBtns[] = [
+                "type" => "button",
+                "height" => "sm",
+                "style" => "secondary",
+                "action" => [
+                    "type" => "postback",
+                    "label" => "更多賽事",
+                    "data"  => json_encode(["cmd" => "events_more"], JSON_UNESCAPED_UNICODE),
+                    "displayText" => "更多賽事"
+                ]
+            ];
+        }
+        if ($hasMorePreds) {
+            $footerBtns[] = [
+                "type" => "button",
+                "height" => "sm",
+                "style" => "secondary",
+                "action" => [
+                    "type" => "postback",
+                    "label" => "更多我的預測",
+                    "data"  => json_encode(["cmd" => "mypreds_more"], JSON_UNESCAPED_UNICODE),
+                    "displayText" => "更多我的預測"
+                ]
+            ];
+        }
+
+        $sections = [];
+
+        $sections[] = [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "none",
+            "contents" => array_merge(
+                [["type" => "text", "text" => "📋 今日可預測賽事", "weight" => "bold", "size" => "sm"]],
+                empty($eventRows) ? [["type" => "text", "text" => "今天暫無賽事。", "size" => "xs", "color" => "#666666"]]
+                    : $eventRows
+            )
+        ];
+
+        $sections[] = ["type" => "separator", "margin" => "sm"];
+
+        $sections[] = [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "none",
+            "contents" => array_merge(
+                [["type" => "text", "text" => "📝 我的今日預測", "weight" => "bold", "size" => "sm"]],
+                empty($predRows) ? [["type" => "text", "text" => "今天尚未有預測。", "size" => "xs", "color" => "#666666"]]
+                    : $predRows
+            )
+        ];
+
+        $bubble = [
+            "type" => "bubble",
+            "size" => "mega",
+            "body" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "spacing" => "sm",
+                "margin" => "md",
+                "contents" => $sections
+            ],
+        ];
+
+        if (!empty($footerBtns)) {
+            $bubble["footer"] = [
+                "type" => "box",
+                "layout" => "vertical",
+                "spacing" => "sm",
+                "contents" => $footerBtns
+            ];
+        }
+
+        return $bubble;
+    }
+
+
+    private function buildCompactEventRow($ev): array
+    {
+        $time = (isset($ev->starttime) && $ev->starttime) ? date('H:i', (int)$ev->starttime) : '--:--';
+        $guest = (string)($ev->guests ?? '');
+        $master = (string)($ev->master ?? '');
+        $guestRefund = ($ev->guests_refund ?? '') === '' ? '-' : (string)$ev->guests_refund;
+        $masterRefund = ($ev->master_refund ?? '') === '' ? '-' : (string)$ev->master_refund;
+        $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
+
+        $title = "{$time} {$guest} vs {$master}(主)";
+        $sub   = "盤口：客 {$guestRefund}／主 {$masterRefund}  大小：{$bigscore}";
+
+        return [
+            "type" => "box",
+            "layout" => "vertical",
+            "spacing" => "xs",
+            "margin" => "xs",
+            "action" => [
+                "type" => "postback",
+                "label" => "開始預測",
+                "data" => json_encode(["cmd" => "pick", "event" => (int)$ev->id], JSON_UNESCAPED_UNICODE),
+                "displayText" => $title
+            ],
+            "contents" => [
+                ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
+                ["type" => "text", "text" => $sub,   "size" => "xs", "color" => "#666666", "wrap" => true],
+            ]
+        ];
+    }
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 賽事資料
-        $table_data_list = $this->eventlist($cid);
+        // 取今日賽事（你的 eventlist 會分日回來）
+        $table = $this->eventlist($cid);
+        $today = date('Y-m-d');
+        $eventsToday = $table[$today] ?? [];
 
-        // 我的今日預測（合併同場）
+        // 取我的今日預測（合併同場）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
-        $combined = $analystId ? $this->fetchTodayMyPredsCombined($analystId) : [];
+        $combined  = $analystId ? $this->fetchTodayMyPredsCombined($analystId) : [];
 
-        // 一則訊息：carousel（賽事 + 我的今日預測）
-        $messages = $this->buildUnifiedEventsAndMyPredsFlex($table_data_list, $combined, 8);
+        // 組一個 bubble（上賽事，下我的預測）
+        $bubble = $this->buildUnifiedTodayBubble($eventsToday, $combined, 6, 4);
 
-        // 發送（你指定要用這個）
+        // 一則 flex 訊息
+        $messages = [[
+            "type" => "flex",
+            "altText" => "今日賽事與我的預測",
+            "contents" => $bubble
+        ]];
+
         $this->sendReplyMessageCus($messages);
     }
 
