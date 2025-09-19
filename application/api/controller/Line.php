@@ -601,18 +601,17 @@ class Line extends Api
 
     function buildEventRowBox(array $ev): array
     {
-        $time = (!empty($ev['starttime'])) ? date('H:i', (int)$ev['starttime']) : '--:--';
         $guest  = (string)($ev['guests'] ?? '');
         $master = (string)($ev['master'] ?? '');
+        $teamLine = "{$guest} vs {$master}(主)";
 
-        // ✅ 用共用工具產出「客讓/主讓 + 大小」的一行
+        $time  = (!empty($ev['starttime'])) ? date('m/d H:i', (int)$ev['starttime']) : '--:--';
         $oddsOneLine = $this->formatListOddsLine([
             'guests_refund' => $ev['guests_refund'] ?? '',
             'master_refund' => $ev['master_refund'] ?? '',
             'bigscore'      => $ev['bigscore'] ?? '',
         ]);
-
-        $title = "{$time}  {$guest} vs {$master}(主)";
+        $infoLine = "{$time}  {$oddsOneLine}";
 
         return [
             "type" => "box",
@@ -626,23 +625,11 @@ class Line extends Api
                     "cmd"   => "pick",
                     "event" => (int)($ev['id'] ?? 0)
                 ], JSON_UNESCAPED_UNICODE),
-                "displayText" => $title
+                "displayText" => $teamLine
             ],
             "contents" => [
-                [
-                    "type" => "text",
-                    "text" => $title,
-                    "wrap" => true,
-                    "weight" => "bold",
-                    "size" => "sm"
-                ],
-                [
-                    "type" => "text",
-                    "text" => $oddsOneLine,
-                    "wrap" => true,
-                    "size" => "xs",
-                    "color" => "#666666"
-                ],
+                ["type" => "text", "text" => $teamLine, "wrap" => true, "size" => "sm"],
+                ["type" => "text", "text" => $infoLine, "wrap" => true, "size" => "xs", "color" => "#666666"],
                 ["type" => "separator", "margin" => "md"]
             ]
         ];
@@ -840,49 +827,46 @@ class Line extends Api
 
     private function buildPredRow(array $it, bool $showResult = false): array
     {
+        $guest  = (string)($it['guests'] ?? '');
+        $master = (string)($it['master'] ?? '');
+        $teamLine = "{$guest} vs {$master}(主)";
+
         $time  = !empty($it['starttime']) ? date('m/d H:i', (int)$it['starttime']) : '--:--';
-        $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
 
         $lines = [];
 
         if ($showResult) {
-            // ===== 已結算預測 =====
             if ($it['winteam'] !== null && $it['winteam'] !== '') {
-                $line = $this->formatSpreadPickLine($it, $it['winteam']) . ' ' . $this->markByComply($it['comply_refund'] ?? 0);
-                $lines[] = $line;
+                $lines[] = $this->formatSpreadPickLine($it, $it['winteam']) . ' ' . $this->markByComply($it['comply_refund'] ?? 0);
             }
             if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
-                $line = $this->formatTotalPickLine($it, $it['bigsmall']) . ' ' . $this->markByComply($it['comply_big'] ?? 0);
-                $lines[] = $line;
+                $lines[] = $this->formatTotalPickLine($it, $it['bigsmall']) . ' ' . $this->markByComply($it['comply_big'] ?? 0);
             }
             if ($score = $this->formatScoreLine($it)) {
                 $lines[] = $score;
             }
         } else {
-            // ===== 未結算預測 =====
             if ($it['winteam'] !== null && $it['winteam'] !== '') {
                 $lines[] = $this->formatSpreadPickLine($it, $it['winteam']);
             }
             if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
                 $lines[] = $this->formatTotalPickLine($it, $it['bigsmall']);
             }
-
-            // 如果兩個都沒選，就顯示賽事列表用的盤口
             if (empty($lines)) {
                 $lines[] = $this->formatListOddsLine($it);
             }
         }
 
-        // 組 flex box
+        // 第二行先加上時間
+        array_unshift($lines, $time);
+
         return [
             "type" => "box",
             "layout" => "vertical",
             "spacing" => "xs",
             "margin"  => "xs",
             "contents" => array_merge(
-                [
-                    ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true]
-                ],
+                [["type" => "text", "text" => $teamLine, "size" => "sm", "wrap" => true]],
                 array_map(function ($t) {
                     return ["type" => "text", "text" => $t, "size" => "xs", "wrap" => true];
                 }, $lines)
