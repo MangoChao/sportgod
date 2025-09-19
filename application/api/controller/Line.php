@@ -878,6 +878,7 @@ class Line extends Api
 
         // 顯示比分與盤口
         $scoreLine = "比分：{$it['guests_score']} - {$it['master_score']}";
+        $handicap = '';
         if (!empty($it['master_refund']) && $it['master_refund'] != 0) {
             $handicap = "盤口：主 {$it['master_refund']}";
         } elseif (!empty($it['guests_refund']) && $it['guests_refund'] != 0) {
