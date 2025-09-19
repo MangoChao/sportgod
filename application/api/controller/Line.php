@@ -259,59 +259,54 @@ class Line extends Api
 
     private function sendTodayEventsList(int $cid = 0): void
     {
-        // 1) 賽事清單（你原本的）
+        // 1) 賽事清單（你原有的）
         $table_data_list = $this->eventlist($cid);
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 可能多則
+        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 仍然是多則可能的 flex
 
-        // 2) 我的今日預測（合併同場 → 多 bubble 分頁）
+        // 2) 我的今日預測（合併同場 → carousel 一則；每頁 5 筆）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
-        $myPredBubbles = [];
+        $myPredMsgs = [];
         if ($analystId) {
-            $combined = $this->fetchTodayMyPredsCombined($analystId); // 你已修正 pred_type 對應
-            $myPredBubbles = $this->buildMyPredsBubblesCombined($combined, 5);
+            $combined  = $this->fetchTodayMyPredsCombined($analystId); // 已依 pred_type: 1=讓分, 2=大小
+            $myPredMsgs = $this->buildMyPredsCarouselCombined($combined, 5);
+            // 上面回傳的是「一則」flex（carousel），或無資料時一則簡短 bubble
         }
 
-        // 3) 合併：我的預測優先顯示；若今天有賽事，至少保留 1 格給賽事清單
-        $messages = [];
-        $hasEvents = !empty($flexMessages);
+        // 3) 合併：我的預測優先，接著補賽事清單（一次最多 5 則）
         $maxTotal = 5;
+        $messages = [];
 
-        if ($hasEvents) {
-            // 若有賽事，至少留 1 格
-            $maxMyPred = $maxTotal - 1;
-        } else {
-            // 沒有賽事就把名額都給我的預測
-            $maxMyPred = $maxTotal;
+        // 先放「我的預測」（一則）
+        if (!empty($myPredMsgs)) {
+            $messages[] = $myPredMsgs[0];
         }
 
-        // 放我的預測（頁數可能 >1，但最多放 $maxMyPred 則）
-        foreach (array_slice($myPredBubbles, 0, $maxMyPred) as $m) {
-            $messages[] = $m;
-        }
-
-        // 再放賽事清單（把剩餘名額補滿）
+        // 再補賽事清單至不超過 5 則
         $remain = $maxTotal - count($messages);
-        if ($remain > 0 && $hasEvents) {
+        if ($remain > 0 && !empty($flexMessages)) {
             foreach (array_slice($flexMessages, 0, $remain) as $m) {
                 $messages[] = $m;
             }
         }
 
-        // 4) 送出
+        // 沒東西就給提示
         if (empty($messages)) {
             $messages = [["type" => "text", "text" => "今天暫無賽事與預測。"]];
         }
+
+        // 4) 發送（用你指定的封裝）
         $this->sendReplyMessageCus($messages);
     }
 
     /**
-     * 將「我的今日預測（合併同場）」切成多個 bubble，每個 bubble 最多 $rowsPerBubble 列
-     * 回傳的是「Flex 訊息陣列」（每個元素都是一則 flex bubble message）
+     * 將「我的今日預測（合併同場）」做成一則 Flex（carousel）
+     * - 每頁 $rowsPerPage 筆（預設 5）
+     * - 總是把第 1 頁放在第一個 bubble，使用者打開就看到（1/N）
      */
-    private function buildMyPredsBubblesCombined(array $combined, int $rowsPerBubble = 8): array
+    private function buildMyPredsCarouselCombined(array $combined, int $rowsPerPage = 5): array
     {
+        // 沒資料：回一顆簡短 bubble
         if (empty($combined)) {
-            // 無資料也用一顆簡短 bubble
             return [[
                 "type" => "flex",
                 "altText" => "我的今日預測",
@@ -342,24 +337,21 @@ class Line extends Api
             ]];
         }
 
-        // 切塊
-        $chunks = array_chunk($combined, $rowsPerBubble);
-        $messages = [];
+        // 分頁（每頁 rowsPerPage 筆）
+        $chunks = array_chunk($combined, $rowsPerPage);
+        $bubbles = [];
 
         foreach ($chunks as $pageIdx => $chunk) {
             $rows = [];
             foreach ($chunk as $it) {
-                $rows[] = $this->buildCompactMyPredRow($it); // 這是你前面已加的緊湊 row
+                $rows[] = $this->buildCompactMyPredRow($it); // 你前面已加入的緊湊列
                 $rows[] = ["type" => "separator", "margin" => "xs"];
             }
             if (!empty($rows)) array_pop($rows);
 
-            $title = "📝 我的今日預測";
-            if (count($chunks) > 1) {
-                $title .= "（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
-            }
+            $title = "📝 我的今日預測（" . ($pageIdx + 1) . "/" . count($chunks) . "）";
 
-            $bubble = [
+            $bubbles[] = [
                 "type" => "bubble",
                 "size" => "mega",
                 "header" => [
@@ -379,15 +371,17 @@ class Line extends Api
                     "contents" => $rows
                 ]
             ];
-
-            $messages[] = [
-                "type" => "flex",
-                "altText" => "我的今日預測",
-                "contents" => $bubble
-            ];
         }
 
-        return $messages;
+        // 一則 Flex，內容是 carousel（包含所有頁）
+        return [[
+            "type" => "flex",
+            "altText" => "我的今日預測",
+            "contents" => [
+                "type" => "carousel",
+                "contents" => $bubbles
+            ]
+        ]];
     }
 
     /**
