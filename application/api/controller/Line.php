@@ -423,10 +423,13 @@ class Line extends Api
     }
     private function fetchTodayMyPredsCombined(int $analystId): array
     {
+        $start = strtotime(date('Y-m-d 00:00:00'));
+        $end   = strtotime(date('Y-m-d 23:59:59'));
         $rows = model('Pred')->alias('p')
             ->join('event e', 'e.id = p.event_id')
             ->where('p.analyst_id = ' . $analystId)
-            ->whereDay('e.starttime') // 當日
+            ->where('e.starttime', '>=', $start)
+            ->where('e.starttime', '<=', $end)
             ->order('e.starttime asc')
             ->select();
 
