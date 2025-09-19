@@ -592,7 +592,13 @@ class Line extends Api
                 // 盤口（讓分/賠率等）— 兩邊都顯示，沒有就以「-」或「未開」
                 $guestRefund = $fmtRefund($ev->guests_refund ?? null);
                 $masterRefund = $fmtRefund($ev->master_refund ?? null);
-                $refundLine  = "  盤口：客 {$guestRefund} ／ 主 {$masterRefund}\n";
+                $refundLine = '';
+                if ($masterRefund) {
+                    $refundLine = "盤口：主 {$masterRefund}";
+                } elseif ($guestRefund) {
+                    $refundLine = "盤口：客 {$guestRefund}";
+                }
+
 
                 // 大小分（若沒有就用「-」）
                 $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
