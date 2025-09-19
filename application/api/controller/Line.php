@@ -288,48 +288,6 @@ class Line extends Api
         $this->sendReplyMessageCus($messages);
     }
 
-    private function fetchTodayMyPredsCombined(int $analystId): array
-    {
-        $start = strtotime(date('Y-m-d 00:00:00'));
-        $end   = strtotime(date('Y-m-d 23:59:59'));
-        $rows = model('Pred')->alias('p')
-            ->join('event e', 'e.id = p.event_id')
-            ->where('p.analyst_id = ' . $analystId)
-            ->where('e.starttime', '>=', $start)
-            ->where('e.starttime', '<=', $end)
-            ->order('e.starttime asc')
-            ->select();
-
-        if (!$rows) return [];
-
-        $byEvent = [];
-        foreach ($rows as $r) {
-            $eid = (int)$r->event_id;
-            if (!isset($byEvent[$eid])) {
-                $byEvent[$eid] = [
-                    'event_id'  => $eid,
-                    'starttime' => (int)$r->starttime,
-                    'guests'    => (string)$r->guests,
-                    'master'    => (string)$r->master,
-                    'winteam'   => null,
-                    'bigsmall'  => null,
-                    'comply'    => 0, // 預設未結算
-                ];
-            }
-            if ((int)$r->pred_type === 1) {
-                $byEvent[$eid]['winteam'] = $r->winteam;
-            } elseif ((int)$r->pred_type === 2) {
-                $byEvent[$eid]['bigsmall'] = $r->bigsmall;
-            }
-            // ⚡ 新增：記錄 comply 狀態（若同場有多筆，以非 0 優先）
-            if ((int)$r->comply > 0) {
-                $byEvent[$eid]['comply'] = (int)$r->comply;
-            }
-        }
-
-        return array_values($byEvent);
-    }
-
     private function getAnalystIdByLineUserId(string $lineUserId): ?int
     {
         $uf = model('UserFree')->where('line_user_id', $lineUserId)->find();
@@ -501,66 +459,83 @@ class Line extends Api
         Log::notice('-------------------------------------------');
     }
 
-    public function eventlist($cid = 0)
+    /**
+     * 取得未來 N 天（預設 5 天）的賽事列表（依天分組）
+     * - 僅回傳乾淨資料欄位，不含任何 HTML
+     * - 供 LINE 顯示邏輯（formatListOddsLine / buildPredRow）統一使用
+     *
+     * @param int $cid  事件分類 ID（0 = 全部）
+     * @param int $days 天數（預設 5）
+     * @return array 形如：['YYYY-mm-dd' => [ [event...], ... ], ...]
+     */
+    public function eventlist($cid = 0, $days = 5)
     {
         $table_data_list = [];
-        $startdate = date('Y-m-d');
-        $starttime = time();
-        $starttime_next = strtotime($startdate . " +1 day");
-        $day = 1;
+
+        // 從今天 00:00 開始
+        $currentTs  = strtotime(date('Y-m-d 00:00:00'));
+        $dayIndex   = 0;
+
         do {
-            $starttime_fiter = "starttime > " . $starttime . " AND starttime < " . $starttime_next;
-            if ($cid != 0) {
-                $mEvent = model('Event')->where("event_category_id = " . $cid . " AND " . $starttime_fiter)->select();
-            } else {
-                $mEvent = model('Event')->where(" " . $starttime_fiter)->select();
+            $dayStart = $currentTs;
+            $dayEnd   = strtotime(date('Y-m-d 00:00:00', $dayStart) . ' +1 day');
+            $dateKey  = date('Y-m-d', $dayStart);
+
+            // 組 where 條件（ThinkPHP 5 相容）
+            $query = model('Event')
+                ->where('starttime', '>=', $dayStart)
+                ->where('starttime', '<',  $dayEnd);
+
+            if ((int)$cid !== 0) {
+                $query = $query->where('event_category_id', (int)$cid);
             }
-            if ($mEvent) {
-                foreach ($mEvent as $v) {
-                    $guests_refund_box = '';
-                    $master_refund_box = '';
-                    if ($v->guests_refund != '') {
-                        if ($v->guests_refund == '0') {
-                            $guests_refund_box = '<span class="refund_box">盤口未開</span>';
-                        } else {
-                            $guests_refund_box = '<span class="refund_box">' . $v->guests_refund . '</span>';
-                        }
-                    } else {
-                        if ($v->master_refund == '0') {
-                            $master_refund_box = '<span class="refund_box">盤口未開</span>';
-                        } else {
-                            $master_refund_box = '<span class="refund_box">' . $v->master_refund . '</span>';
-                        }
-                    }
-                    $v->team_str = '<span class="text-black">' . $v->guests . '</span>&nbsp;' . $guests_refund_box . '<br><span class="text-info">' . $v->master . '</span><span class="text-danger">(主)</span>&nbsp;' . $master_refund_box;
-                    $v->refund_str = '<span class="text-info">' . $v->guests_refund . '&nbsp;</span><br><span class="text-info">' . $v->master_refund . '&nbsp;</span>';
-                    $v->bigscore_str = '<span class="text-info">' . $v->bigscore . '&nbsp;</span><br><span class="text-info">&nbsp;</span>';
+
+            // 依開賽時間排序
+            $rows = $query->order('starttime asc')->select();
+
+            if ($rows && count($rows) > 0) {
+                $list = [];
+                foreach ($rows as $v) {
+                    // 僅保留顯示會用到的欄位（全部為純資料）
+                    $item = [
+                        'id'             => isset($v->id) ? (int)$v->id : 0,
+                        'starttime'      => isset($v->starttime) ? (int)$v->starttime : 0,
+                        'guests'         => isset($v->guests) ? (string)$v->guests : '',
+                        'master'         => isset($v->master) ? (string)$v->master : '',
+
+                        // 讓分 & 大小分（保留原字串；可能為 '' 或 '0'）
+                        'guests_refund'  => isset($v->guests_refund) ? (string)$v->guests_refund : '',
+                        'master_refund'  => isset($v->master_refund) ? (string)$v->master_refund : '',
+                        'bigscore'       => isset($v->bigscore) ? (string)$v->bigscore : '',
+
+                        // 比分（若尚未有分數，可為 null）
+                        'guests_score'   => isset($v->guests_score) && $v->guests_score !== '' ? (int)$v->guests_score : null,
+                        'master_score'   => isset($v->master_score) && $v->master_score !== '' ? (int)$v->master_score : null,
+                    ];
+
+                    $list[] = $item;
                 }
-                $table_data_list[$startdate] = $mEvent;
+
+                if (!empty($list)) {
+                    $table_data_list[$dateKey] = $list;
+                }
             }
-            $starttime = $starttime_next;
-            $startdate = date("Y-m-d", $starttime);
-            $starttime_next = strtotime($startdate . " +1 day");
-            $day++;
-        } while ($day <= 1);
+
+            // 下一天
+            $currentTs = $dayEnd;
+            $dayIndex++;
+        } while ($dayIndex < (int)$days);
 
         return $table_data_list;
     }
 
     /**
      * 將 eventlist() 產生的 $table_data_list 轉成 LINE 純文字訊息陣列
-     * - 會自動分段避免超過 LINE 單則 5000 字限制（保守抓 4800）
-     * - 格式：每一天一個大標，底下多場用項目符號，含(主)隊、盤口/大小
+     * - 自動分段避免超過 LINE 單則 5000 字（保守抓 4800）
+     * - 格式：每一天一個大標，底下多場用項目符號，含(主)隊、讓分/大小（用共用模板）
      */
     function formatEventListForLine(array $table_data_list, int $maxChars = 4800): array
     {
-        // 將 refund 值正規化：'0' => '未開'，''/null => '-'，其他直接顯示
-        $fmtRefund = function ($val) {
-            if ($val === '0') return '未開';
-            if ($val === '' || $val === null) return '-';
-            return (string)$val;
-        };
-
         $messages = [];
         $buf = '';
 
@@ -578,7 +553,7 @@ class Line extends Api
             $buf .= $sectionHeader;
 
             foreach ($events as $ev) {
-                // 嘗試帶上時間（若資料表有 starttime）
+                // 時間
                 $timePart = '';
                 if (isset($ev->starttime) && $ev->starttime) {
                     $timePart = date('H:i', (int)$ev->starttime) . ' ';
@@ -587,32 +562,30 @@ class Line extends Api
                 // 隊名與主客
                 $guestName  = (string)($ev->guests ?? '');
                 $masterName = (string)($ev->master ?? '');
+
+                // 第一行：時間 + 客 vs 主(主)
                 $titleLine  = "• {$timePart}{$guestName} vs {$masterName}(主)\n";
 
-                // 盤口（讓分/賠率等）— 兩邊都顯示，沒有就以「-」或「未開」
-                $guestRefund = $fmtRefund($ev->guests_refund ?? null);
-                $masterRefund = $fmtRefund($ev->master_refund ?? null);
-                $refundLine = '';
-                if ($masterRefund) {
-                    $refundLine = "盤口：主 {$masterRefund}";
-                } elseif ($guestRefund) {
-                    $refundLine = "盤口：客 {$guestRefund}";
+                // 第二行：讓分/大小（統一用共用函式 formatListOddsLine）
+                // 傳入所需欄位即可；formatListOddsLine 會自動決定顯示「客讓」或「主讓」，並附上「大小」
+                $oddsLine = $this->formatListOddsLine([
+                    'guests_refund' => $ev->guests_refund ?? '',
+                    'master_refund' => $ev->master_refund ?? '',
+                    'bigscore'      => $ev->bigscore      ?? '',
+                ]);
+
+                // 若完全沒資料，也給個預設
+                if ($oddsLine === '') {
+                    $oddsLine = '盤口未開';
                 }
 
-
-                // 大小分（若沒有就用「-」）
-                $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
-                $bigLine  = "  大小：{$bigscore}\n";
-
-                $one = $titleLine . $refundLine . $bigLine;
-
-                // 加上空行區隔
-                $one .= "\n";
+                $one = $titleLine . $oddsLine . "\n\n"; // 空行區隔
 
                 if (mb_strlen($buf . $one, 'UTF-8') > $maxChars) {
                     // 先送出前一段，再把這場塞到新的段落
                     $messages[] = rtrim($buf);
-                    $buf = $sectionHeader . $one; // 保留抬頭，讓分段後可讀
+                    // 新段落仍保留當天抬頭，提升可讀性
+                    $buf = $sectionHeader . $one;
                 } else {
                     $buf .= $one;
                 }
@@ -626,57 +599,36 @@ class Line extends Api
         return $messages;
     }
 
-    /**
-     * 建一列「可點擊的賽事 row」：顯示時間、對戰與盤口/大小；整列可點
-     */
     function buildEventRowBox($ev): array
     {
         $time = (isset($ev->starttime) && $ev->starttime) ? date('H:i', (int)$ev->starttime) : '--:--';
         $guest = (string)($ev->guests ?? '');
         $master = (string)($ev->master ?? '');
-        $guestRefund = ($ev->guests_refund ?? '') === '' ? '-' : (string)$ev->guests_refund;
-        $masterRefund = ($ev->master_refund ?? '') === '' ? '-' : (string)$ev->master_refund;
-        $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
+
+        // ✅ 用共用工具產出「客讓/主讓 + 大小」的一行
+        $oddsOneLine = $this->formatListOddsLine([
+            'guests_refund' => $ev->guests_refund ?? '',
+            'master_refund' => $ev->master_refund ?? '',
+            'bigscore'      => $ev->bigscore ?? '',
+        ]);
 
         $title = "{$time}  {$guest} vs {$master}(主)";
-        if ($masterRefund) {
-            $sub = "盤口：主 {$masterRefund}";
-        } elseif ($guestRefund) {
-            $sub = "盤口：客 {$guestRefund}";
-        }
-        $sub .= "　大小：{$bigscore}";
 
         return [
             "type" => "box",
             "layout" => "vertical",
             "spacing" => "xs",
-            "margin" => "xs",
+            "margin" => "md",
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
-                // JSON 格式，避免 &amp; 問題
-                "data" => json_encode([
-                    "cmd"   => "pick",
-                    "event" => (int)$ev->id
-                ], JSON_UNESCAPED_UNICODE),
-                "displayText" => $title
+                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev->id], JSON_UNESCAPED_UNICODE),
+                "displayText" => "{$title}"
             ],
             "contents" => [
-                [
-                    "type" => "text",
-                    "text" => $title,
-                    "wrap" => true,
-                    "weight" => "bold",
-                    "size" => "sm"
-                ],
-                [
-                    "type" => "text",
-                    "text" => $sub,
-                    "wrap" => true,
-                    "size" => "xs",
-                    "color" => "#666666"
-                ],
-                ["type" => "separator", "margin" => "xs"]
+                ["type" => "text", "text" => $title, "wrap" => true, "weight" => "bold", "size" => "sm"],
+                ["type" => "text", "text" => $oddsOneLine, "wrap" => true, "size" => "xs", "color" => "#666666"],
+                ["type" => "separator", "margin" => "md"]
             ]
         ];
     }
@@ -876,54 +828,50 @@ class Line extends Api
         $time  = !empty($it['starttime']) ? date('m/d H:i', (int)$it['starttime']) : '--:--';
         $title = "{$time} {$it['guests']} vs {$it['master']}(主)";
 
-        // 顯示比分與盤口
-        $scoreLine = "比分：{$it['guests_score']} - {$it['master_score']}";
-        $handicap = '';
-        if (!empty($it['master_refund']) && $it['master_refund'] != 0) {
-            $handicap = "盤口：主 {$it['master_refund']}";
-        } elseif (!empty($it['guests_refund']) && $it['guests_refund'] != 0) {
-            $handicap = "盤口：客 {$it['guests_refund']}";
+        $lines = [];
+
+        if ($showResult) {
+            // ===== 已結算預測 =====
+            if ($it['winteam'] !== null && $it['winteam'] !== '') {
+                $line = $this->formatSpreadPickLine($it, $it['winteam']) . ' ' . $this->markByComply($it['comply_refund'] ?? 0);
+                $lines[] = $line;
+            }
+            if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
+                $line = $this->formatTotalPickLine($it, $it['bigsmall']) . ' ' . $this->markByComply($it['comply_big'] ?? 0);
+                $lines[] = $line;
+            }
+            if ($score = $this->formatScoreLine($it)) {
+                $lines[] = $score;
+            }
+        } else {
+            // ===== 未結算預測 =====
+            if ($it['winteam'] !== null && $it['winteam'] !== '') {
+                $lines[] = $this->formatSpreadPickLine($it, $it['winteam']);
+            }
+            if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
+                $lines[] = $this->formatTotalPickLine($it, $it['bigsmall']);
+            }
+
+            // 如果兩個都沒選，就顯示賽事列表用的盤口
+            if (empty($lines)) {
+                $lines[] = $this->formatListOddsLine($it);
+            }
         }
 
-        if (!empty($it['bigscore'])) {
-            $handicap .= "　大小：{$it['bigscore']}";
-        }
-
-
-        $contents = [
-            ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
-            ["type" => "text", "text" => $scoreLine, "size" => "xs", "color" => "#444444"],
-            ["type" => "text", "text" => $handicap,  "size" => "xs", "color" => "#666666", "wrap" => true],
-        ];
-
-        // 顯示預測
-        $map = [0 => '⏳', 1 => '✅', 2 => '❌'];
-
-        if ($it['winteam'] !== null && $it['winteam'] !== '') {
-            $winnerText = ((int)$it['winteam'] === 1 ? '主勝' : '客勝');
-            $contents[] = [
-                "type" => "text",
-                "text" => "{$map[$it['comply_refund']]} 讓分：{$winnerText}",
-                "size" => "xs",
-                "color" => "#333333"
-            ];
-        }
-        if ($it['bigsmall'] !== null && $it['bigsmall'] !== '') {
-            $totalText = ((int)$it['bigsmall'] === 1 ? '大分' : '小分');
-            $contents[] = [
-                "type" => "text",
-                "text" => "{$map[$it['comply_big']]} 大小：{$totalText}",
-                "size" => "xs",
-                "color" => "#333333"
-            ];
-        }
-
+        // 組 flex box
         return [
             "type" => "box",
             "layout" => "vertical",
             "spacing" => "xs",
             "margin"  => "xs",
-            "contents" => $contents
+            "contents" => array_merge(
+                [
+                    ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true]
+                ],
+                array_map(function ($t) {
+                    return ["type" => "text", "text" => $t, "size" => "xs", "wrap" => true];
+                }, $lines)
+            )
         ];
     }
 
@@ -1118,7 +1066,7 @@ class Line extends Api
                     'bigsmall'     => null, // 1=大、0=小
                     'comply_refund' => 0,  // 讓分輸贏
                     'comply_big'    => 0,  // 大小輸贏
-                    'comply'        => 0, 
+                    'comply'        => 0,
                     '_win_predtime' => 0,
                     '_big_predtime' => 0,
                     'guests_score' => (int)$r->guests_score,
@@ -1156,5 +1104,100 @@ class Line extends Api
         });
 
         return $list;
+    }
+
+    // ===== 共用工具：盤口/大小/比分 顯示 =====
+
+    // 將盤口字串的 + / - 反號（例：2+25 ↔ 2-25）
+    private function reverseSignStr(string $s): string
+    {
+        if ($s === '') return $s;
+        $out = '';
+        for ($i = 0; $i < strlen($s); $i++) {
+            $ch = $s[$i];
+            if ($ch === '+') $out .= '-';
+            elseif ($ch === '-') $out .= '+';
+            else $out .= $ch;
+        }
+        return $out;
+    }
+
+    // 是否有有效盤口值（''、'0'、'-' 都視為無）
+    private function hasOdds($v): bool
+    {
+        $s = trim((string)$v);
+        return $s !== '' && $s !== '0' && $s !== '-';
+    }
+
+    // 賽事列表的一行盤口顯示（例：客讓 2+25 大小 9-20）
+    private function formatListOddsLine(array $ev): string
+    {
+        $gr = trim((string)($ev['guests_refund'] ?? ''));
+        $mr = trim((string)($ev['master_refund'] ?? ''));
+        $bs = trim((string)($ev['bigscore'] ?? ''));
+
+        $parts = [];
+        if ($this->hasOdds($gr)) {
+            $parts[] = "客讓 {$gr}";
+        } elseif ($this->hasOdds($mr)) {
+            $parts[] = "主讓 {$mr}";
+        }
+        if ($this->hasOdds($bs)) {
+            $parts[] = "大小 {$bs}";
+        }
+        return implode(' ', $parts);
+    }
+
+    // 讓分（pred_type=1）的預測文字：會自動在「受讓」時反號
+    // 例：客 樂天桃猿 讓分 2+25  或  主 恐龍 受讓 2-25
+    private function formatSpreadPickLine(array $ev, $winteam): string
+    {
+        $guestName = (string)($ev['guests'] ?? '客隊');
+        $masterName = (string)($ev['master'] ?? '主隊');
+        $gr = trim((string)($ev['guests_refund'] ?? ''));
+        $mr = trim((string)($ev['master_refund'] ?? ''));
+
+        if ($this->hasOdds($gr)) {
+            return (int)$winteam === 0
+                ? "客 {$guestName} 讓分 {$gr}"
+                : "主 {$masterName} 受讓 " . $this->reverseSignStr($gr);
+        } elseif ($this->hasOdds($mr)) {
+            return (int)$winteam === 1
+                ? "主 {$masterName} 讓分 {$mr}"
+                : "客 {$guestName} 受讓 " . $this->reverseSignStr($mr);
+        }
+        return "讓分 未開";
+    }
+
+    // 大小（pred_type=2）的預測文字：小分時反號
+    // 例：大分 9-20  或  小分 9+20
+    private function formatTotalPickLine(array $ev, $bigsmall): string
+    {
+        $bs = trim((string)($ev['bigscore'] ?? ''));
+        if (!$this->hasOdds($bs)) return "大小 未開";
+        return (int)$bigsmall === 1
+            ? "大分 {$bs}"
+            : "小分 " . $this->reverseSignStr($bs);
+    }
+
+    // 結算狀態符號
+    private function markByComply($comply): string
+    {
+        $c = (int)$comply;
+        if ($c === 1) return "✅";
+        if ($c === 2) return "❌";
+        return "⏳";
+    }
+
+    // 已結算比分行（有分數才顯示），例：賽果 5 : 4
+    private function formatScoreLine(array $ev): string
+    {
+        if (
+            isset($ev['guests_score'], $ev['master_score'])
+            && is_numeric($ev['guests_score']) && is_numeric($ev['master_score'])
+        ) {
+            return "賽果 {$ev['guests_score']} : {$ev['master_score']}";
+        }
+        return "";
     }
 }
