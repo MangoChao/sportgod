@@ -1187,7 +1187,7 @@ class Line extends Api
             ->limit($limit)
             ->select();
 
-        return $rows ? $rows->toArray() : [];
+        return $rows ? $rows : [];
     }
 
     private function buildAnalystRow(array $a): array
