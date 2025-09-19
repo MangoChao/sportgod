@@ -639,7 +639,12 @@ class Line extends Api
         $bigscore = ($ev->bigscore ?? '') === '' ? '-' : (string)$ev->bigscore;
 
         $title = "{$time}  {$guest} vs {$master}(主)";
-        $sub   = "盤口：客 {$guestRefund} ／ 主 {$masterRefund}　大小：{$bigscore}";
+        if ($masterRefund) {
+            $sub = "盤口：主 {$masterRefund}";
+        } elseif ($guestRefund) {
+            $sub = "盤口：客 {$guestRefund}";
+        }
+        $sub .= "　大小：{$bigscore}";
 
         return [
             "type" => "box",
@@ -873,7 +878,16 @@ class Line extends Api
 
         // 顯示比分與盤口
         $scoreLine = "比分：{$it['guests_score']} - {$it['master_score']}";
-        $handicap  = "盤口：客 {$it['guests_refund']} ／ 主 {$it['master_refund']}　大小：{$it['bigscore']}";
+        if (!empty($it['master_refund']) && $it['master_refund'] != 0) {
+            $handicap = "盤口：主 {$it['master_refund']}";
+        } elseif (!empty($it['guests_refund']) && $it['guests_refund'] != 0) {
+            $handicap = "盤口：客 {$it['guests_refund']}";
+        }
+
+        if (!empty($it['bigscore'])) {
+            $handicap .= "　大小：{$it['bigscore']}";
+        }
+
 
         $contents = [
             ["type" => "text", "text" => $title, "size" => "sm", "weight" => "bold", "wrap" => true],
