@@ -622,7 +622,7 @@ class Line extends Api
             "action" => [
                 "type" => "postback",
                 "label" => "開始預測",
-                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev->id ?? ''], JSON_UNESCAPED_UNICODE),
+                "data"  => json_encode(["cmd" => "pick", "event" => (int)$ev['id'] ?? ''], JSON_UNESCAPED_UNICODE),
                 "displayText" => "{$title}"
             ],
             "contents" => [
