@@ -22,6 +22,7 @@ class Geteventhistory extends Command
     protected $taskName = '抓取比分';
     protected $site = [];
     protected $gameurl = "https://agiv-2.hau888.net";
+    private $seenEventKeys = [];
 
     protected function configure()
     {
@@ -551,75 +552,142 @@ class Geteventhistory extends Command
         return null;
     }
 
-    /**
-     * 解析 ajaxdata 中的 #events-div（HTML table 片段） → 逐列抽出賽事並呼叫 upEvent()
-     * 回傳本頁解析到的賽事數
-     */
     private function parseAndUpsertEventsFromAjaxBlocks(array $ajaxdata, int $eventCategoryId): int
     {
         $count = 0;
+
         foreach ($ajaxdata as $blk) {
             if (($blk['spanid'] ?? '') !== '#events-div') continue;
             $html = $blk['rtntext'] ?? '';
             if ($html === '' || mb_strpos($html, '目前無任何賽事') !== false) continue;
 
-            // 只挑出 <tr class="event-tr ..."> 的列
             $dom = new \DOMDocument();
             @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
             $xp  = new \DOMXPath($dom);
+
+            // 只挑出賽事列
+            /** @var DOMNodeList $rows */
             $rows = $xp->query("//tr[contains(concat(' ', normalize-space(@class), ' '), ' event-tr ')]");
+            $rowIdx = 0;
 
             /** @var DOMElement $tr */
             foreach ($rows as $tr) {
-                // 依據你的舊版邏輯：欄位位置固定
-                // tds: [0]=帳務日期, [1]=時間(含日期), [2]=比分(2個div: 客 / 主), [3]=隊名(2個div: 客 / 主(主))
+                $rowIdx++;
                 $tds = $tr->getElementsByTagName('td');
-                if ($tds->length < 4) continue;
-
-                // (1) 開賽時間（第2格 <td> 形如 09/20<br/>02:30）
-                $startCell = $tds->item(1);
-                $startText = trim(preg_replace('/\s+/u', ' ', strip_tags($dom->saveHTML($startCell))));
-                // 這裡直接把 "09/20 02:30" 轉成 strtotime 能吃的字串（補年份）
-                // 以當年為主；若你有帳務日期可以更精準拼接
-                $startText = preg_replace('/^(\d{2}\/\d{2})\s+/', date('Y') . '/' . '$1 ', $startText);
-                $startTs   = strtotime($startText) ?: null;
-
-                // (2) 比分（第3格 兩個 <div>） 客/主
-                $scoreCell = $tds->item(2);
-                $scores = [];
-                foreach ($scoreCell->getElementsByTagName('div') as $d) {
-                    $scores[] = trim($d->textContent);
+                if ($tds->length < 4) {
+                    $this->debugLog("row#$rowIdx: tds.length < 4，跳過");
+                    continue;
                 }
-                $gscore = $scores[0] ?? ''; // 客
-                $mscore = $scores[1] ?? ''; // 主
 
-                // (3) 隊名（第4格兩行 <div>，第2行含 "(主)"）
+                // ===== 1) 時間欄（第2格 <td>）=====
+                /** @var DOMElement $startCell */
+                $startCell = $tds->item(1);
+                $startCellHtml = $dom->saveHTML($startCell);
+                $startText = trim(preg_replace('/\s+/u', ' ', strip_tags($startCellHtml)));
+                // e.g. "09/20 02:30" → 補年份
+                $startTextForTs = preg_replace('/^(\d{2}\/\d{2})\s+/', date('Y') . '/$1 ', $startText);
+                $startTs = strtotime($startTextForTs) ?: null;
+                $startTsFmt = $startTs ? date('Y-m-d H:i:s', $startTs) : '';
+
+                // ===== 2) 比分欄（第3格 <td>）=====
+                /** @var DOMElement $scoreCell */
+                $scoreCell = $tds->item(2);
+                $scoreCellHtml = trim($dom->saveHTML($scoreCell)); // 原始 HTML 直接輸出給你檢查
+                $scoreDivs = $scoreCell->getElementsByTagName('div');
+
+                $scores = [];
+                /** @var DOMElement $sd */
+                foreach ($scoreDivs as $sd) {
+                    $scores[] = trim($sd->textContent);
+                }
+                // 常見是兩個 <div>：客 / 主
+                $gscore = $scores[0] ?? '';
+                $mscore = $scores[1] ?? '';
+
+                // ===== 3) 隊名欄（第4格 <td>）=====
+                /** @var DOMElement $teamCell */
                 $teamCell = $tds->item(3);
+                $teamCellHtml = $dom->saveHTML($teamCell);
                 $teamDivs = $teamCell->getElementsByTagName('div');
+
                 $guests = '';
                 $master = '';
                 if ($teamDivs->length >= 2) {
                     $guests = trim($teamDivs->item(0)->textContent);
-                    // 主隊 div 內會有 <font class="master-txt">(主)</font>，去掉
-                    $masterHtml = $dom->saveHTML($teamDivs->item(1));
-                    $master = trim(preg_replace('/<font[^>]*>.*?<\/font>/u', '', strip_tags($masterHtml)));
+                    $masterHtmlRaw = $dom->saveHTML($teamDivs->item(1));
+                    // 去掉 (主)
+                    $master = trim(preg_replace('/<font[^>]*>.*?<\/font>/u', '', strip_tags($masterHtmlRaw)));
+                } else {
+                    // 有些頁面可能用別的結構，全部 div 列出讓你檢視
+                    $tmpNames = [];
+                    /** @var DOMElement $tdv */
+                    foreach ($teamDivs as $tdv) {
+                        $tmpNames[] = trim($tdv->textContent);
+                    }
+                    $this->debugLog("row#$rowIdx: teamDivs.length={$teamDivs->length} tmpNames=" . json_encode($tmpNames, JSON_UNESCAPED_UNICODE));
                 }
 
-                // 組 upEvent 所需資料
+                // ===== 偵錯輸出（你要的「把取到的元素印出來」）=====
+                $this->debugLog("row#$rowIdx START =======================");
+                $this->debugLog("  startCellHtml: " . $this->oneLine($startCellHtml));
+                $this->debugLog("  startText: {$startText}  => ts={$startTs} ({$startTsFmt})");
+
+                $this->debugLog("  scoreCellHtml: " . $this->oneLine($scoreCellHtml));
+                $this->debugLog("  scores(raw divs): " . json_encode($scores, JSON_UNESCAPED_UNICODE));
+                $this->debugLog("  gscore={$gscore}, mscore={$mscore}");
+
+                $this->debugLog("  teamCellHtml: " . $this->oneLine($teamCellHtml));
+                $this->debugLog("  guests={$guests} | master={$master}");
+                $this->debugLog("row#$rowIdx END   =======================");
+
+                // ===== 基本欄位不齊就跳過，並輸出提示 =====
+                if (!$startTs || $guests === '' || $master === '') {
+                    $this->debugLog("row#$rowIdx: 欄位不足（startTs/guests/master），跳過");
+                    continue;
+                }
+
+                // ===== 去重（主＋客＋開賽時間）=====
+                $dedupKey = md5($master . '|' . $guests . '|' . $startTs);
+                if (isset($this->seenEventKeys[$dedupKey])) {
+                    $this->debugLog("row#$rowIdx: duplicate detected, 跳過（{$master} vs {$guests} @ {$startTsFmt}）");
+                    continue;
+                }
+                $this->seenEventKeys[$dedupKey] = true;
+
+                // ===== 組 payload 丟回原本入庫/對比流程 =====
                 $payload = [
                     'event_category_id' => $eventCategoryId,
-                    'gscore'  => $gscore,
-                    'mscore'  => $mscore,
-                    'starttime' => $startTs ? date('Y-m-d H:i:s', $startTs) : '',
-                    'master'  => $master,
-                    'guests'  => $guests,
+                    'gscore'    => $gscore,
+                    'mscore'    => $mscore,
+                    'starttime' => $startTsFmt,
+                    'master'    => $master,
+                    'guests'    => $guests,
                 ];
-
-                // 丟進你原本的比對/入庫流程
                 $this->upEvent($payload);
                 $count++;
             }
         }
+
         return $count;
+    }
+
+    /** 把多行字串壓成單行，方便在 Log 內閱讀 */
+    private function oneLine(string $s, int $maxLen = 300): string
+    {
+        $t = trim(preg_replace('/\s+/u', ' ', $s));
+        if (mb_strlen($t) > $maxLen) {
+            $t = mb_substr($t, 0, $maxLen) . ' …';
+        }
+        return $t;
+    }
+
+    /** 同時 Log 與 echo，方便你貼回來 */
+    private function debugLog(string $msg): void
+    {
+        // 你系統既有：use think\facade\Log;
+        Log::notice('[history-debug] ' . $msg);
+        if (PHP_SAPI === 'cli') {
+            echo "[history-debug] {$msg}\n";
+        }
     }
 }
