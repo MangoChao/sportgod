@@ -680,13 +680,18 @@ class Geteventhistory extends Command
 
                 $guests = '';
                 $master = '';
+
                 if ($teamDivs->length >= 2) {
                     $gd = $teamDivs->item(0);
                     $md = $teamDivs->item(1);
-                    if ($gd instanceof \DOMElement) $guests = trim($gd->textContent);
+
+                    if ($gd instanceof \DOMElement) {
+                        // 直接取純文字
+                        $guests = trim($gd->textContent);
+                    }
                     if ($md instanceof \DOMElement) {
-                        $masterHtmlRaw = $dom->saveHTML($md);
-                        $master = trim(preg_replace('/<font[^>]*>.*?<\/font>/u', '', strip_tags($masterHtmlRaw)));
+                        // 直接取純文字（可能含「(主)」或全形括號）
+                        $master = trim($md->textContent);
                     }
                 } else {
                     // 結構不一致時，列印所有 div 文字供你檢視
@@ -698,6 +703,20 @@ class Geteventhistory extends Command
                     }
                     $this->debugLog("row#$rowIdx: teamDivs.length={$teamDivs->length} tmpNames=" . json_encode($tmpNames, JSON_UNESCAPED_UNICODE));
                 }
+
+                // ★ 清理尾綴：(主)/(客)/（主）/（客）/(主隊)/（主隊）
+                $guestsRaw = $guests;
+                $masterRaw = $master;
+
+                $guests = preg_replace('/\s*[\(（]\s*客\s*[\)）]\s*/u', '', $guests);
+                $master = preg_replace('/\s*[\(（]\s*主(隊)?\s*[\)）]\s*/u', '', $master);
+
+                // 清多餘空白
+                $guests = trim(preg_replace('/\s+/u', ' ', $guests));
+                $master = trim(preg_replace('/\s+/u', ' ', $master));
+
+                // 偵錯看看正規化前後
+                $this->debugLog("  team normalize: guestsRaw={$guestsRaw} -> guests={$guests} | masterRaw={$masterRaw} -> master={$master}");
 
                 // ===== 偵錯輸出 =====
                 $this->debugLog("row#$rowIdx START =======================");
