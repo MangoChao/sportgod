@@ -702,7 +702,7 @@ class Geteventhistory extends Command
                 // ===== 偵錯輸出 =====
                 $this->debugLog("row#$rowIdx START =======================");
                 $this->debugLog("  startCellHtml: " . $this->oneLine($startCellHtml));
-                $this->debugLog("  startText: {$startText}  => ts(int)=" . ($startTs ?? 'null') . " (" . ($startTs ? date('Y-m-d H:i:s', $startTs) : '') . ")");
+                $this->debugLog("  startTextForTs: {$startTextForTs}  => ts(int)=" . ($startTs ?? 'null') . " (" . ($startTs ? date('Y-m-d H:i:s', $startTs) : '') . ")");
 
                 $this->debugLog("  scoreCellHtml: " . $this->oneLine($scoreCellHtml));
                 $this->debugLog("  gscore={$gscore}, mscore={$mscore}");
@@ -730,7 +730,7 @@ class Geteventhistory extends Command
                     'event_category_id' => $eventCategoryId,
                     'gscore'    => (string)$gscore,
                     'mscore'    => (string)$mscore,
-                    'starttime' => (int)$startTs,
+                    'starttime' => $startTextForTs,
                     'master'    => $master,
                     'guests'    => $guests,
                 ];
