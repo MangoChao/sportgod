@@ -202,7 +202,7 @@ class Geteventhistory extends Command
 
     private function upEvent($data)
     {
-        Log::notice($data);
+        // Log::notice($data);
         if (isset($data['starttime']) and !empty($data['starttime'])) {
             $data['starttime'] = strtotime($data['starttime']);
         } else {
@@ -774,7 +774,7 @@ class Geteventhistory extends Command
     /** 同時 Log 與 echo，方便你貼回來 */
     private function debugLog(string $msg): void
     {
-        // return;
+        return;
         // 你系統既有：use think\facade\Log;
         Log::notice('[history-debug] ' . $msg);
         // if (PHP_SAPI === 'cli') {
