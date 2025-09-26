@@ -202,7 +202,7 @@ class Geteventhistory extends Command
 
     private function upEvent($data)
     {
-        // Log::notice($data);
+        Log::notice($data);
         if (isset($data['starttime']) and !empty($data['starttime'])) {
             $data['starttime'] = strtotime($data['starttime']);
         } else {
