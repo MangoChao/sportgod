@@ -127,12 +127,6 @@ class Line extends Api
                     $messages_obj = $this->buildMainMenuFlex();
                     $this->sendReplyMessageCus($messages_obj);
                     break;
-                    // case "賽事":
-                    //     $table_data_list = $this->eventlist();
-                    //     $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
-                    //     $messages_obj = array_slice($flexMessages, 0, 5);
-                    //     $this->sendReplyMessageCus($messages_obj);
-                    break;
                 case "#uid":
                     break;
             }
@@ -162,26 +156,26 @@ class Line extends Api
                 switch ($action) {
                     case 'winrate':
                         if ($catId <= 0) { // 先挑類型
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('winrate'));
+                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
                             break;
                         }
                         if ($period === '') {
-                            $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action));
                             break;
                         }
-                        $this->sendAnalystRanking("winrate", $catId, $period);
+                        $this->sendAnalystRanking($action, $catId, $period);
                         break;
 
                     case 'profit':
                         if ($catId <= 0) {
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('profit'));
+                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
                             break;
                         }
                         if ($period === '') {
-                            $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action));
                             break;
                         }
-                        $this->sendAnalystRanking("profit", $catId, $period);
+                        $this->sendAnalystRanking($action, $catId, $period);
                         break;
 
                     case 'mine':
@@ -1512,7 +1506,7 @@ class Line extends Api
         return [$start->getTimestamp(), $end->getTimestamp()];
     }
 
-    private function buildPeriodPicker(int $catId): array
+    private function buildPeriodPicker(string $nextAction): array
     {
         return [[
             "type" => "flex",
@@ -1534,8 +1528,7 @@ class Line extends Api
                                 "label" => "上週",
                                 "data"  => json_encode([
                                     "cmd" => "menu",
-                                    "action" => "profit",
-                                    "cat" => $catId,
+                                    "action" => $nextAction,
                                     "period" => "week"
                                 ], JSON_UNESCAPED_UNICODE),
                                 "displayText" => "上週"
@@ -1549,8 +1542,7 @@ class Line extends Api
                                 "label" => "上月",
                                 "data"  => json_encode([
                                     "cmd" => "menu",
-                                    "action" => "profit",
-                                    "cat" => $catId,
+                                    "action" => $nextAction,
                                     "period" => "month"
                                 ], JSON_UNESCAPED_UNICODE),
                                 "displayText" => "上月"
