@@ -52,6 +52,9 @@ class Line extends Api
         // 1) 讀原始 JSON
         $raw = $this->request->getInput();
         $post = json_decode($raw, true);
+        Log::info('--- webhook ---');
+        Log::info($raw);
+        Log::info('---------------');
 
         // 2) 驗簽（LINE: X-Line-Signature）
         $channelSecret = Config::get("site.line_channel_secret");
@@ -61,13 +64,6 @@ class Line extends Api
             Log::info('LINE signature verify failed');
             return $this->error('Forbidden', null, 403);
         }
-
-        // 3) 紀錄少量必要資訊
-        Log::info('--- webhook ---');
-        Log::info([
-            'events_count' => isset($post['events']) && is_array($post['events']) ? count($post['events']) : 0,
-        ]);
-        Log::info('---------------');
 
         // 後續照你的流程
         $events = $post['events'] ?? null;
