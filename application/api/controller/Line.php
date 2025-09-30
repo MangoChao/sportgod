@@ -159,21 +159,39 @@ class Line extends Api
         switch ($cmd) {
             case 'menu':
                 $action = $p['action'] ?? '';
+                $catId  = isset($p['cat']) ? (int)$p['cat'] : 0;
+
                 switch ($action) {
                     case 'winrate':
-                        $this->sendAnalystRanking("winrate");
+                        if ($catId <= 0) { // 先挑類型
+                            $this->sendReplyMessageCus($this->buildCategoryPicker('winrate'));
+                            break;
+                        }
+                        $this->sendAnalystRanking("winrate", $catId); // 帶入類型 id
                         break;
 
                     case 'profit':
-                        $this->sendAnalystRanking("profit");
+                        if ($catId <= 0) {
+                            $this->sendReplyMessageCus($this->buildCategoryPicker('profit'));
+                            break;
+                        }
+                        $this->sendAnalystRanking("profit", $catId);
                         break;
 
                     case 'mine':
-                        $this->sendTodayEventsList();
+                        if ($catId <= 0) {
+                            $this->sendReplyMessageCus($this->buildCategoryPicker('mine'));
+                            break;
+                        }
+                        $this->sendTodayEventsList($catId); // 帶入類型 id
                         break;
 
                     case 'results':
-                        $this->sendMyPredResultsPage();
+                        if ($catId <= 0) {
+                            $this->sendReplyMessageCus($this->buildCategoryPicker('results'));
+                            break;
+                        }
+                        $this->sendMyPredResultsPage($catId); // 帶入類型 id
                         break;
 
                     case 'heatmap':
@@ -185,6 +203,7 @@ class Line extends Api
                         break;
                 }
                 break;
+
             case 'pick':
                 $eventId = isset($p['event']) ? (int)$p['event'] : 0;
                 if (!$eventId) {
@@ -275,11 +294,11 @@ class Line extends Api
         }
     }
 
-    private function sendTodayEventsList(int $cid = 0): void
+    private function sendTodayEventsList(?int $categoryId = null): void
     {
         // 1) 賽事清單（原本就有）
-        $table_data_list = $this->eventlist($cid);
-        $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 8); // 可能多則
+        $tableDataList = $this->eventlist($categoryId);
+        $flexMessages = $this->tableDataListToFlexMessages($tableDataList, 8); // 可能多則
 
         // 2) 我的「今天起到未來」的預測（未結算、含未來）
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
@@ -290,7 +309,7 @@ class Line extends Api
             $futureEnd  = strtotime(date('Y-m-d 00:00:00', strtotime('+180 days')));
 
             // 仍沿用既有查詢函式，時間範圍：今天起 ~ 未來
-            $todayAndFuture = $this->fetchPredsCombined($analystId, $todayStart, $futureEnd, 'pending');
+            $todayAndFuture = $this->fetchPredsCombined($analystId, $categoryId, $todayStart, $futureEnd, 'pending');
 
             // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
             $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
@@ -480,7 +499,7 @@ class Line extends Api
      * @param int $days 天數（預設 5）
      * @return array 形如：['YYYY-mm-dd' => [ [event...], ... ], ...]
      */
-    public function eventlist($cid = 0, $days = 5)
+    public function eventlist(?int $categoryId = null, $days = 5)
     {
         $table_data_list = [];
 
@@ -498,8 +517,8 @@ class Line extends Api
                 ->where('starttime', '>=', $dayStart)
                 ->where('starttime', '<',  $dayEnd);
 
-            if ((int)$cid !== 0) {
-                $query = $query->where('event_category_id', (int)$cid);
+            if ($categoryId !== null) {
+                $query->where('event_category_id', '=', $categoryId);
             }
 
             // 依開賽時間排序
@@ -671,11 +690,11 @@ class Line extends Api
         return $bubbles;
     }
 
-    function tableDataListToFlexMessages(array $table_data_list, int $rowsPerBubble = 8): array
+    function tableDataListToFlexMessages(array $tableDataList, int $rowsPerBubble = 8): array
     {
         // 1) 先組出所有日期的 bubbles（不含頁碼）
         $allBubbles = [];
-        foreach ($table_data_list as $date => $events) {
+        foreach ($tableDataList as $date => $events) {
             if (!is_array($events) || empty($events)) continue;
             $dayBubbles = $this->buildDayBubbles($date, $events, $rowsPerBubble);
             $allBubbles = array_merge($allBubbles, $dayBubbles);
@@ -972,14 +991,14 @@ class Line extends Api
     }
 
     // 取代原本的「預測結果」（自己）
-    private function sendMyPredResultsPage(): void
+    private function sendMyPredResultsPage(?int $categoryId = null): void
     {
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
         if (!$analystId) {
             $this->sendReplyMessageCus([["type" => "text", "text" => "尚未綁定帳號。"]]);
             return;
         }
-        $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
+        $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId, $categoryId));
     }
 
 
@@ -993,7 +1012,7 @@ class Line extends Api
      *   - settled: p.comply > 0
      *   - all: 不限制
      */
-    private function fetchPredsCombined(int $analystId, ?int $start, ?int $end, string $status = 'all'): array
+    private function fetchPredsCombined(int $analystId, ?int $categoryId = null, ?int $start, ?int $end, string $status = 'all'): array
     {
         $query = model('Pred')
             ->alias('p')
@@ -1008,6 +1027,10 @@ class Line extends Api
             $query->where('p.comply', '=', 0);
         } elseif ($status === 'settled') {
             $query->where('p.comply', '>', 0);
+        }
+
+        if ($categoryId !== null) {
+            $query->where('e.event_category_id', '=', $categoryId);
         }
 
         $rows = $query->order('e.starttime desc')->select();
@@ -1142,15 +1165,22 @@ class Line extends Api
         return "";
     }
 
-    private function fetchTopAnalysts(int $limit = 10): array
+    private function fetchTopAnalysts(int $limit, ?int $categoryId = null)
     {
-        $rows = model('Analyst')
+        $query = model('Analyst')
             ->alias('a')
             ->join('pred p', 'p.analyst_id = a.id')
-            ->field('a.*, COUNT(p.id) AS pred_count')
+            ->join('event e', 'e.id = p.event_id')
+            ->field('a.*, COUNT(p.id) AS pred_count');
+            
+        if ($categoryId !== null) {
+            $query->where('e.event_category_id', $categoryId);
+        }
+
+        $rows = $query
             ->group('a.id')
             ->having('pred_count > 0')
-            ->order('a.id asc') // 先假裝這就是排名
+            ->order('a.id asc')
             ->limit($limit)
             ->select();
 
@@ -1179,10 +1209,12 @@ class Line extends Api
         ];
     }
 
-    private function sendAnalystRanking(string $type)
+    private function sendAnalystRanking(string $mode, ?int $categoryId = null)
     {
-        $title = $type === 'winrate' ? "🏆 勝率排行榜" : "💰 獲利排行榜";
-        $analysts = $this->fetchTopAnalysts(10);
+        $title = $mode === "winrate" ? "🏆 勝率排行榜" : "💰 獲利排行榜";
+
+        // 你原本用的 $this->fetchTopAnalysts(10) 可改成接受 $categoryId
+        $analysts = $this->fetchTopAnalysts(10, $categoryId); // <= 需要一併修改
 
         if (empty($analysts)) {
             $this->sendReplyMessageCus([["type" => "text", "text" => "目前沒有分析師預測資料"]]);
@@ -1245,7 +1277,7 @@ class Line extends Api
      * - 勝率：placeholder
      * - 每一段使用 carousel（同一則訊息左右滑），最後再統一切到最多 5 則
      */
-    private function buildPredResultsPageMessages(int $analystId): array
+    private function buildPredResultsPageMessages(int $analystId, ?int $categoryId = null): array
     {
         // === 時間範圍 ===
         $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-13 days')));
@@ -1253,10 +1285,10 @@ class Line extends Api
 
         // === 未結算 ===
         // 若你要「未結算不設日期」，改成：$pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
-        $pending = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'pending');
+        $pending = $this->fetchPredsCombined($analystId, $categoryId, $fourteenDaysAgo, $tomorrowStart, 'pending');
 
         // === 已結算（近14天）===
-        $settled = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'settled');
+        $settled = $this->fetchPredsCombined($analystId, $categoryId, $fourteenDaysAgo, $tomorrowStart, 'settled');
 
         $messages = [];
 
@@ -1302,5 +1334,54 @@ class Line extends Api
         ];
 
         return array_slice($messages, 0, 5); // 與「預測結果」相同：最多 5 則
+    }
+
+    // 放在同一個 class 內（例如 buildMainMenuFlex 附近）
+    // 產生一張體育類型選擇的 Flex。status=1 才列出
+    private function buildCategoryPicker(string $nextAction): array
+    {
+        $cats = model('Eventcategory')->where('status', 1)->order('id asc')->select();
+        if (!$cats || count($cats) === 0) {
+            return [["type" => "text", "text" => "目前沒有可選的體育類型"]];
+        }
+
+        // 每個類型做一個按鈕，點了會再送一個 postback（同樣是 cmd:menu，但多帶 cat）
+        $buttons = [];
+        foreach ($cats as $c) {
+            $buttons[] = [
+                "type" => "button",
+                "style" => "primary",
+                "action" => [
+                    "type" => "postback",
+                    "label" => (string)$c->title,
+                    "data"  => json_encode([
+                        "cmd"    => "menu",
+                        "action" => $nextAction,
+                        "cat"    => (int)$c->id
+                    ], JSON_UNESCAPED_UNICODE),
+                    "displayText" => (string)$c->title
+                ]
+            ];
+        }
+
+        return [[
+            "type" => "flex",
+            "altText" => "請選擇體育類型",
+            "contents" => [
+                "type" => "bubble",
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "md",
+                    "contents" => array_merge(
+                        [
+                            ["type" => "text", "text" => "請選擇體育類型", "weight" => "bold", "size" => "lg"],
+                            ["type" => "separator", "margin" => "sm"]
+                        ],
+                        $buttons
+                    )
+                ]
+            ]
+        ]];
     }
 }

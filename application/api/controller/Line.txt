@@ -290,7 +290,7 @@ class Line extends Api
             $futureEnd  = strtotime(date('Y-m-d 00:00:00', strtotime('+180 days')));
 
             // 仍沿用既有查詢函式，時間範圍：今天起 ~ 未來
-            $todayAndFuture = $this->fetchPredsCombined($analystId, $todayStart, $futureEnd, false);
+            $todayAndFuture = $this->fetchPredsCombined($analystId, $todayStart, $futureEnd, 'pending');
 
             // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
             $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
@@ -971,6 +971,7 @@ class Line extends Api
         }
     }
 
+    // 取代原本的「預測結果」（自己）
     private function sendMyPredResultsPage(): void
     {
         $analystId = $this->getAnalystIdByLineUserId($this->webhook_userId);
@@ -978,63 +979,9 @@ class Line extends Api
             $this->sendReplyMessageCus([["type" => "text", "text" => "尚未綁定帳號。"]]);
             return;
         }
-
-        // 已結算：近 7 天（含今天），維持原邏輯
-        $sevenDaysAgo  = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
-        $tomorrowStart = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
-
-        // 未結算：不套日期（全部未結算）
-        $pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
-
-        // 已結算（近 7 天）
-        $settled = $this->fetchPredsCombined($analystId, $sevenDaysAgo, $tomorrowStart, 'settled');
-
-        $messages = [];
-
-        // 1) 未結算（全部）— 不顯示結果；多則 bubble 分頁
-        $messages = array_merge(
-            $messages,
-            $this->buildPredListBubbles($pending, "📝 未結算預測", 8, false, true)
-        );
-
-        // 2) 已結算（近7天）— 顯示結果；多則 bubble 分頁
-        $messages = array_merge(
-            $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true)
-        );
-
-        // 3) 勝率 placeholder
-        $messages[] = [
-            "type" => "flex",
-            "altText" => "勝率",
-            "contents" => [
-                "type" => "bubble",
-                "header" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => "📈 勝率（近7天）",
-                        "weight" => "bold",
-                        "size" => "md"
-                    ]]
-                ],
-                "body" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => "敬請期待。",
-                        "size" => "sm",
-                        "color" => "#666666"
-                    ]]
-                ]
-            ]
-        ];
-
-        // 一次最多 5 則
-        $this->sendReplyMessageCus(array_slice($messages, 0, 5));
+        $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
     }
+
 
     /**
      * 取某分析師的預測（可選日期範圍），並合併同場 pred_type
@@ -1281,24 +1228,79 @@ class Line extends Api
         $this->sendReplyMessageCus([$msg]);
     }
 
+    // 取代原本的「排行榜→點分析師」顯示
     private function sendAnalystPredResults(int $analystId)
     {
-        $start = strtotime(date('Y-m-d 00:00:00', strtotime('-6 days')));
-        $end   = time();
+        if ($analystId <= 0) {
+            $this->sendReplyMessageCus([["type" => "text", "text" => "這位分析師近七天沒有預測"]]);
+            return;
+        }
+        $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
+    }
 
-        $pending = $this->fetchPredsCombined($analystId, $start, $end, false);
-        $settled = $this->fetchPredsCombined($analystId, $start, $end, true);
+    /**
+     * 建構「預測結果」頁面 messages（共用：自己 / 指定分析師）
+     * - 未結算：沿用你現有的規則（若你先前已調整成「不設日期」就用 pending 全部；否則就用近14天）
+     * - 已結算：近 7 天
+     * - 勝率：placeholder
+     * - 每一段使用 carousel（同一則訊息左右滑），最後再統一切到最多 5 則
+     */
+    private function buildPredResultsPageMessages(int $analystId): array
+    {
+        // === 時間範圍 ===
+        $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-13 days')));
+        $tomorrowStart   = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
 
-        $msgs = [];
-        if (!empty($pending)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($pending, "⏳ 未結算預測（近7天）", 8, false, true));
-        }
-        if (!empty($settled)) {
-            $msgs = array_merge($msgs, $this->buildPredListBubbles($settled, "📊 已結算預測（近7天）", 8, true, true));
-        }
-        if (empty($msgs)) {
-            $msgs[] = ["type" => "text", "text" => "這位分析師近七天沒有預測"];
-        }
-        $this->sendReplyMessageCus($msgs);
+        // === 未結算 ===
+        // 若你要「未結算不設日期」，改成：$pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
+        $pending = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'pending');
+
+        // === 已結算（近14天）===
+        $settled = $this->fetchPredsCombined($analystId, $fourteenDaysAgo, $tomorrowStart, 'settled');
+
+        $messages = [];
+
+        // 1) 未結算（carousel: 同一則裡可左右滑）
+        $messages = array_merge(
+            $messages,
+            $this->buildPredListBubbles($pending, "⏳ 未結算預測（近14天）", 8, false, true)
+        );
+
+        // 2) 已結算（carousel）
+        $messages = array_merge(
+            $messages,
+            $this->buildPredListBubbles($settled, "📊 已結算預測（近14天）", 8, true, true)
+        );
+
+        // 3) 勝率 placeholder（維持你原本的樣式）
+        $messages[] = [
+            "type" => "flex",
+            "altText" => "勝率",
+            "contents" => [
+                "type" => "bubble",
+                "header" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "📈 勝率（近14天）",
+                        "weight" => "bold",
+                        "size" => "md"
+                    ]]
+                ],
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "敬請期待。",
+                        "size" => "sm",
+                        "color" => "#666666"
+                    ]]
+                ]
+            ]
+        ];
+
+        return array_slice($messages, 0, 5); // 與「預測結果」相同：最多 5 則
     }
 }
