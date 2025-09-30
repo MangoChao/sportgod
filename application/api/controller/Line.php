@@ -1269,7 +1269,7 @@ class Line extends Api
             ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId) {
-            $q->where('p.category_id', '=', $categoryId);
+            $q->where('e.event_category_id', '=', $categoryId);
         }
 
         $rows = $q->field([
