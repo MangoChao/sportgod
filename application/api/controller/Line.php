@@ -1228,15 +1228,17 @@ class Line extends Api
         // 固定每場 1 萬
         $stake = 10000;
 
-        // 獲利：贏 +10000；輸 -10000；其它不計
-        $profitExpr   = "SUM(CASE WHEN p.comply = 1 THEN {$stake} WHEN p.comply = 2 THEN -{$stake} ELSE 0 END)";
-        // 下注場數：只計 comply in (1,2)
-        $betCountExpr = "SUM(p.comply IN (1,2))";
+        // 統計欄位
+        $profitExpr     = "SUM(CASE WHEN p.comply = 1 THEN {$stake} WHEN p.comply = 2 THEN -{$stake} ELSE 0 END)";
+        $betCountExpr   = "SUM(p.comply IN (1,2))";
+        $winExpr        = "SUM(p.comply = 1)";
+        $loseExpr       = "SUM(p.comply = 2)";
+        $totalCountExpr = "({$winExpr} + {$loseExpr})";
 
         $query = model('Analyst')->alias('a')
             ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->where('p.comply', 'in', [1, 2])
+            ->where('p.comply', 'in', [1, 2])  // 只統計已判定勝負
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
@@ -1244,24 +1246,19 @@ class Line extends Api
             $query->where('e.event_category_id', '=', $categoryId);
         }
 
-        $final = clone $query;
-        $final->field("a.*, {$profitExpr} AS profit, {$betCountExpr} AS bet_count")
+        $rows = $query
+            ->field("a.*, {$profitExpr} AS profit, {$betCountExpr} AS bet_count, {$winExpr} AS win_count, {$loseExpr} AS lose_count, {$totalCountExpr} AS total_count")
             ->group('a.id')
             ->having('bet_count > 0')
-            ->order('profit DESC, bet_count DESC, a.id ASC')
-            ->limit($limit);
+            ->order('profit DESC, total_count DESC, a.id ASC')
+            ->limit($limit)
+            ->select();
 
-        // 可選：輸出完整 SQL 到 log（若不需要可移除）
-        $sql = (clone $final)->fetchSql(true)->select();
-        Log::notice("[SQL][fetchTopAnalystsByProfit] {$sql}");
-
-        $rows = $final->select();
         return $rows ?: [];
     }
 
     private function buildAnalystRow($a): array
     {
-        // 先轉純陣列，避免 array_key_exists/isset 與 Model 的相容性問題
         if ($a instanceof \think\Model) {
             $a = $a->toArray();
         }
@@ -1269,21 +1266,17 @@ class Line extends Api
         $name = (string)($a['analyst_name'] ?? $a['name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
 
-        // —— 統一的 metrics（單行，不換行）——
+        $wins   = (int)($a['win_count']  ?? 0);
+        $loses  = (int)($a['lose_count'] ?? 0);
+        $total  = (int)($a['total_count'] ?? ($wins + $loses));
+
+        // 統一第二行格式
         if (isset($a['profit'])) {
-            // 獲利榜：下注 N 場｜輸贏 ±金額
-            $betCount = (int)($a['bet_count'] ?? $a['pred_count'] ?? 0);
-            $profit   = (float)$a['profit'];
-            $profitFormatted = (floor($profit) == $profit)
-                ? number_format((int)$profit)
-                : number_format($profit, 2);
+            $profit = (float)$a['profit'];
+            $profitFormatted = (floor($profit) == $profit) ? number_format((int)$profit) : number_format($profit, 2);
             $profitText = ($profit >= 0 ? '+' : '') . $profitFormatted;
-            $metricsText = "下注 {$betCount} 場｜輸贏 {$profitText}";
+            $metricsText = "輸贏 {$profitText}｜{$total} 場（W {$wins} / L {$loses}）";
         } else {
-            // 勝率榜：勝率 xx.x%｜N 場（W x / L y）
-            $wins  = (int)($a['win_count']  ?? 0);
-            $loses = (int)($a['lose_count'] ?? 0);
-            $total = (int)($a['total_count'] ?? ($wins + $loses));
             $rate  = isset($a['winrate']) ? (float)$a['winrate'] : ($total > 0 ? ($wins / max(1, $total)) : 0.0);
             $ratePct = number_format($rate * 100, 1);
             $metricsText = "勝率 {$ratePct}%｜{$total} 場（W {$wins} / L {$loses}）";
