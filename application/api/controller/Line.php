@@ -1325,9 +1325,9 @@ class Line extends Api
                     'analyst_id'   => $aid,
                     'analyst_name' => (string)$r['analyst_name'],
                     'profit'       => 0,
-                    'win'          => 0,
-                    'lose'         => 0,
-                    'total'        => 0,
+                    'win_count'          => 0,
+                    'lose_count'         => 0,
+                    'total_count'        => 0,
                 ];
             }
 
@@ -1431,15 +1431,15 @@ class Line extends Api
 
             // === 寫入彙總 ===
             $agg[$aid]['profit'] += $resultMoney;
-            if ($resultMoney > 0) $agg[$aid]['win']++;
-            if ($resultMoney < 0) $agg[$aid]['lose']++;
-            $agg[$aid]['total']++;
+            if ($resultMoney > 0) $agg[$aid]['win_count']++;
+            if ($resultMoney < 0) $agg[$aid]['lose_count']++;
+            $agg[$aid]['total_count']++;
         }
 
         // 排序：profit desc → total desc → analyst_id asc
         usort($agg, function ($x, $y) {
             if ($x['profit'] !== $y['profit']) return ($y['profit'] <=> $x['profit']);
-            if ($x['total']  !== $y['total'])  return ($y['total']  <=> $x['total']);
+            if ($x['total_count']  !== $y['total_count'])  return ($y['total_count']  <=> $x['total_count']);
             return ($x['analyst_id'] <=> $y['analyst_id']);
         });
 
@@ -1453,9 +1453,9 @@ class Line extends Api
                 $row['analyst_id'],
                 $row['analyst_name'],
                 $row['profit'],
-                $row['win'],
-                $row['lose'],
-                $row['total']
+                $row['win_count'],
+                $row['lose_count'],
+                $row['total_count']
             ));
         }
 
