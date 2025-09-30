@@ -1250,10 +1250,6 @@ class Line extends Api
             'p.bigscore'     => 'bigscore',     // "T-P"
 
             // 比分：先用 event，沒有再 fallback 到 pred 內
-            'e.home_score'   => 'e_home_score',
-            'e.away_score'   => 'e_away_score',
-            'e.homescore'    => 'e_homescore',
-            'e.guestscore'   => 'e_guestscore',
             'p.master_score' => 'p_home_score',
             'p.guests_score' => 'p_away_score',
         ])
