@@ -52,6 +52,9 @@ class Line extends Api
         // 1) 讀原始 JSON
         $raw = $this->request->getInput();
         $post = json_decode($raw, true);
+        // Log::info('--- webhook ---');
+        // Log::info($raw);
+        // Log::info('---------------');
 
         // 2) 驗簽（LINE: X-Line-Signature）
         $channelSecret = Config::get("site.line_channel_secret");
@@ -61,13 +64,6 @@ class Line extends Api
             Log::info('LINE signature verify failed');
             return $this->error('Forbidden', null, 403);
         }
-
-        // 3) 紀錄少量必要資訊
-        Log::info('--- webhook ---');
-        Log::info([
-            'events_count' => isset($post['events']) && is_array($post['events']) ? count($post['events']) : 0,
-        ]);
-        Log::info('---------------');
 
         // 後續照你的流程
         $events = $post['events'] ?? null;
@@ -131,12 +127,6 @@ class Line extends Api
                     $messages_obj = $this->buildMainMenuFlex();
                     $this->sendReplyMessageCus($messages_obj);
                     break;
-                    // case "賽事":
-                    //     $table_data_list = $this->eventlist();
-                    //     $flexMessages = $this->tableDataListToFlexMessages($table_data_list, 5); // 每 bubble 8 場
-                    //     $messages_obj = array_slice($flexMessages, 0, 5);
-                    //     $this->sendReplyMessageCus($messages_obj);
-                    break;
                 case "#uid":
                     break;
             }
@@ -166,24 +156,26 @@ class Line extends Api
                 switch ($action) {
                     case 'winrate':
                         if ($catId <= 0) { // 先挑類型
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('winrate'));
+                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
                             break;
                         }
-                        $this->sendAnalystRanking("winrate", $catId); // 帶入類型 id（勝率暫不分期間）
+                        if ($period === '') {
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action, $catId));
+                            break;
+                        }
+                        $this->sendAnalystRanking($action, $catId, $period);
                         break;
 
                     case 'profit':
                         if ($catId <= 0) {
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('profit'));
+                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
                             break;
                         }
-                        // 沒選期間 → 先讓使用者挑 'week' 或 'month'
                         if ($period === '') {
-                            $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action, $catId));
                             break;
                         }
-                        // 有期間 → 帶入 period
-                        $this->sendAnalystRanking("profit", $catId, $period);
+                        $this->sendAnalystRanking($action, $catId, $period);
                         break;
 
                     case 'mine':
@@ -1172,52 +1164,82 @@ class Line extends Api
     }
 
     /**
-     * 取得「獲利排行榜」資料
-     * @param int        $limit       取前幾名
-     * @param int|null   $categoryId  體育分類（e.event_category_id）
-     * @param 'week'|'month' $period  統計期間（上週 or 上月）
-     * @return array<array>           每筆含 a.*、profit、pred_count
+     * 依「勝率」排行（上週／上月 + 類型過濾）
+     * 勝率 = wins / (wins + loses)，僅計入 comply IN (1,2)
+     *
+     * @param int        $limit
+     * @param int|null   $categoryId   e.event_category_id
+     * @param string     $period       'week' | 'month'
+     * @param bool       $printSql     是否輸出完整 SQL（預設 false）
+     * @return array
      */
-    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
+    private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
+        // 期間界線
         if ($period === 'week') {
             [$startTs, $endTs] = $this->getLastWeekRange();
-            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★ 若用結算時間，改成 p.settled_at
         } else { // 'month'
             [$startTs, $endTs] = $this->getLastMonthRange();
-            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★
         }
 
-        // ★ 欄位對應：
-        $stakeCol = 'p.bet_amount'; // 你的投注金額欄位
-        $oddsCol  = 'p.odds';       // 你的賠率欄位
-        $resultCol = 'p.result';     // 你的結果欄位
-        $settledCol = 'p.settled';  // 已結算旗標（若你用其他判斷，調整這行）
+        // 統計欄位
+        $winExpr   = "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END)";
+        $loseExpr  = "SUM(CASE WHEN p.comply = 2 THEN 1 ELSE 0 END)";
+        $totalExpr = "({$winExpr} + {$loseExpr})";
+        $rateExpr  = "CASE WHEN {$totalExpr} = 0 THEN 0 ELSE {$winExpr} / {$totalExpr} END";
 
-        $profitExpr = "SUM(CASE
-        WHEN {$resultCol} = 'win'       THEN ({$oddsCol} - 1) * {$stakeCol}
-        WHEN {$resultCol} = 'half_win'  THEN ({$oddsCol} - 1) * {$stakeCol} * 0.5
-        WHEN {$resultCol} = 'lose'      THEN -{$stakeCol}
-        WHEN {$resultCol} = 'half_lose' THEN -{$stakeCol} * 0.5
-        ELSE 0
-    END)";
-
-        $query = model('Analyst')->alias('a')
+        // 基底查詢
+        $base = model('Analyst')->alias('a')
             ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->where([$periodWhereBetween])
-            ->where($settledCol, 1)               // 只統計已結算
-            ->where('p.is_deleted', 0);           // 若有軟刪除
+            ->where('p.comply', 'in', [1, 2])            // 只計 1=贏、2=輸
+            ->where('e.starttime', '>=', $startTs)
+            ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId !== null) {
-            $query->where('e.event_category_id', $categoryId); // ★ 依你的欄位名
+            $base->where('e.event_category_id', '=', $categoryId);
+        }
+
+        // 最終查詢（含欄位/群組/排序/限制）
+        $final = clone $base;
+        $final->field("a.*, {$winExpr} AS win_count, {$loseExpr} AS lose_count, {$totalExpr} AS total_count, {$rateExpr} AS winrate")
+            ->group('a.id')
+            ->having('total_count > 0')
+            ->order('winrate DESC, total_count DESC, a.id ASC')
+            ->limit($limit);
+
+        $sql = (clone $final)->fetchSql(true)->select();
+        Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
+
+        // 執行查詢
+        $rows = $final->select();
+        return $rows ?: [];
+    }
+
+    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
+    {
+        // 期間界線（秒）
+        if ($period === 'week') {
+            [$startTs, $endTs] = $this->getLastWeekRange();
+        } else { // 'month'
+            [$startTs, $endTs] = $this->getLastMonthRange();
+        }
+
+        $query = model('Analyst')
+            ->alias('a')
+            ->join('pred p', 'p.analyst_id = a.id')
+            ->join('event e', 'e.id = p.event_id')
+            ->field('a.*, COUNT(p.id) AS pred_count')
+            ->where('e.starttime', '>=', $startTs)
+            ->where('e.starttime', '<=', $endTs);
+
+        if ($categoryId !== null) {
+            $query->where('e.event_category_id', $categoryId);
         }
 
         $rows = $query
-            ->field("a.*, COUNT(p.id) AS pred_count, {$profitExpr} AS profit")
             ->group('a.id')
-            ->having('pred_count > 0')
-            ->order('profit DESC, pred_count DESC, a.id ASC')
+            ->order('a.id asc')
             ->limit($limit)
             ->select();
 
@@ -1226,8 +1248,42 @@ class Line extends Api
 
     private function buildAnalystRow($a): array
     {
-        $name = (string)($a['analyst_name'] ?? '分析師');
+        // 名稱可能是 analyst_name 或 name，兩者都試
+        $name = (string)($a['analyst_name'] ?? $a['name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
+
+        // 勝敗統計（如果 total_count 沒給，就用 wins+loses 補）
+        $wins  = (int)($a['win_count']  ?? 0);
+        $loses = (int)($a['lose_count'] ?? 0);
+        $total = (int)($a['total_count'] ?? ($wins + $loses));
+
+        // 勝率（如果 winrate 沒給，則用 wins/total 動態算）
+        if (isset($a['winrate'])) {
+            $rate = (float)$a['winrate'];  // 0~1
+        } else {
+            $rate = $total > 0 ? ($wins / max(1, $total)) : 0.0;
+        }
+        $ratePct = number_format($rate * 100, 1); // 例如 68.4
+
+        // 顯示文字：勝率 68.4%｜19 場（W 13 / L 6）
+        $metricsText = "勝率 {$ratePct}%｜{$total} 場（W {$wins} / L {$loses}）";
+
+        // 若同時有 profit 就順便顯示（選用）
+        $contents = [
+            ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm", "weight" => "bold"],
+            ["type" => "text", "text" => $metricsText, "wrap" => true, "size" => "xs", "color" => "#666666"],
+        ];
+
+        if (array_key_exists('profit', $a) && $a['profit'] !== null) {
+            $profit = (float)$a['profit'];
+            // 格式化：正數加 + 號，整數不留小數，否則留兩位
+            $profitFormatted = (floor($profit) == $profit)
+                ? number_format((int)$profit)
+                : number_format($profit, 2);
+            $profitText = ($profit >= 0 ? '+' : '') . $profitFormatted;
+
+            $contents[] = ["type" => "text", "text" => "獲利 {$profitText}", "wrap" => true, "size" => "xs", "color" => "#666666"];
+        }
 
         return [
             "type" => "box",
@@ -1240,27 +1296,23 @@ class Line extends Api
                 "data"  => json_encode(["cmd" => "analyst_result", "analyst" => $id], JSON_UNESCAPED_UNICODE),
                 "displayText" => "查看 {$name} 的預測"
             ],
-            "contents" => [
-                ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm"],
-            ]
+            "contents" => $contents
         ];
     }
 
-    /**
-     * @param string     $mode       'winrate' | 'profit'
-     * @param int|null   $categoryId
-     * @param string     $period     僅在 $mode='profit' 時使用：'week' | 'month'
-     */
     private function sendAnalystRanking(string $mode, ?int $categoryId = null, string $period = 'week')
     {
         if ($mode === 'profit') {
             $periodLabel = ($period === 'month') ? '（上月）' : '（上週）';
-            $title = "💰 獲利排行榜" . $periodLabel;
+            $title = "💰 獲利排行榜{$periodLabel}";
             $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
+        } elseif ($mode === 'winrate') {
+            $periodLabel = ($period === 'month') ? '（上月）' : '（上週）';
+            $title = "🏆 勝率排行榜{$periodLabel}";
+            $analysts = $this->fetchTopAnalystsByWinrate(10, $categoryId, $period);
         } else {
-            $title = "🏆 勝率排行榜";
-            // 仍用你原本的取法（之後要做真的勝率再改）
-            $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
+            $title = "排行榜";
+            $analysts = [];
         }
 
         if (empty($analysts)) {
@@ -1268,14 +1320,13 @@ class Line extends Api
             return;
         }
 
+        // ——以下維持你原本的分頁 / bubble 組裝——
         $chunks  = array_chunk($analysts, 8);
         $bubbles = [];
         for ($i = 0; $i < count($chunks); $i++) {
             $rows = [];
             foreach ($chunks[$i] as $a) $rows[] = $this->buildAnalystRow($a);
-
             $footer = "第 " . ($i + 1) . " 頁 / 共 " . count($chunks) . " 頁";
-
             $bubbles[] = [
                 "type" => "bubble",
                 "body" => [
@@ -1289,12 +1340,7 @@ class Line extends Api
                 "footer" => [
                     "type" => "box",
                     "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => $footer,
-                        "size" => "xxs",
-                        "color" => "#888888"
-                    ]]
+                    "contents" => [["type" => "text", "text" => $footer, "size" => "xxs", "color" => "#888888"]]
                 ]
             ];
         }
@@ -1459,7 +1505,7 @@ class Line extends Api
         return [$start->getTimestamp(), $end->getTimestamp()];
     }
 
-    private function buildPeriodPicker(int $catId): array
+    private function buildPeriodPicker(string $nextAction, int $catId): array
     {
         return [[
             "type" => "flex",
@@ -1481,7 +1527,7 @@ class Line extends Api
                                 "label" => "上週",
                                 "data"  => json_encode([
                                     "cmd" => "menu",
-                                    "action" => "profit",
+                                    "action" => $nextAction,
                                     "cat" => $catId,
                                     "period" => "week"
                                 ], JSON_UNESCAPED_UNICODE),
@@ -1496,7 +1542,7 @@ class Line extends Api
                                 "label" => "上月",
                                 "data"  => json_encode([
                                     "cmd" => "menu",
-                                    "action" => "profit",
+                                    "action" => $nextAction,
                                     "cat" => $catId,
                                     "period" => "month"
                                 ], JSON_UNESCAPED_UNICODE),

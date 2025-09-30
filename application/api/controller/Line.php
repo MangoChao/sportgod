@@ -52,9 +52,9 @@ class Line extends Api
         // 1) 讀原始 JSON
         $raw = $this->request->getInput();
         $post = json_decode($raw, true);
-        Log::info('--- webhook ---');
-        Log::info($raw);
-        Log::info('---------------');
+        // Log::info('--- webhook ---');
+        // Log::info($raw);
+        // Log::info('---------------');
 
         // 2) 驗簽（LINE: X-Line-Signature）
         $channelSecret = Config::get("site.line_channel_secret");
@@ -1175,7 +1175,6 @@ class Line extends Api
      */
     private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
-        Log::notice("fetchTopAnalystsByWinrate");
         // 期間界線
         if ($period === 'week') {
             [$startTs, $endTs] = $this->getLastWeekRange();
@@ -1219,71 +1218,74 @@ class Line extends Api
 
     private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
     {
-        // 期間界線（秒）
+        // 期間（台北時區的上週 / 上月）
         if ($period === 'week') {
             [$startTs, $endTs] = $this->getLastWeekRange();
         } else { // 'month'
             [$startTs, $endTs] = $this->getLastMonthRange();
         }
 
-        $query = model('Analyst')
-            ->alias('a')
-            ->join('pred p', 'p.analyst_id = a.id')
+        // 固定每場 1 萬
+        $stake = 10000;
+
+        // 獲利：贏 +10000；輸 -10000；其它不計
+        $profitExpr   = "SUM(CASE WHEN p.comply = 1 THEN {$stake} WHEN p.comply = 2 THEN -{$stake} ELSE 0 END)";
+        // 下注場數：只計 comply in (1,2)
+        $betCountExpr = "SUM(p.comply IN (1,2))";
+
+        $query = model('Analyst')->alias('a')
+            ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->field('a.*, COUNT(p.id) AS pred_count')
+            ->where('p.comply', 'in', [1, 2])
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId !== null) {
-            $query->where('e.event_category_id', $categoryId);
+            $query->where('e.event_category_id', '=', $categoryId);
         }
 
-        $rows = $query
+        $final = clone $query;
+        $final->field("a.*, {$profitExpr} AS profit, {$betCountExpr} AS bet_count")
             ->group('a.id')
-            ->order('a.id asc')
-            ->limit($limit)
-            ->select();
+            ->having('bet_count > 0')
+            ->order('profit DESC, bet_count DESC, a.id ASC')
+            ->limit($limit);
 
+        // 可選：輸出完整 SQL 到 log（若不需要可移除）
+        $sql = (clone $final)->fetchSql(true)->select();
+        Log::notice("[SQL][fetchTopAnalystsByProfit] {$sql}");
+
+        $rows = $final->select();
         return $rows ?: [];
     }
 
     private function buildAnalystRow($a): array
     {
-        // 名稱可能是 analyst_name 或 name，兩者都試
         $name = (string)($a['analyst_name'] ?? $a['name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
 
-        // 勝敗統計（如果 total_count 沒給，就用 wins+loses 補）
-        $wins  = (int)($a['win_count']  ?? 0);
-        $loses = (int)($a['lose_count'] ?? 0);
-        $total = (int)($a['total_count'] ?? ($wins + $loses));
-
-        // 勝率（如果 winrate 沒給，則用 wins/total 動態算）
-        if (isset($a['winrate'])) {
-            $rate = (float)$a['winrate'];  // 0~1
-        } else {
-            $rate = $total > 0 ? ($wins / max(1, $total)) : 0.0;
-        }
-        $ratePct = number_format($rate * 100, 1); // 例如 68.4
-
-        // 顯示文字：勝率 68.4%｜19 場（W 13 / L 6）
-        $metricsText = "勝率 {$ratePct}%｜{$total} 場（W {$wins} / L {$loses}）";
-
-        // 若同時有 profit 就順便顯示（選用）
         $contents = [
             ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm", "weight" => "bold"],
-            ["type" => "text", "text" => $metricsText, "wrap" => true, "size" => "xs", "color" => "#666666"],
         ];
 
         if (array_key_exists('profit', $a) && $a['profit'] !== null) {
-            $profit = (float)$a['profit'];
-            // 格式化：正數加 + 號，整數不留小數，否則留兩位
-            $profitFormatted = (floor($profit) == $profit)
-                ? number_format((int)$profit)
-                : number_format($profit, 2);
+            // ★ 獲利榜版面：只顯示下注場數與輸贏
+            $betCount = (int)($a['bet_count'] ?? $a['pred_count'] ?? 0);
+            $profit   = (float)$a['profit'];
+            $profitFormatted = (floor($profit) == $profit) ? number_format((int)$profit) : number_format($profit, 2);
             $profitText = ($profit >= 0 ? '+' : '') . $profitFormatted;
 
-            $contents[] = ["type" => "text", "text" => "獲利 {$profitText}", "wrap" => true, "size" => "xs", "color" => "#666666"];
+            $contents[] = ["type" => "text", "text" => "下注 {$betCount} 場", "wrap" => true, "size" => "xs", "color" => "#666666"];
+            $contents[] = ["type" => "text", "text" => "輸贏 {$profitText}", "wrap" => true, "size" => "xs", "color" => "#666666"];
+        } else {
+            // ★ 勝率榜或其它：維持原本顯示
+            $wins  = (int)($a['win_count']  ?? 0);
+            $loses = (int)($a['lose_count'] ?? 0);
+            $total = (int)($a['total_count'] ?? ($wins + $loses));
+            $rate  = isset($a['winrate']) ? (float)$a['winrate'] : ($total > 0 ? ($wins / max(1, $total)) : 0.0);
+            $ratePct = number_format($rate * 100, 1);
+            $metricsText = "勝率 {$ratePct}%｜{$total} 場（W {$wins} / L {$loses}）";
+            $contents[] = ["type" => "text", "text" => $metricsText, "wrap" => true, "size" => "xs", "color" => "#666666"];
         }
 
         return [
