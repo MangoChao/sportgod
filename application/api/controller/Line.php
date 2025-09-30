@@ -1183,7 +1183,7 @@ class Line extends Api
      * @param bool       $printSql     是否輸出完整 SQL（預設 false）
      * @return array
      */
-    private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period, bool $printSql = false): array
+    private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
         // 期間界線
         if ($period === 'week') {
@@ -1218,11 +1218,8 @@ class Line extends Api
             ->order('winrate DESC, total_count DESC, a.id ASC')
             ->limit($limit);
 
-        // 取得完整 SQL（不執行）
-        if ($printSql) {
-            $sql = (clone $final)->fetchSql(true)->select();
-            Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
-        }
+        $sql = (clone $final)->fetchSql(true)->select();
+        Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
 
         // 執行查詢
         $rows = $final->select();
