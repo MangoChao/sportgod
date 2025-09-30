@@ -1227,8 +1227,7 @@ class Line extends Api
             ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
             ->where('e.starttime', '>=', $startTs)
-            ->where('e.starttime', '<=', $endTs)
-            ->where('p.is_deleted', 0);
+            ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId !== null) {
             $q->where('e.event_category_id', '=', $categoryId);
