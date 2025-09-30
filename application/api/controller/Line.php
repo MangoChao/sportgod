@@ -1216,93 +1216,197 @@ class Line extends Api
         return $rows ?: [];
     }
 
+    /**
+     * 按期間統計分析師盈虧（只用 pred 內比分；含詳細計算 log）
+     *
+     * @param int         $limit
+     * @param int|null    $categoryId
+     * @param 'week'|'month' $period
+     * @return array
+     */
     private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
     {
         // 期間（台北時區的上週 / 上月）
-        [$startTs, $endTs] = ($period === 'week') ? $this->getLastWeekRange() : $this->getLastMonthRange();
+        if ($period === 'week') {
+            [$startTs, $endTs] = $this->getLastWeekRange();
+        } else { // 'month'
+            [$startTs, $endTs] = $this->getLastMonthRange();
+        }
 
-        $stake = 10000; // 每注固定 1 萬
+        // 固定每場 1 萬
+        $stake = 10000;
 
-        $q = model('Analyst')->alias('a')
-            ->join('pred p',  'p.analyst_id = a.id')
-            ->join('event e', 'e.id = p.event_id')
+        // 是否開啟詳細 log
+        $enableLog = true;
+        $log = function (string $msg) use ($enableLog) {
+            if (!$enableLog) return;
+            Log::info($msg);
+        };
+
+        // 解析「大小分」字串，例如 "159-75" => [threshold, percent]
+        $parseBigscoreLine = function (?string $s) {
+            if ($s === null || $s === '') return null;
+            if (preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*$/', $s, $m)) {
+                return [floatval($m[1]), floatval($m[2])];
+            }
+            return null;
+        };
+
+        // 解析「讓分」字串，例如 "4+50" => [handicap, percent]
+        $parseRefundLine = function (?string $s) {
+            if ($s === null || $s === '') return null;
+            if (preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)\s*$/', $s, $m)) {
+                return [floatval($m[1]), floatval($m[2])];
+            }
+            return null;
+        };
+
+        // === 建立查詢（注意：不再取 e_home_score / e_away_score） ===
+        $q = model("Pred")->alias('p')
+            ->join('analyst a', 'a.id = p.analyst_id')
+            ->join('event e', 'e.id = p.event_id') // 仍保留 event 以便用 starttime 篩選
+            ->where('p.status', '=', 1)
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
-        if ($categoryId !== null) {
-            $q->where('e.event_category_id', '=', $categoryId);
+        if ($categoryId) {
+            $q->where('p.category_id', '=', $categoryId);
         }
 
-        // 需要的欄位（依你實際 event 欄位命名都抓，後面會做 fallback）
         $rows = $q->field([
-            'a.id'           => 'analyst_id',
-            'a.analyst_name' => 'analyst_name',
-            'p.id'           => 'pred_id',
-            'p.pred_type'    => 'pred_type',
+            'a.id'             => 'analyst_id',
+            'a.analyst_name'   => 'analyst_name',
+            'p.id'             => 'pred_id',
+            'p.pred_type'      => 'pred_type',       // 1:讓分, 2:大小
+            'p.master_refund'  => 'master_refund',   // 讓分用的盤口字串（押主時）
+            'p.guests_refund'  => 'guests_refund',   // 讓分用的盤口字串（押客時）
+            'p.bigsmall'       => 'bigsmall',        // 大小分：1=大, 0=小
+            'p.bigscore'       => 'bigscore',        // 大小分盤口字串 "T-P"
+            // 僅用 pred 內比分：
+            'p.master_score'   => 'p_home_score',
+            'p.guests_score'   => 'p_away_score',
+            // 便於追蹤
+            'p.event_id'       => 'event_id',
+        ])->select();
 
-            // 讓分（僅一邊會有值）
-            'p.master_refund' => 'master_refund',
-            'p.guests_refund' => 'guests_refund',
+        $log(sprintf(
+            '[fetchTopAnalystsByProfit] period=%s start=%s end=%s rows=%d',
+            $period,
+            date('c', $startTs),
+            date('c', $endTs),
+            count($rows)
+        ));
 
-            // 大小
-            'p.bigsmall'     => 'bigsmall',     // 1:大(over), 0:小(under)
-            'p.bigscore'     => 'bigscore',     // "T-P"
+        // === 彙總器 ===
+        $agg = []; // analyst_id => [analyst_id, analyst_name, profit, win, lose, total]
 
-            // 比分：先用 event，沒有再 fallback 到 pred 內
-            'p.master_score' => 'p_home_score',
-            'p.guests_score' => 'p_away_score',
-        ])
-            ->select();
+        foreach ($rows as $idx => $r) {
+            $aid   = (int)$r['analyst_id'];
+            $pType = (int)$r['pred_type'];
+            $predId = (int)$r['pred_id'];
+            $eventId = (int)$r['event_id'];
 
-        if ($rows instanceof \think\Collection) $rows = $rows->toArray();
-        if (!$rows) return [];
+            $home = ($r['p_home_score'] === null || $r['p_home_score'] === '') ? null : floatval($r['p_home_score']);
+            $away = ($r['p_away_score'] === null || $r['p_away_score'] === '') ? null : floatval($r['p_away_score']);
 
-        // 聚合：以分析師彙總
-        $agg = []; // [analyst_id => ['id','analyst_name','profit','bet_count','win_count','lose_count','total_count']]
-
-        foreach ($rows as $r) {
-            $aid   = (int)($r['analyst_id'] ?? 0);
-            $aname = (string)($r['analyst_name'] ?? '分析師');
-
-            // 取最終比分（優先 event，再 fallback pred 內）
-            $home = null;
-            $away = null;
-            $candHome = [$r['e_home_score'] ?? null, $r['e_homescore'] ?? null, $r['p_home_score'] ?? null];
-            $candAway = [$r['e_away_score'] ?? null, $r['e_guestscore'] ?? null, $r['p_away_score'] ?? null];
-
-            foreach ($candHome as $v) {
-                if ($v !== null && $v !== '') {
-                    $home = (int)$v;
-                    break;
-                }
+            if ($home === null || $away === null) {
+                $log(sprintf(
+                    '  - skip row#%d pred=%d evt=%d: missing score home=%s away=%s',
+                    $idx,
+                    $predId,
+                    $eventId,
+                    var_export($r['p_home_score'], true),
+                    var_export($r['p_away_score'], true)
+                ));
+                continue;
             }
-            foreach ($candAway as $v) {
-                if ($v !== null && $v !== '') {
-                    $away = (int)$v;
-                    break;
-                }
-            }
-
-            if ($home === null || $away === null) continue; // 尚未有比分 → 不結算
 
             if (!isset($agg[$aid])) {
                 $agg[$aid] = [
-                    'id'           => $aid,
-                    'analyst_name' => $aname,
+                    'analyst_id'   => $aid,
+                    'analyst_name' => (string)$r['analyst_name'],
                     'profit'       => 0,
-                    'bet_count'    => 0,
-                    'win_count'    => 0,
-                    'lose_count'   => 0,
-                    'total_count'  => 0,
+                    'win'          => 0,
+                    'lose'         => 0,
+                    'total'        => 0,
                 ];
             }
 
-            $ptype = (int)($r['pred_type'] ?? 0);
+            $resultMoney = 0; // 這筆的輸贏金額
+            $reason = '';
 
-            // ===== 讓分（pred_type=1；僅 master_refund 或 guests_refund 其中之一有值） =====
-            if ($ptype === 1) {
-                $pick = null;
-                $lineStr = null;
+            if ($pType === 2) {
+                // ===== 大小分 =====
+                $bs = $parseBigscoreLine($r['bigscore'] ?? '');
+                $bigSmallFlag = ($r['bigsmall'] === null || $r['bigsmall'] === '') ? null : intval($r['bigsmall']); // 1=大,0=小
+                $sum = $home + $away;
+
+                if ($bs === null || $bigSmallFlag === null) {
+                    $log(sprintf(
+                        '  - skip row#%d pred=%d evt=%d: invalid bigscore/bigsmall bigscore=%s bigsmall=%s',
+                        $idx,
+                        $predId,
+                        $eventId,
+                        var_export($r['bigscore'], true),
+                        var_export($r['bigsmall'], true)
+                    ));
+                    continue;
+                }
+
+                [$T, $P] = $bs; // 門檻與相等百分比
+                if ($sum > $T) {
+                    // 大贏、小輸
+                    $resultMoney = ($bigSmallFlag === 1) ? $stake : -$stake;
+                    $reason = sprintf(
+                        'OU sum=%.0f > T=%.0f => %s %s%d',
+                        $sum,
+                        $T,
+                        ($bigSmallFlag === 1 ? 'Over' : 'Under'),
+                        ($resultMoney >= 0 ? '+' : ''),
+                        $resultMoney
+                    );
+                } elseif ($sum < $T) {
+                    // 小贏、大輸
+                    $resultMoney = ($bigSmallFlag === 0) ? $stake : -$stake;
+                    $reason = sprintf(
+                        'OU sum=%.0f < T=%.0f => %s %s%d',
+                        $sum,
+                        $T,
+                        ($bigSmallFlag === 1 ? 'Over' : 'Under'),
+                        ($resultMoney >= 0 ? '+' : ''),
+                        $resultMoney
+                    );
+                } else { // ==
+                    // 相等：小贏 P%、大輸 P%
+                    $delta = (int)round($stake * ($P / 100.0));
+                    $resultMoney = ($bigSmallFlag === 0) ? +$delta : -$delta;
+                    $reason = sprintf(
+                        'OU sum=%.0f == T=%.0f (P=%.0f%%) => %s %s%d',
+                        $sum,
+                        $T,
+                        $P,
+                        ($bigSmallFlag === 1 ? 'Over' : 'Under'),
+                        ($resultMoney >= 0 ? '+' : ''),
+                        $resultMoney
+                    );
+                }
+
+                $log(sprintf(
+                    '  * row#%d pred=%d evt=%d [OU] score=%.0f:%.0f bigscore=%s bigsmall=%s => %s',
+                    $idx,
+                    $predId,
+                    $eventId,
+                    $home,
+                    $away,
+                    $r['bigscore'],
+                    (string)$r['bigsmall'],
+                    $reason
+                ));
+            } elseif ($pType === 1) {
+                // ===== 讓分 =====
+                // 方向：主邊有 master_refund => 押主；客邊有 guests_refund => 押客（保證只會有一邊有值）
+                $pick = null;     // 'home' or 'away'
+                $lineStr = null;  // 盤口字串
                 if (!empty($r['master_refund'])) {
                     $pick = 'home';
                     $lineStr = $r['master_refund'];
@@ -1311,46 +1415,102 @@ class Line extends Api
                     $lineStr = $r['guests_refund'];
                 }
 
-                if ($pick && ($ref = $this->parseRefundLine($lineStr))) {
-                    $p = $this->settleRefund($ref['H'], $ref['P'], $pick, $stake, $home, $away);
-                    $agg[$aid]['profit']      += $p;
-                    $agg[$aid]['bet_count']   += 1;
-                    $agg[$aid]['total_count'] += 1;
-                    if ($p > 0) $agg[$aid]['win_count']++;
-                    elseif ($p < 0) $agg[$aid]['lose_count']++;
+                if ($pick === null || $lineStr === null) {
+                    $log(sprintf(
+                        '  - skip row#%d pred=%d evt=%d: no spread side (master_refund=%s guests_refund=%s)',
+                        $idx,
+                        $predId,
+                        $eventId,
+                        var_export($r['master_refund'], true),
+                        var_export($r['guests_refund'], true)
+                    ));
+                    continue;
                 }
+
+                $rf = $parseRefundLine($lineStr);
+                if ($rf === null) {
+                    $log(sprintf(
+                        '  - skip row#%d pred=%d evt=%d: invalid refund line "%s"',
+                        $idx,
+                        $predId,
+                        $eventId,
+                        $lineStr
+                    ));
+                    continue;
+                }
+
+                [$H, $P] = $rf;           // H=讓分, P=相等時的百分比
+                $diff = $home - $away;    // 主 - 客
+
+                if ($diff > $H) {
+                    // 主過盤
+                    $resultMoney = ($pick === 'home') ? $stake : -$stake;
+                    $reason = sprintf('ATS diff=%.0f > H=%.0f => pick=%s %s%d', $diff, $H, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
+                } elseif ($diff < $H) {
+                    // 主未過盤
+                    $resultMoney = ($pick === 'home') ? -$stake : $stake;
+                    $reason = sprintf('ATS diff=%.0f < H=%.0f => pick=%s %s%d', $diff, $H, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
+                } else { // ==
+                    // 相等：押主 +P% 、押客 -P%
+                    $delta = (int)round($stake * ($P / 100.0));
+                    $resultMoney = ($pick === 'home') ? +$delta : -$delta;
+                    $reason = sprintf('ATS diff=%.0f == H=%.0f (P=%.0f%%) => pick=%s %s%d', $diff, $H, $P, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
+                }
+
+                $log(sprintf(
+                    '  * row#%d pred=%d evt=%d [ATS] score=%.0f:%.0f pick=%s line=%s => %s',
+                    $idx,
+                    $predId,
+                    $eventId,
+                    $home,
+                    $away,
+                    $pick,
+                    $lineStr,
+                    $reason
+                ));
+            } else {
+                // 未知玩法
+                $log(sprintf(
+                    '  - skip row#%d pred=%d evt=%d: unknown pred_type=%s',
+                    $idx,
+                    $predId,
+                    $eventId,
+                    var_export($pType, true)
+                ));
+                continue;
             }
 
-            // ===== 大小（pred_type=2；用 bigscore / bigsmall） =====
-            if ($ptype === 2) {
-                $line = $this->parseBigscoreLine($r['bigscore'] ?? null);
-                $pick = null;
-                if ($r['bigsmall'] === 1 || $r['bigsmall'] === '1') $pick = 'over';
-                elseif ($r['bigsmall'] === 0 || $r['bigsmall'] === '0') $pick = 'under';
-
-                if ($line && $pick) {
-                    $p = $this->settleBigscore($line['T'], $line['P'], $pick, $stake, $home, $away);
-                    $agg[$aid]['profit']      += $p;
-                    $agg[$aid]['bet_count']   += 1;
-                    $agg[$aid]['total_count'] += 1;
-                    if ($p > 0) $agg[$aid]['win_count']++;
-                    elseif ($p < 0) $agg[$aid]['lose_count']++;
-                }
-            }
-
-            // 如果未來你可能同時塞兩種（pred_type 不可靠），也可把上面改成 if (有欄位就算) 的版本
+            // === 寫入彙總 ===
+            $agg[$aid]['profit'] += $resultMoney;
+            if ($resultMoney > 0) $agg[$aid]['win']++;
+            if ($resultMoney < 0) $agg[$aid]['lose']++;
+            $agg[$aid]['total']++;
         }
 
-        if (!$agg) return [];
-
-        // 排序：profit DESC, total_count DESC, id ASC
-        usort($agg, function ($A, $B) {
-            if ($A['profit'] !== $B['profit']) return ($A['profit'] > $B['profit']) ? -1 : 1;
-            if ($A['total_count'] !== $B['total_count']) return ($A['total_count'] > $B['total_count']) ? -1 : 1;
-            return $A['id'] <=> $B['id'];
+        // 排序：profit desc → total desc → analyst_id asc
+        usort($agg, function ($x, $y) {
+            if ($x['profit'] !== $y['profit']) return ($y['profit'] <=> $x['profit']);
+            if ($x['total']  !== $y['total'])  return ($y['total']  <=> $x['total']);
+            return ($x['analyst_id'] <=> $y['analyst_id']);
         });
 
-        return array_slice($agg, 0, $limit);
+        $top = array_slice($agg, 0, $limit);
+
+        // 收尾 log（每位分析師的總結）
+        foreach ($top as $i => $row) {
+            $log(sprintf(
+                '[#%d] analyst_id=%d name=%s profit=%d win=%d lose=%d total=%d',
+                $i + 1,
+                $row['analyst_id'],
+                $row['analyst_name'],
+                $row['profit'],
+                $row['win'],
+                $row['lose'],
+                $row['total']
+            ));
+        }
+
+        return $top;
     }
 
     private function buildAnalystRow($a): array
