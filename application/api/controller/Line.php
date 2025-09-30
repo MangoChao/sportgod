@@ -1180,9 +1180,10 @@ class Line extends Api
      * @param int        $limit
      * @param int|null   $categoryId   e.event_category_id
      * @param string     $period       'week' | 'month'
+     * @param bool       $printSql     是否輸出完整 SQL（預設 false）
      * @return array
      */
-    private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
+    private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period, bool $printSql = false): array
     {
         // 期間界線
         if ($period === 'week') {
@@ -1197,25 +1198,34 @@ class Line extends Api
         $totalExpr = "({$winExpr} + {$loseExpr})";
         $rateExpr  = "CASE WHEN {$totalExpr} = 0 THEN 0 ELSE {$winExpr} / {$totalExpr} END";
 
-        $query = model('Analyst')->alias('a')
+        // 基底查詢
+        $base = model('Analyst')->alias('a')
             ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->where('p.comply', 'in', [1, 2])
+            ->where('p.comply', 'in', [1, 2])            // 只計 1=贏、2=輸
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId !== null) {
-            $query->where('e.event_category_id', $categoryId);
+            $base->where('e.event_category_id', '=', $categoryId);
         }
 
-        $rows = $query
-            ->field("a.*, {$winExpr} AS win_count, {$loseExpr} AS lose_count, {$totalExpr} AS total_count, {$rateExpr} AS winrate")
+        // 最終查詢（含欄位/群組/排序/限制）
+        $final = clone $base;
+        $final->field("a.*, {$winExpr} AS win_count, {$loseExpr} AS lose_count, {$totalExpr} AS total_count, {$rateExpr} AS winrate")
             ->group('a.id')
-            ->having('total_count > 0')                           // 沒有樣本不列入
-            ->order('winrate DESC, total_count DESC, a.id ASC')   // 勝率高優先，樣本數大者優先
-            ->limit($limit)
-            ->select();
+            ->having('total_count > 0')
+            ->order('winrate DESC, total_count DESC, a.id ASC')
+            ->limit($limit);
 
+        // 取得完整 SQL（不執行）
+        if ($printSql) {
+            $sql = (clone $final)->fetchSql(true)->select();
+            Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
+        }
+
+        // 執行查詢
+        $rows = $final->select();
         return $rows ?: [];
     }
 
