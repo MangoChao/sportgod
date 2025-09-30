@@ -169,7 +169,11 @@ class Line extends Api
                             $this->sendReplyMessageCus($this->buildCategoryPicker('winrate'));
                             break;
                         }
-                        $this->sendAnalystRanking("winrate", $catId); // 帶入類型 id（勝率暫不分期間）
+                        if ($period === '') {
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
+                            break;
+                        }
+                        $this->sendAnalystRanking("winrate", $catId, $period);
                         break;
 
                     case 'profit':
@@ -177,12 +181,10 @@ class Line extends Api
                             $this->sendReplyMessageCus($this->buildCategoryPicker('profit'));
                             break;
                         }
-                        // 沒選期間 → 先讓使用者挑 'week' 或 'month'
                         if ($period === '') {
                             $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
                             break;
                         }
-                        // 有期間 → 帶入 period
                         $this->sendAnalystRanking("profit", $catId, $period);
                         break;
 
@@ -1236,7 +1238,6 @@ class Line extends Api
             $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
         } else {
             $title = "🏆 勝率排行榜";
-            // 仍用你原本的取法（之後要做真的勝率再改）
             $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
         }
 
