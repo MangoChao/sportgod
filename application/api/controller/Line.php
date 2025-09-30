@@ -1269,7 +1269,7 @@ class Line extends Api
             ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm", "weight" => "bold"],
         ];
 
-        if (array_key_exists('profit', $a) && $a['profit'] !== null) {
+        if (isset($a['profit'])) {
             // ★ 獲利榜版面：只顯示下注場數與輸贏
             $betCount = (int)($a['bet_count'] ?? $a['pred_count'] ?? 0);
             $profit   = (float)$a['profit'];
