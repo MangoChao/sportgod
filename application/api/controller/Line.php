@@ -1265,7 +1265,6 @@ class Line extends Api
         $q = model("Pred")->alias('p')
             ->join('analyst a', 'a.id = p.analyst_id')
             ->join('event e', 'e.id = p.event_id') // 仍保留 event 以便用 starttime 篩選
-            ->where('p.status', '=', 1)
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
