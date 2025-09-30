@@ -160,6 +160,8 @@ class Line extends Api
             case 'menu':
                 $action = $p['action'] ?? '';
                 $catId  = isset($p['cat']) ? (int)$p['cat'] : 0;
+                $periodParam = strtolower($p['period'] ?? '');
+                $period = in_array($periodParam, ['week', 'month'], true) ? $periodParam : '';
 
                 switch ($action) {
                     case 'winrate':
@@ -167,7 +169,7 @@ class Line extends Api
                             $this->sendReplyMessageCus($this->buildCategoryPicker('winrate'));
                             break;
                         }
-                        $this->sendAnalystRanking("winrate", $catId); // 帶入類型 id
+                        $this->sendAnalystRanking("winrate", $catId); // 帶入類型 id（勝率暫不分期間）
                         break;
 
                     case 'profit':
@@ -175,7 +177,13 @@ class Line extends Api
                             $this->sendReplyMessageCus($this->buildCategoryPicker('profit'));
                             break;
                         }
-                        $this->sendAnalystRanking("profit", $catId);
+                        // 沒選期間 → 先讓使用者挑 'week' 或 'month'
+                        if ($period === '') {
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($catId));
+                            break;
+                        }
+                        // 有期間 → 帶入 period
+                        $this->sendAnalystRanking("profit", $catId, $period);
                         break;
 
                     case 'mine':
@@ -233,11 +241,11 @@ class Line extends Api
 
                 $state = $this->getPredState($userId, $eventId);
                 // 再點同一個 => 取消
-                if ($state[$type] === $value) $value = '';
+                if (($state[$type] ?? '') === $value) $value = '';
                 $state[$type] = $value;
                 $this->setPredState($userId, $eventId, $state);
 
-                $msg = $this->buildPreviewText($eventId, $state['winner'], $state['total']);
+                $msg = $this->buildPreviewText($eventId, $state['winner'] ?? '', $state['total'] ?? '');
                 $this->replyWithQuickReply($msg, $eventId);
                 break;
 
@@ -271,20 +279,18 @@ class Line extends Api
                 [$paramsRefund, $paramsBigs] = $this->buildPredParamsFromState($eventId, $state);
 
                 $res = $this->createPred($userId, $paramsRefund, $paramsBigs);
-                if ($res) {
-                    $replyMessage = "✅ 已送出你的預測！(event:{$eventId})";
-                } else {
-                    $replyMessage = "預測失敗, 請聯絡客服";
-                }
+                $replyMessage = $res ? "✅ 已送出你的預測！(event:{$eventId})" : "預測失敗, 請聯絡客服";
+
                 $this->clearPredState($userId, $eventId);
                 $this->sendReplyMessage($replyMessage);
                 break;
+
             case 'analyst_result':
                 $analystId = (int)($p['analyst'] ?? 0);
                 if ($analystId > 0) {
                     $this->sendAnalystPredResults($analystId);
                 } else {
-                    $this->sendReplyMessageCus(["分析師參數錯誤"]);
+                    $this->sendReplyMessage("分析師參數錯誤");
                 }
                 break;
 
@@ -1165,26 +1171,57 @@ class Line extends Api
         return "";
     }
 
-    private function fetchTopAnalysts(int $limit, ?int $categoryId = null)
+    /**
+     * 取得「獲利排行榜」資料
+     * @param int        $limit       取前幾名
+     * @param int|null   $categoryId  體育分類（e.event_category_id）
+     * @param 'week'|'month' $period  統計期間（上週 or 上月）
+     * @return array<array>           每筆含 a.*、profit、pred_count
+     */
+    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
     {
-        $query = model('Analyst')
-            ->alias('a')
-            ->join('pred p', 'p.analyst_id = a.id')
+        if ($period === 'week') {
+            [$startTs, $endTs] = $this->getLastWeekRange();
+            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★ 若用結算時間，改成 p.settled_at
+        } else { // 'month'
+            [$startTs, $endTs] = $this->getLastMonthRange();
+            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★
+        }
+
+        // ★ 欄位對應：
+        $stakeCol = 'p.bet_amount'; // 你的投注金額欄位
+        $oddsCol  = 'p.odds';       // 你的賠率欄位
+        $resultCol = 'p.result';     // 你的結果欄位
+        $settledCol = 'p.settled';  // 已結算旗標（若你用其他判斷，調整這行）
+
+        $profitExpr = "SUM(CASE
+        WHEN {$resultCol} = 'win'       THEN ({$oddsCol} - 1) * {$stakeCol}
+        WHEN {$resultCol} = 'half_win'  THEN ({$oddsCol} - 1) * {$stakeCol} * 0.5
+        WHEN {$resultCol} = 'lose'      THEN -{$stakeCol}
+        WHEN {$resultCol} = 'half_lose' THEN -{$stakeCol} * 0.5
+        ELSE 0
+    END)";
+
+        $query = model('Analyst')->alias('a')
+            ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->field('a.*, COUNT(p.id) AS pred_count');
-            
+            ->where([$periodWhereBetween])
+            ->where($settledCol, 1)               // 只統計已結算
+            ->where('p.is_deleted', 0);           // 若有軟刪除
+
         if ($categoryId !== null) {
-            $query->where('e.event_category_id', $categoryId);
+            $query->where('e.event_category_id', $categoryId); // ★ 依你的欄位名
         }
 
         $rows = $query
+            ->field("a.*, COUNT(p.id) AS pred_count, {$profitExpr} AS profit")
             ->group('a.id')
             ->having('pred_count > 0')
-            ->order('a.id asc')
+            ->order('profit DESC, pred_count DESC, a.id ASC')
             ->limit($limit)
             ->select();
 
-        return $rows ? $rows : [];
+        return $rows ?: [];
     }
 
     private function buildAnalystRow($a): array
@@ -1209,19 +1246,29 @@ class Line extends Api
         ];
     }
 
-    private function sendAnalystRanking(string $mode, ?int $categoryId = null)
+    /**
+     * @param string     $mode       'winrate' | 'profit'
+     * @param int|null   $categoryId
+     * @param string     $period     僅在 $mode='profit' 時使用：'week' | 'month'
+     */
+    private function sendAnalystRanking(string $mode, ?int $categoryId = null, string $period = 'week')
     {
-        $title = $mode === "winrate" ? "🏆 勝率排行榜" : "💰 獲利排行榜";
-
-        // 你原本用的 $this->fetchTopAnalysts(10) 可改成接受 $categoryId
-        $analysts = $this->fetchTopAnalysts(10, $categoryId); // <= 需要一併修改
+        if ($mode === 'profit') {
+            $periodLabel = ($period === 'month') ? '（上月）' : '（上週）';
+            $title = "💰 獲利排行榜" . $periodLabel;
+            $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
+        } else {
+            $title = "🏆 勝率排行榜";
+            // 仍用你原本的取法（之後要做真的勝率再改）
+            $analysts = $this->fetchTopAnalystsByProfit(10, $categoryId, $period);
+        }
 
         if (empty($analysts)) {
             $this->sendReplyMessageCus([["type" => "text", "text" => "目前沒有分析師預測資料"]]);
             return;
         }
 
-        $chunks = array_chunk($analysts, 8);
+        $chunks  = array_chunk($analysts, 8);
         $bubbles = [];
         for ($i = 0; $i < count($chunks); $i++) {
             $rows = [];
@@ -1380,6 +1427,83 @@ class Line extends Api
                         ],
                         $buttons
                     )
+                ]
+            ]
+        ]];
+    }
+
+    private function getLastWeekRange(): array
+    {
+        $tz   = new \DateTimeZone('Asia/Taipei');
+        $now  = new \DateTime('now', $tz);
+        $today0 = (clone $now)->setTime(0, 0, 0);
+
+        // 一週以週一為首：本週一
+        $w = (int)$today0->format('N'); // 1..7 (Mon..Sun)
+        $startOfThisWeek = (clone $today0)->modify('-' . ($w - 1) . ' days'); // 週一 00:00
+        $start = (clone $startOfThisWeek)->modify('-7 days');                 // 上週一 00:00
+        $end   = (clone $startOfThisWeek)->modify('-1 second');               // 上週日 23:59:59
+
+        return [$start->getTimestamp(), $end->getTimestamp()];
+    }
+
+    private function getLastMonthRange(): array
+    {
+        $tz   = new \DateTimeZone('Asia/Taipei');
+        $now  = new \DateTime('now', $tz);
+        $firstDayThisMonth = (clone $now)->setTime(0, 0, 0)->modify('first day of this month');
+
+        $start = (clone $firstDayThisMonth)->modify('first day of last month'); // 上月1日 00:00
+        $end   = (clone $firstDayThisMonth)->modify('-1 second');               // 上月底 23:59:59
+
+        return [$start->getTimestamp(), $end->getTimestamp()];
+    }
+
+    private function buildPeriodPicker(int $catId): array
+    {
+        return [[
+            "type" => "flex",
+            "altText" => "請選擇統計期間",
+            "contents" => [
+                "type" => "bubble",
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "md",
+                    "contents" => [
+                        ["type" => "text", "text" => "請選擇統計期間", "weight" => "bold", "size" => "lg"],
+                        ["type" => "separator", "margin" => "sm"],
+                        [
+                            "type" => "button",
+                            "style" => "primary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "上週",
+                                "data"  => json_encode([
+                                    "cmd" => "menu",
+                                    "action" => "profit",
+                                    "cat" => $catId,
+                                    "period" => "week"
+                                ], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "上週"
+                            ]
+                        ],
+                        [
+                            "type" => "button",
+                            "style" => "secondary",
+                            "action" => [
+                                "type" => "postback",
+                                "label" => "上月",
+                                "data"  => json_encode([
+                                    "cmd" => "menu",
+                                    "action" => "profit",
+                                    "cat" => $catId,
+                                    "period" => "month"
+                                ], JSON_UNESCAPED_UNICODE),
+                                "displayText" => "上月"
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]];
