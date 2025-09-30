@@ -1263,6 +1263,7 @@ class Line extends Api
     {
         $name = (string)($a['analyst_name'] ?? $a['name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
+        Log::notice(json_encode($a));
 
         $contents = [
             ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm", "weight" => "bold"],
