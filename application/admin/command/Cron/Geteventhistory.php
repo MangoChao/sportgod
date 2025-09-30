@@ -222,6 +222,16 @@ class Geteventhistory extends Command
                     foreach ($mPred as $v) {
                         $v->master_score = $data['mscore'];
                         $v->guests_score = $data['gscore'];
+
+                        if ($mEvent->master_score == -1 || $mEvent->guests_score == -1) {
+                            // 記錄比數，但判定為不算
+                            $v->master_score = $mEvent->master_score;
+                            $v->guests_score = $mEvent->guests_score;
+                            $v->comply = -1;
+                            $v->save();
+                            continue;
+                        }
+
                         if ($v->pred_type == 1) {
                             if ($v->master_refund != null) {
                                 // Log::notice($v->master_refund);
