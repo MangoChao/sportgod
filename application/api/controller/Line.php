@@ -1185,6 +1185,7 @@ class Line extends Api
      */
     private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
+        Log::notice("fetchTopAnalystsByWinrate");
         // 期間界線
         if ($period === 'week') {
             [$startTs, $endTs] = $this->getLastWeekRange();
