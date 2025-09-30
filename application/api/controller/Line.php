@@ -160,7 +160,7 @@ class Line extends Api
                             break;
                         }
                         if ($period === '') {
-                            $this->sendReplyMessageCus($this->buildPeriodPicker($action));
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action, $catId));
                             break;
                         }
                         $this->sendAnalystRanking($action, $catId, $period);
@@ -172,7 +172,7 @@ class Line extends Api
                             break;
                         }
                         if ($period === '') {
-                            $this->sendReplyMessageCus($this->buildPeriodPicker($action));
+                            $this->sendReplyMessageCus($this->buildPeriodPicker($action, $catId));
                             break;
                         }
                         $this->sendAnalystRanking($action, $catId, $period);
@@ -1506,7 +1506,7 @@ class Line extends Api
         return [$start->getTimestamp(), $end->getTimestamp()];
     }
 
-    private function buildPeriodPicker(string $nextAction): array
+    private function buildPeriodPicker(string $nextAction, int $catId): array
     {
         return [[
             "type" => "flex",
@@ -1529,6 +1529,7 @@ class Line extends Api
                                 "data"  => json_encode([
                                     "cmd" => "menu",
                                     "action" => $nextAction,
+                                    "cat" => $catId,
                                     "period" => "week"
                                 ], JSON_UNESCAPED_UNICODE),
                                 "displayText" => "上週"
@@ -1543,6 +1544,7 @@ class Line extends Api
                                 "data"  => json_encode([
                                     "cmd" => "menu",
                                     "action" => $nextAction,
+                                    "cat" => $catId,
                                     "period" => "month"
                                 ], JSON_UNESCAPED_UNICODE),
                                 "displayText" => "上月"
