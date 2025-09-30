@@ -191,7 +191,7 @@ class Line extends Api
                             $this->sendReplyMessageCus($this->buildCategoryPicker('results'));
                             break;
                         }
-                        $this->sendMyPredResultsPage($catId); // 帶入類型 id
+                        $this->sendMyPredResultsPage($catId);
                         break;
 
                     case 'heatmap':
@@ -1015,7 +1015,7 @@ class Line extends Api
         $query = model('Pred')
             ->alias('p')
             ->join('event e', 'e.id = p.event_id')
-            ->field('p.*, e.guests, e.master, e.starttime, e.guests_refund, e.master_refund, e.bigscore, e.guests_score, e.master_score')
+            ->field('p.*, e.guests, e.master, e.starttime, p.guests_refund, p.master_refund, p.bigscore, p.guests_score, p.master_score')
             ->where('p.analyst_id', $analystId);
 
         if ($start !== null) $query->where('e.starttime', '>=', $start);
