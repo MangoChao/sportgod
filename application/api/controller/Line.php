@@ -1171,53 +1171,30 @@ class Line extends Api
         return "";
     }
 
-    /**
-     * 取得「獲利排行榜」資料
-     * @param int        $limit       取前幾名
-     * @param int|null   $categoryId  體育分類（e.event_category_id）
-     * @param 'week'|'month' $period  統計期間（上週 or 上月）
-     * @return array<array>           每筆含 a.*、profit、pred_count
-     */
     private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
     {
+        // 期間界線（秒）
         if ($period === 'week') {
             [$startTs, $endTs] = $this->getLastWeekRange();
-            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★ 若用結算時間，改成 p.settled_at
         } else { // 'month'
             [$startTs, $endTs] = $this->getLastMonthRange();
-            $periodWhereBetween = ['e.starttime', 'between', [$startTs, $endTs]]; // ★
         }
-
-        // ★ 欄位對應：
-        $stakeCol = 'p.bet_amount'; // 你的投注金額欄位
-        $oddsCol  = 'p.odds';       // 你的賠率欄位
-        $resultCol = 'p.result';     // 你的結果欄位
-        $settledCol = 'p.settled';  // 已結算旗標（若你用其他判斷，調整這行）
-
-        $profitExpr = "SUM(CASE
-        WHEN {$resultCol} = 'win'       THEN ({$oddsCol} - 1) * {$stakeCol}
-        WHEN {$resultCol} = 'half_win'  THEN ({$oddsCol} - 1) * {$stakeCol} * 0.5
-        WHEN {$resultCol} = 'lose'      THEN -{$stakeCol}
-        WHEN {$resultCol} = 'half_lose' THEN -{$stakeCol} * 0.5
-        ELSE 0
-    END)";
-
-        $query = model('Analyst')->alias('a')
-            ->join('pred p',  'p.analyst_id = a.id')
+            
+        $query = model('Analyst')
+            ->alias('a')
+            ->join('pred p', 'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
-            ->where([$periodWhereBetween])
-            ->where($settledCol, 1)               // 只統計已結算
-            ->where('p.is_deleted', 0);           // 若有軟刪除
-
+            ->field('a.*, COUNT(p.id) AS pred_count')
+            ->where('e.starttime', '>=', $startTs)
+            ->where('e.starttime', '<=', $endTs);
+            
         if ($categoryId !== null) {
-            $query->where('e.event_category_id', $categoryId); // ★ 依你的欄位名
+            $query->where('e.event_category_id', $categoryId);
         }
 
         $rows = $query
-            ->field("a.*, COUNT(p.id) AS pred_count, {$profitExpr} AS profit")
             ->group('a.id')
-            ->having('pred_count > 0')
-            ->order('profit DESC, pred_count DESC, a.id ASC')
+            ->order('a.id asc')
             ->limit($limit)
             ->select();
 
