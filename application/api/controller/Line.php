@@ -1261,32 +1261,32 @@ class Line extends Api
 
     private function buildAnalystRow($a): array
     {
+        // 先轉純陣列，避免 array_key_exists/isset 與 Model 的相容性問題
+        if ($a instanceof \think\Model) {
+            $a = $a->toArray();
+        }
+
         $name = (string)($a['analyst_name'] ?? $a['name'] ?? '分析師');
         $id   = (int)($a['id'] ?? 0);
-        Log::notice(json_encode($a));
 
-        $contents = [
-            ["type" => "text", "text" => $name, "wrap" => true, "size" => "sm", "weight" => "bold"],
-        ];
-
+        // —— 統一的 metrics（單行，不換行）——
         if (isset($a['profit'])) {
-            // ★ 獲利榜版面：只顯示下注場數與輸贏
+            // 獲利榜：下注 N 場｜輸贏 ±金額
             $betCount = (int)($a['bet_count'] ?? $a['pred_count'] ?? 0);
             $profit   = (float)$a['profit'];
-            $profitFormatted = (floor($profit) == $profit) ? number_format((int)$profit) : number_format($profit, 2);
+            $profitFormatted = (floor($profit) == $profit)
+                ? number_format((int)$profit)
+                : number_format($profit, 2);
             $profitText = ($profit >= 0 ? '+' : '') . $profitFormatted;
-
-            $contents[] = ["type" => "text", "text" => "下注 {$betCount} 場", "wrap" => true, "size" => "xs", "color" => "#666666"];
-            $contents[] = ["type" => "text", "text" => "輸贏 {$profitText}", "wrap" => true, "size" => "xs", "color" => "#666666"];
+            $metricsText = "下注 {$betCount} 場｜輸贏 {$profitText}";
         } else {
-            // ★ 勝率榜或其它：維持原本顯示
+            // 勝率榜：勝率 xx.x%｜N 場（W x / L y）
             $wins  = (int)($a['win_count']  ?? 0);
             $loses = (int)($a['lose_count'] ?? 0);
             $total = (int)($a['total_count'] ?? ($wins + $loses));
             $rate  = isset($a['winrate']) ? (float)$a['winrate'] : ($total > 0 ? ($wins / max(1, $total)) : 0.0);
             $ratePct = number_format($rate * 100, 1);
             $metricsText = "勝率 {$ratePct}%｜{$total} 場（W {$wins} / L {$loses}）";
-            $contents[] = ["type" => "text", "text" => $metricsText, "wrap" => true, "size" => "xs", "color" => "#666666"];
         }
 
         return [
@@ -1300,7 +1300,10 @@ class Line extends Api
                 "data"  => json_encode(["cmd" => "analyst_result", "analyst" => $id], JSON_UNESCAPED_UNICODE),
                 "displayText" => "查看 {$name} 的預測"
             ],
-            "contents" => $contents
+            "contents" => [
+                ["type" => "text", "text" => $name, "size" => "sm", "weight" => "bold", "wrap" => false, "maxLines" => 1],
+                ["type" => "text", "text" => $metricsText, "size" => "xs", "color" => "#666666", "wrap" => false, "maxLines" => 1],
+            ]
         ];
     }
 
