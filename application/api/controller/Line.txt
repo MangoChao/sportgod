@@ -1219,138 +1219,42 @@ class Line extends Api
     private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
     {
         // 期間（台北時區的上週 / 上月）
-        [$startTs, $endTs] = ($period === 'week') ? $this->getLastWeekRange() : $this->getLastMonthRange();
+        if ($period === 'week') {
+            [$startTs, $endTs] = $this->getLastWeekRange();
+        } else { // 'month'
+            [$startTs, $endTs] = $this->getLastMonthRange();
+        }
 
-        $stake = 10000; // 每注固定 1 萬
+        // 固定每場 1 萬
+        $stake = 10000;
 
-        $q = model('Analyst')->alias('a')
+        // 統計欄位
+        $profitExpr     = "SUM(CASE WHEN p.comply = 1 THEN {$stake} WHEN p.comply = 2 THEN -{$stake} ELSE 0 END)";
+        $betCountExpr   = "SUM(p.comply IN (1,2))";
+        $winExpr        = "SUM(p.comply = 1)";
+        $loseExpr       = "SUM(p.comply = 2)";
+        $totalCountExpr = "({$winExpr} + {$loseExpr})";
+
+        $query = model('Analyst')->alias('a')
             ->join('pred p',  'p.analyst_id = a.id')
             ->join('event e', 'e.id = p.event_id')
+            ->where('p.comply', 'in', [1, 2])  // 只統計已判定勝負
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
         if ($categoryId !== null) {
-            $q->where('e.event_category_id', '=', $categoryId);
+            $query->where('e.event_category_id', '=', $categoryId);
         }
 
-        // 需要的欄位（依你實際 event 欄位命名都抓，後面會做 fallback）
-        $rows = $q->field([
-            'a.id'           => 'analyst_id',
-            'a.analyst_name' => 'analyst_name',
-            'p.id'           => 'pred_id',
-            'p.pred_type'    => 'pred_type',
-
-            // 讓分（僅一邊會有值）
-            'p.master_refund' => 'master_refund',
-            'p.guests_refund' => 'guests_refund',
-
-            // 大小
-            'p.bigsmall'     => 'bigsmall',     // 1:大(over), 0:小(under)
-            'p.bigscore'     => 'bigscore',     // "T-P"
-
-            // 比分：先用 event，沒有再 fallback 到 pred 內
-            'p.master_score' => 'p_home_score',
-            'p.guests_score' => 'p_away_score',
-        ])
+        $rows = $query
+            ->field("a.*, {$profitExpr} AS profit, {$betCountExpr} AS bet_count, {$winExpr} AS win_count, {$loseExpr} AS lose_count, {$totalCountExpr} AS total_count")
+            ->group('a.id')
+            ->having('bet_count > 0')
+            ->order('profit DESC, total_count DESC, a.id ASC')
+            ->limit($limit)
             ->select();
 
-        if ($rows instanceof \think\Collection) $rows = $rows->toArray();
-        if (!$rows) return [];
-
-        // 聚合：以分析師彙總
-        $agg = []; // [analyst_id => ['id','analyst_name','profit','bet_count','win_count','lose_count','total_count']]
-
-        foreach ($rows as $r) {
-            $aid   = (int)($r['analyst_id'] ?? 0);
-            $aname = (string)($r['analyst_name'] ?? '分析師');
-
-            // 取最終比分（優先 event，再 fallback pred 內）
-            $home = null;
-            $away = null;
-            $candHome = [$r['e_home_score'] ?? null, $r['e_homescore'] ?? null, $r['p_home_score'] ?? null];
-            $candAway = [$r['e_away_score'] ?? null, $r['e_guestscore'] ?? null, $r['p_away_score'] ?? null];
-
-            foreach ($candHome as $v) {
-                if ($v !== null && $v !== '') {
-                    $home = (int)$v;
-                    break;
-                }
-            }
-            foreach ($candAway as $v) {
-                if ($v !== null && $v !== '') {
-                    $away = (int)$v;
-                    break;
-                }
-            }
-
-            if ($home === null || $away === null) continue; // 尚未有比分 → 不結算
-
-            if (!isset($agg[$aid])) {
-                $agg[$aid] = [
-                    'id'           => $aid,
-                    'analyst_name' => $aname,
-                    'profit'       => 0,
-                    'bet_count'    => 0,
-                    'win_count'    => 0,
-                    'lose_count'   => 0,
-                    'total_count'  => 0,
-                ];
-            }
-
-            $ptype = (int)($r['pred_type'] ?? 0);
-
-            // ===== 讓分（pred_type=1；僅 master_refund 或 guests_refund 其中之一有值） =====
-            if ($ptype === 1) {
-                $pick = null;
-                $lineStr = null;
-                if (!empty($r['master_refund'])) {
-                    $pick = 'home';
-                    $lineStr = $r['master_refund'];
-                } elseif (!empty($r['guests_refund'])) {
-                    $pick = 'away';
-                    $lineStr = $r['guests_refund'];
-                }
-
-                if ($pick && ($ref = $this->parseRefundLine($lineStr))) {
-                    $p = $this->settleRefund($ref['H'], $ref['P'], $pick, $stake, $home, $away);
-                    $agg[$aid]['profit']      += $p;
-                    $agg[$aid]['bet_count']   += 1;
-                    $agg[$aid]['total_count'] += 1;
-                    if ($p > 0) $agg[$aid]['win_count']++;
-                    elseif ($p < 0) $agg[$aid]['lose_count']++;
-                }
-            }
-
-            // ===== 大小（pred_type=2；用 bigscore / bigsmall） =====
-            if ($ptype === 2) {
-                $line = $this->parseBigscoreLine($r['bigscore'] ?? null);
-                $pick = null;
-                if ($r['bigsmall'] === 1 || $r['bigsmall'] === '1') $pick = 'over';
-                elseif ($r['bigsmall'] === 0 || $r['bigsmall'] === '0') $pick = 'under';
-
-                if ($line && $pick) {
-                    $p = $this->settleBigscore($line['T'], $line['P'], $pick, $stake, $home, $away);
-                    $agg[$aid]['profit']      += $p;
-                    $agg[$aid]['bet_count']   += 1;
-                    $agg[$aid]['total_count'] += 1;
-                    if ($p > 0) $agg[$aid]['win_count']++;
-                    elseif ($p < 0) $agg[$aid]['lose_count']++;
-                }
-            }
-
-            // 如果未來你可能同時塞兩種（pred_type 不可靠），也可把上面改成 if (有欄位就算) 的版本
-        }
-
-        if (!$agg) return [];
-
-        // 排序：profit DESC, total_count DESC, id ASC
-        usort($agg, function ($A, $B) {
-            if ($A['profit'] !== $B['profit']) return ($A['profit'] > $B['profit']) ? -1 : 1;
-            if ($A['total_count'] !== $B['total_count']) return ($A['total_count'] > $B['total_count']) ? -1 : 1;
-            return $A['id'] <=> $B['id'];
-        });
-
-        return array_slice($agg, 0, $limit);
+        return $rows ?: [];
     }
 
     private function buildAnalystRow($a): array
@@ -1649,45 +1553,5 @@ class Line extends Api
                 ]
             ]
         ]];
-    }
-
-    private function parseBigscoreLine(?string $s): ?array
-    {
-        if (!$s) return null;
-        $s = trim($s);
-        if (!preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*-\s*(\d{1,3})\s*$/', $s, $m)) return null;
-        return ['T' => (float)$m[1], 'P' => (int)$m[2]];
-    }
-
-    private function parseRefundLine(?string $s): ?array
-    {
-        if (!$s) return null;
-        $s = trim($s);
-        if (!preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*\+\s*(\d{1,3})\s*$/', $s, $m)) return null;
-        return ['H' => (float)$m[1], 'P' => (int)$m[2]];
-    }
-
-    private function settleBigscore(float $T, int $P, string $side, int $stake, int $home, int $away): int
-    {
-        $S = $home + $away;
-        if (abs($S - $T) < 1e-6) { // 命中
-            $pct = (int)round($stake * ($P / 100));
-            return $side === 'under' ? +$pct : -$pct; // 命中：小贏P%、大輸P%
-        }
-        if ($S > $T)  return $side === 'over'  ? +$stake : -$stake;
-        /* $S < $T */
-        return $side === 'under' ? +$stake : -$stake;
-    }
-
-    private function settleRefund(float $H, int $P, string $pick, int $stake, int $home, int $away): int
-    {
-        $D = $home - $away; // 主分差
-        if (abs($D - $H) < 1e-6) {
-            $pct = (int)round($stake * ($P / 100));
-            return $pick === 'home' ? +$pct : -$pct; // 命中：主贏P%、客輸P%
-        }
-        if ($D > $H) return $pick === 'home' ? +$stake : -$stake; // 主過盤
-        /* $D < $H */
-        return $pick === 'away' ? +$stake : -$stake; // 主未過盤
     }
 }
