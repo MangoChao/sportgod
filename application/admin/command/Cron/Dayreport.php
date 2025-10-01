@@ -38,6 +38,7 @@ class Dayreport extends Command
         // $this->Eventreport();
         // $this->Geteventcat();
         $this->ClearEvent();
+        $this->resetAutopredToday();
         // $this->Titlereport();
         // if(date('w') == 2){
         //     $this->Weekreport();
@@ -424,6 +425,25 @@ class Dayreport extends Command
             Log::notice("[command][Cron][".$func_name."] Exception :".$e->getMessage());
         }
     }
+    
+    /**
+     * 重置每日自動預測數量
+     */
+    public function resetAutopredToday()
+    {
+        try {
+            $funcName = 'resetAutopredToday';
+            $modelAnalyst = new Analyst;
+            $modelAnalyst->where("autopred_count > 0")->update(['autopred_count', 0]);
+        } catch (ValidateException $e) {
+            Log::notice("[command][Cron][".$funcName."] ValidateException :" . $e->getMessage());
+        } catch (PDOException $e) {
+            Log::notice("[command][Cron][".$funcName."] PDOException :" . $e->getMessage());
+        } catch (Exception $e) {
+            Log::notice("[command][Cron][".$funcName."] Exception :" . $e->getMessage());
+        }
+    }
+
     /**
      * 清除 starttime 在 3 個月前的賽事，並關聯刪除 Eventparam
      */
