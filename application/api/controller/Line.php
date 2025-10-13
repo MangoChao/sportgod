@@ -38,13 +38,115 @@ class Line extends Api
         parent::_initialize();
         Log::init(['type' => 'File', 'log_name' => 'line_bot']);
 
-        $channel_access_token = Config::get("site.line_channel_access_token");
-        $this->LineBot = new LineBot($channel_access_token);
+        $channelAccessToken = Config::get("site.line_channel_access_token");
+        $this->LineBot = new LineBot($channelAccessToken);
     }
 
     public function index()
     {
-        $this->success('請求成功');
+        $this->success('入口異常');
+    }
+
+    public function createRichmenu()
+    {
+        $lineMenuMoreLink = Config::get("site.line_menu_more_link");
+        $richmenu = [
+            "size" => ["width" => 2500, "height" => 1686],
+            "selected" => true,
+            "name" => "MainMenu",
+            "chatBarText" => "主選單",
+            "areas" => [
+                [
+                    "bounds" => ["x" => 0, "y" => 0, "width" => 833, "height" => 843],
+                    "action" => [
+                        "type" => "postback",
+                        "label" => "勝率排行榜",
+                        "data" => json_encode(["cmd" => "menu", "action" => "winrate"], JSON_UNESCAPED_UNICODE),
+                        "displayText" => "勝率排行榜",
+                    ],
+                ],
+                [
+                    "bounds" => ["x" => 833, "y" => 0, "width" => 834, "height" => 843],
+                    "action" => [
+                        "type" => "postback",
+                        "label" => "獲利排行榜",
+                        "data" => json_encode(["cmd" => "menu", "action" => "profit"], JSON_UNESCAPED_UNICODE),
+                        "displayText" => "獲利排行榜",
+                    ],
+                ],
+                [
+                    "bounds" => ["x" => 1667, "y" => 0, "width" => 833, "height" => 843],
+                    "action" => [
+                        "type" => "postback",
+                        "label" => "我的預測",
+                        "data" => json_encode(["cmd" => "menu", "action" => "mine"], JSON_UNESCAPED_UNICODE),
+                        "displayText" => "我的預測",
+                    ],
+                ],
+                [
+                    "bounds" => ["x" => 0, "y" => 843, "width" => 833, "height" => 843],
+                    "action" => [
+                        "type" => "postback",
+                        "label" => "預測結果",
+                        "data" => json_encode(["cmd" => "menu", "action" => "results"], JSON_UNESCAPED_UNICODE),
+                        "displayText" => "預測結果",
+                    ],
+                ],
+                [
+                    "bounds" => ["x" => 833, "y" => 843, "width" => 834, "height" => 843],
+                    "action" => [
+                        "type" => "uri",
+                        "label" => "註冊看更多預測",
+                        "uri" => $lineMenuMoreLink,
+                    ],
+                ],
+                [
+                    "bounds" => ["x" => 1667, "y" => 843, "width" => 833, "height" => 843],
+                    "action" => [
+                        "type" => "postback",
+                        "label" => "活動圖",
+                        "data" => json_encode(["cmd" => "menu", "action" => "heatmap"], JSON_UNESCAPED_UNICODE),
+                        "displayText" => "活動圖",
+                    ],
+                ],
+            ],
+        ];
+
+        $responseCreateRichMenu = $this->LineBot->createRichMenu($richmenu);
+        Log::notice('responseCreateRichMenu:');
+        Log::notice($responseCreateRichMenu);
+        Log::notice('-------------------------------------------');
+
+        if($responseCreateRichMenu AND isset($responseCreateRichMenu['richMenuId'])){
+            $richMenuId = $responseCreateRichMenu['richMenuId'];
+            Log::notice('richMenuId: '.$richMenuId);
+            Log::notice('img:'.$this->site_url['furl'].'/assets/img/linebot/menu.jpg');
+            $responseUploadRichMenuImage = $this->LineBot->uploadRichMenuImage($richMenuId, $this->site_url['furl'].'/assets/img/linebot/menu.jpg');
+            Log::notice('responseUploadRichMenuImage:');
+            Log::notice($responseUploadRichMenuImage);
+            Log::notice('-------------------------------------------');
+            if(is_array($responseUploadRichMenuImage) AND sizeof($responseUploadRichMenuImage) == 0){
+                Log::notice('完整建立成功');
+                Log::notice('設為預設');
+                $responseSetDefaultRichMenu = $this->LineBot->setDefaultRichMenu($richMenuId);
+                Log::notice('responseSetDefaultRichMenu:');
+                Log::notice($responseSetDefaultRichMenu);
+                Log::notice('-------------------------------------------');
+            }else{
+                Log::notice('上傳圖片失敗, 刪除'.$richMenuId);
+                $responseDeleteRichMenu = $this->LineBot->deleteRichMenu($richMenuId);
+                Log::notice('responseDeleteRichMenu:');
+                Log::notice($responseDeleteRichMenu);
+                Log::notice('-------------------------------------------');
+                Log::notice('上傳圖片失敗');
+                $this->error('上傳圖片失敗');
+            }
+        }else{
+            Log::notice('取得richMenuId失敗');
+            $this->error('取得richMenuId失敗');
+        }
+
+        $this->success();
     }
 
     public function webhook()
