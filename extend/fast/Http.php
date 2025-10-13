@@ -182,4 +182,17 @@ class Http
             }
         }
     }
+
+    /**
+     * 发送一个DELETE请求
+     * @param string $url     请求URL
+     * @param array  $params  请求参数（部分服务端不接受DELETE带body，必要时请把参数写进URL）
+     * @param array  $options 透传给curl_setopt_array的选项
+     * @return mixed|string
+     */
+    public static function delete($url, $params = [], $options = [])
+    {
+        $req = self::sendRequest($url, $params, 'DELETE', $options);
+        return $req['ret'] ? $req['msg'] : '';
+    }
 }
