@@ -1684,7 +1684,7 @@ class Line extends Api
     {
         // === 時間範圍 ===
         $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-13 days')));
-        $tomorrowStart   = strtotime(date('Y-m-d 00:00:00', strtotime('+1 day')));
+        $tomorrowStart   = strtotime(date('Y-m-d 00:00:00', strtotime('+5 day')));
 
         // === 未結算 ===
         // 若你要「未結算不設日期」，改成：$pending = $this->fetchPredsCombined($analystId, null, null, 'pending');
@@ -1698,13 +1698,13 @@ class Line extends Api
         // 1) 未結算（carousel: 同一則裡可左右滑）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "⏳ 未結算預測（近14天）", 8, false, true)
+            $this->buildPredListBubbles($pending, "⏳ 未結算預測", 8, false, true)
         );
 
         // 2) 已結算（carousel）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測（近14天）", 8, true, true)
+            $this->buildPredListBubbles($settled, "📊 已結算預測", 8, true, true)
         );
 
         // 3) 勝率 placeholder（維持你原本的樣式）
@@ -1718,7 +1718,7 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => "📈 勝率（近14天）",
+                        "text" => "📈 勝率",
                         "weight" => "bold",
                         "size" => "md"
                     ]]
