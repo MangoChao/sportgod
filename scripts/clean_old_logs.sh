@@ -4,6 +4,7 @@
 # 使用相對路徑讓不同專案可共用
 # 例：cd /www/wwwroot/bigwinner_site/scripts && ./clean_old_logs.sh
 
+
 # 以此腳本所在路徑為基準，推導出專案根目錄
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
