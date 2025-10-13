@@ -1379,7 +1379,7 @@ class Line extends Api
         }
 
         $rows = $q->field([
-            'a.id'             => 'analyst_id',
+            'a.id'             => 'id',
             'a.analyst_name'   => 'analyst_name',
             'p.id'             => 'pred_id',
             'p.event_id'       => 'event_id',
@@ -1406,7 +1406,7 @@ class Line extends Api
         $agg = []; // analyst_id => [analyst_id, analyst_name, profit, win, lose, total]
 
         foreach ($rows as $idx => $r) {
-            $aid     = (int)$r['analyst_id'];
+            $aid     = (int)$r['id'];
             $predId  = (int)$r['pred_id'];
             $eventId = (int)$r['event_id'];
             $pType   = (int)$r['pred_type'];
@@ -1428,7 +1428,7 @@ class Line extends Api
 
             if (!isset($agg[$aid])) {
                 $agg[$aid] = [
-                    'analyst_id'   => $aid,
+                    'id'   => $aid,
                     'analyst_name' => (string)$r['analyst_name'],
                     'profit'       => 0,
                     'win_count'          => 0,
@@ -1546,7 +1546,7 @@ class Line extends Api
         usort($agg, function ($x, $y) {
             if ($x['profit'] !== $y['profit']) return ($y['profit'] <=> $x['profit']);
             if ($x['total_count']  !== $y['total_count'])  return ($y['total_count']  <=> $x['total_count']);
-            return ($x['analyst_id'] <=> $y['analyst_id']);
+            return ($x['id'] <=> $y['id']);
         });
 
         $top = array_slice($agg, 0, $limit);
@@ -1554,9 +1554,9 @@ class Line extends Api
         // 最後列個總結
         foreach ($top as $i => $row) {
             $log(sprintf(
-                '[#%d] analyst_id=%d name=%s profit=%d win=%d lose=%d total=%d',
+                '[#%d] id=%d name=%s profit=%d win=%d lose=%d total=%d',
                 $i + 1,
-                $row['analyst_id'],
+                $row['id'],
                 $row['analyst_name'],
                 $row['profit'],
                 $row['win_count'],
@@ -1661,7 +1661,7 @@ class Line extends Api
             "altText" => $title,
             "contents" => ["type" => "carousel", "contents" => $bubbles]
         ];
-        Log::info($msg);
+        // Log::info($msg);
         $this->sendReplyMessageCus([$msg]);
     }
 
