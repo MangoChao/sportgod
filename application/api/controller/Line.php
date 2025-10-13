@@ -383,7 +383,7 @@ class Line extends Api
             case 'analyst_result':
                 $analystId = (int)($p['analyst'] ?? 0);
                 if ($analystId > 0) {
-                    $this->sendAnalystPredResults($analystId);
+                    $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
                 } else {
                     $this->sendReplyMessage("分析師參數錯誤");
                 }
@@ -1663,16 +1663,6 @@ class Line extends Api
         $this->sendReplyMessageCus([$msg]);
     }
 
-    // 取代原本的「排行榜→點分析師」顯示
-    private function sendAnalystPredResults(int $analystId)
-    {
-        if ($analystId <= 0) {
-            $this->sendReplyMessageCus([["type" => "text", "text" => "這位分析師近七天沒有預測"]]);
-            return;
-        }
-        $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
-    }
-
     /**
      * 建構「預測結果」頁面 messages（共用：自己 / 指定分析師）
      * - 未結算：沿用你現有的規則（若你先前已調整成「不設日期」就用 pending 全部；否則就用近14天）
@@ -1683,7 +1673,7 @@ class Line extends Api
     private function buildPredResultsPageMessages(int $analystId, ?int $categoryId = null): array
     {
         // === 時間範圍 ===
-        $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-13 days')));
+        $fourteenDaysAgo = strtotime(date('Y-m-d 00:00:00', strtotime('-30 days')));
         $tomorrowStart   = strtotime(date('Y-m-d 00:00:00', strtotime('+5 day')));
 
         // === 未結算 ===
