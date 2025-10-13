@@ -131,7 +131,7 @@ class Predevent extends Command
                         }
                     } else {
                         // 沒候選可預測
-                        // Log::notice("[command][Cron][" . $func_name . "] 無候選可預測 for 分析師:" . $v->id);
+                        Log::notice("[command][Cron][" . $func_name . "] 無候選可預測 for 分析師:" . $v->id);
                     }
                 }
             } else {
