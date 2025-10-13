@@ -385,6 +385,7 @@ class Line extends Api
                 if ($analystId > 0) {
                     $this->sendReplyMessageCus($this->buildPredResultsPageMessages($analystId));
                 } else {
+                    Log::info($p);
                     $this->sendReplyMessage("分析師參數錯誤");
                 }
                 break;
