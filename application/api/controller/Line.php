@@ -1661,6 +1661,7 @@ class Line extends Api
             "altText" => $title,
             "contents" => ["type" => "carousel", "contents" => $bubbles]
         ];
+        Log::info($msg);
         $this->sendReplyMessageCus([$msg]);
     }
 
