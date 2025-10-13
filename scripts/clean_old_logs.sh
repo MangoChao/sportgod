@@ -1,4 +1,3 @@
-#!/bin/sh
 # 通用版：清除專案 runtime/log/ 下三個月前的 YYYYMM 資料夾
 # 放置位置：/www/wwwroot/<project_name>/scripts/clean_old_logs.sh
 # 使用相對路徑讓不同專案可共用
