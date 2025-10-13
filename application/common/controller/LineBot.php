@@ -61,7 +61,7 @@ class LineBot
             ],
         ];
 
-        $params = file_get_content($img_url);
+        $params = file_get_contents($img_url);
         $response = Http::post($url, $params, $http_options);
         return $this->chResponse($response);
     }
