@@ -118,23 +118,23 @@ class Line extends Api
         Log::notice($responseCreateRichMenu);
         Log::notice('-------------------------------------------');
 
-        if($responseCreateRichMenu AND isset($responseCreateRichMenu['richMenuId'])){
+        if ($responseCreateRichMenu and isset($responseCreateRichMenu['richMenuId'])) {
             $richMenuId = $responseCreateRichMenu['richMenuId'];
-            Log::notice('richMenuId: '.$richMenuId);
-            Log::notice('img:'.$imagePath);
+            Log::notice('richMenuId: ' . $richMenuId);
+            Log::notice('img:' . $imagePath);
             $responseUploadRichMenuImage = $this->LineBot->uploadRichMenuImage($richMenuId, $imagePath);
             Log::notice('responseUploadRichMenuImage:');
             Log::notice($responseUploadRichMenuImage);
             Log::notice('-------------------------------------------');
-            if(is_array($responseUploadRichMenuImage) AND sizeof($responseUploadRichMenuImage) == 0){
+            if (is_array($responseUploadRichMenuImage) and sizeof($responseUploadRichMenuImage) == 0) {
                 Log::notice('完整建立成功');
                 Log::notice('設為預設');
                 $responseSetDefaultRichMenu = $this->LineBot->setDefaultRichMenu($richMenuId);
                 Log::notice('responseSetDefaultRichMenu:');
                 Log::notice($responseSetDefaultRichMenu);
                 Log::notice('-------------------------------------------');
-            }else{
-                Log::notice('上傳圖片失敗, 刪除'.$richMenuId);
+            } else {
+                Log::notice('上傳圖片失敗, 刪除' . $richMenuId);
                 $responseDeleteRichMenu = $this->LineBot->deleteRichMenu($richMenuId);
                 Log::notice('responseDeleteRichMenu:');
                 Log::notice($responseDeleteRichMenu);
@@ -142,7 +142,7 @@ class Line extends Api
                 Log::notice('上傳圖片失敗');
                 $this->error('上傳圖片失敗');
             }
-        }else{
+        } else {
             Log::notice('取得richMenuId失敗');
             $this->error('取得richMenuId失敗');
         }
@@ -1697,7 +1697,16 @@ class Line extends Api
             $this->buildPredListBubbles($settled, "📊 已結算預測", 8, true, true)
         );
 
-        // 3) 勝率 placeholder（維持你原本的樣式）
+        // 3) 勝率（用上面新函式，與 pending/settled 同期間）
+        $stat = $this->computeWinrateForAnalyst($analystId, $categoryId, $fourteenDaysAgo, $tomorrowStart);
+
+        $rateTitle = "📈 勝率（近 30 天至未來 5 天內賽事區間）";
+        $lines = [
+            "總計：{$stat['win']} 勝 / {$stat['lose']} 負（{$stat['rate_str']}）",
+            "讓分：{$stat['spread']['win']} 勝 / {$stat['spread']['lose']} 負（{$stat['spread']['rate_str']}）",
+            "大小：{$stat['totalm']['win']} 勝 / {$stat['totalm']['lose']} 負（{$stat['totalm']['rate_str']}）",
+        ];
+
         $messages[] = [
             "type" => "flex",
             "altText" => "勝率",
@@ -1708,20 +1717,19 @@ class Line extends Api
                     "layout" => "vertical",
                     "contents" => [[
                         "type" => "text",
-                        "text" => "📈 勝率",
+                        "text" => $rateTitle,
                         "weight" => "bold",
-                        "size" => "md"
+                        "size" => "md",
+                        "wrap" => true
                     ]]
                 ],
                 "body" => [
                     "type" => "box",
                     "layout" => "vertical",
-                    "contents" => [[
-                        "type" => "text",
-                        "text" => "敬請期待。",
-                        "size" => "sm",
-                        "color" => "#666666"
-                    ]]
+                    "spacing" => "sm",
+                    "contents" => array_map(function ($t) {
+                        return ["type" => "text", "text" => $t, "size" => "sm", "wrap" => true];
+                    }, $lines)
                 ]
             ]
         ];
@@ -1729,53 +1737,108 @@ class Line extends Api
         return array_slice($messages, 0, 5); // 與「預測結果」相同：最多 5 則
     }
 
-    // 放在同一個 class 內（例如 buildMainMenuFlex 附近）
-    // 產生一張體育類型選擇的 Flex。status=1 才列出
-    private function buildCategoryPicker(string $nextAction): array
+    /**
+     * 計算單一分析師在指定期間（以 event.starttime 為準）的勝率
+     * - 僅計入 p.comply ∈ {1=贏,2=輸}
+     * - 同一場若有讓分/大小兩筆，兩筆都會計入（整體勝率看「預測筆數」而非「場次」）
+     * - 另提供讓分/大小各自的勝率明細
+     *
+     * @return array {
+     *   win: int, lose: int, total: int, rate: float, rate_str: string,
+     *   spread: {win:int, lose:int, total:int, rate:float, rate_str:string},
+     *   totalm: {win:int, lose:int, total:int, rate:float, rate_str:string}
+     * }
+     */
+    private function computeWinrateForAnalyst(int $analystId, ?int $categoryId, ?int $start, ?int $end): array
     {
-        $cats = model('Eventcategory')->where('status', 1)->order('id asc')->select();
-        if (!$cats || count($cats) === 0) {
-            return [["type" => "text", "text" => "目前沒有可選的體育類型"]];
-        }
+        // 基底查詢
+        $q = model('Pred')->alias('p')
+            ->join('event e', 'e.id = p.event_id')
+            ->where('p.analyst_id', '=', $analystId)
+            ->where('p.comply', 'in', [1, 2]);
 
-        // 每個類型做一個按鈕，點了會再送一個 postback（同樣是 cmd:menu，但多帶 cat）
-        $buttons = [];
-        foreach ($cats as $c) {
-            $buttons[] = [
-                "type" => "button",
-                "style" => "primary",
-                "action" => [
-                    "type" => "postback",
-                    "label" => (string)$c->title,
-                    "data"  => json_encode([
-                        "cmd"    => "menu",
-                        "action" => $nextAction,
-                        "cat"    => (int)$c->id
-                    ], JSON_UNESCAPED_UNICODE),
-                    "displayText" => (string)$c->title
-                ]
-            ];
-        }
+        if ($start !== null) $q->where('e.starttime', '>=', $start);
+        if ($end   !== null) $q->where('e.starttime',  '<',  $end);
+        if ($categoryId !== null) $q->where('e.event_category_id', '=', $categoryId);
 
-        return [[
-            "type" => "flex",
-            "altText" => "請選擇體育類型",
-            "contents" => [
-                "type" => "bubble",
-                "body" => [
-                    "type" => "box",
-                    "layout" => "vertical",
-                    "spacing" => "md",
-                    "contents" => array_merge(
-                        [
-                            ["type" => "text", "text" => "請選擇體育類型", "weight" => "bold", "size" => "lg"],
-                            ["type" => "separator", "margin" => "sm"]
-                        ],
-                        $buttons
-                    )
-                ]
-            ]
-        ]];
+        // 聚合表達式
+        $winExpr      = "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END)";
+        $loseExpr     = "SUM(CASE WHEN p.comply = 2 THEN 1 ELSE 0 END)";
+        $totalExpr    = "({$winExpr} + {$loseExpr})";
+        $rateExpr     = "CASE WHEN {$totalExpr} = 0 THEN 0 ELSE {$winExpr} / {$totalExpr} END";
+
+        // 分玩法（pred_type: 1=讓分, 2=大小）
+        $sWinExpr     = "SUM(CASE WHEN p.pred_type = 1 AND p.comply = 1 THEN 1 ELSE 0 END)";
+        $sLoseExpr    = "SUM(CASE WHEN p.pred_type = 1 AND p.comply = 2 THEN 1 ELSE 0 END)";
+        $sTotalExpr   = "({$sWinExpr} + {$sLoseExpr})";
+        $sRateExpr    = "CASE WHEN {$sTotalExpr} = 0 THEN 0 ELSE {$sWinExpr} / {$sTotalExpr} END";
+
+        $tWinExpr     = "SUM(CASE WHEN p.pred_type = 2 AND p.comply = 1 THEN 1 ELSE 0 END)";
+        $tLoseExpr    = "SUM(CASE WHEN p.pred_type = 2 AND p.comply = 2 THEN 1 ELSE 0 END)";
+        $tTotalExpr   = "({$tWinExpr} + {$tLoseExpr})";
+        $tRateExpr    = "CASE WHEN {$tTotalExpr} = 0 THEN 0 ELSE {$tWinExpr} / {$tTotalExpr} END";
+
+        // 取單列聚合
+        $row = $q->field([
+            "{$winExpr}  AS win_count",
+            "{$loseExpr} AS lose_count",
+            "{$totalExpr} AS total_count",
+            "{$rateExpr}  AS winrate",
+            "{$sWinExpr}  AS s_win",
+            "{$sLoseExpr} AS s_lose",
+            "{$sTotalExpr} AS s_total",
+            "{$sRateExpr}  AS s_rate",
+            "{$tWinExpr}  AS t_win",
+            "{$tLoseExpr} AS t_lose",
+            "{$tTotalExpr} AS t_total",
+            "{$tRateExpr}  AS t_rate",
+        ])
+            ->find();
+
+        // （可選）印出 SQL
+        // Log::notice('[SQL][computeWinrate] ' . $q->fetchSql(true)->field("...同上...")->find());
+
+        $win   = (int)($row['win_count']   ?? 0);
+        $lose  = (int)($row['lose_count']  ?? 0);
+        $total = (int)($row['total_count'] ?? 0);
+        $rate  = (float)($row['winrate']   ?? 0);
+
+        $sWin   = (int)($row['s_win']   ?? 0);
+        $sLose  = (int)($row['s_lose']  ?? 0);
+        $sTotal = (int)($row['s_total'] ?? 0);
+        $sRate  = (float)($row['s_rate'] ?? 0);
+
+        $tWin   = (int)($row['t_win']   ?? 0);
+        $tLose  = (int)($row['t_lose']  ?? 0);
+        $tTotal = (int)($row['t_total'] ?? 0);
+        $tRate  = (float)($row['t_rate'] ?? 0);
+
+        $fmt = function (float $x): string {
+            // 以百分比顯示到一位小數
+            return number_format($x * 100, 1) . '%';
+        };
+
+        return [
+            'win'   => $win,
+            'lose'  => $lose,
+            'total' => $total,
+            'rate'  => $rate,
+            'rate_str' => $fmt($rate),
+            'spread' => [
+                'win' => $sWin,
+                'lose' => $sLose,
+                'total' => $sTotal,
+                'rate' => $sRate,
+                'rate_str' => $fmt($sRate),
+            ],
+            'totalm' => [
+                'win' => $tWin,
+                'lose' => $tLose,
+                'total' => $tTotal,
+                'rate' => $tRate,
+                'rate_str' => $fmt($tRate),
+            ],
+        ];
     }
 
     // Flex 雙欄網格：自動分頁，每頁最多 10 個（5 行 x 2 欄）
