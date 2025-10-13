@@ -156,7 +156,7 @@ class Line extends Api
                 switch ($action) {
                     case 'winrate':
                         if ($catId <= 0) { // 先挑類型
-                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
+                            $this->sendReplyMessageCus($this->buildCategoryPickerGrid($action));
                             break;
                         }
                         if ($period === '') {
@@ -168,7 +168,7 @@ class Line extends Api
 
                     case 'profit':
                         if ($catId <= 0) {
-                            $this->sendReplyMessageCus($this->buildCategoryPicker($action));
+                            $this->sendReplyMessageCus($this->buildCategoryPickerGrid($action));
                             break;
                         }
                         if ($period === '') {
@@ -180,7 +180,7 @@ class Line extends Api
 
                     case 'mine':
                         if ($catId <= 0) {
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('mine'));
+                            $this->sendReplyMessageCus($this->buildCategoryPickerGrid('mine'));
                             break;
                         }
                         $this->sendTodayEventsList($catId); // 帶入類型 id
@@ -188,7 +188,7 @@ class Line extends Api
 
                     case 'results':
                         if ($catId <= 0) {
-                            $this->sendReplyMessageCus($this->buildCategoryPicker('results'));
+                            $this->sendReplyMessageCus($this->buildCategoryPickerGrid('results'));
                             break;
                         }
                         $this->sendMyPredResultsPage($catId);
@@ -1680,6 +1680,97 @@ class Line extends Api
                     )
                 ]
             ]
+        ]];
+    }
+
+    // Flex 雙欄網格：自動分頁，每頁最多 10 個（5 行 x 2 欄）
+    private function buildCategoryPickerGrid(string $nextAction): array
+    {
+        $rows = model('Eventcategory')->where('status', 1)->order('id asc')->select();
+        if (!$rows || count($rows) === 0) {
+            return [["type" => "text", "text" => "目前沒有可選的體育類型"]];
+        }
+        $cats = [];
+        foreach ($rows as $c) {
+            $cats[] = ["id" => (int)$c->id, "title" => (string)$c->title];
+        }
+
+        // 2 欄卡片
+        $tiles = array_map(function ($c) use ($nextAction) {
+            return [
+                "type" => "box",
+                "layout" => "vertical",
+                "paddingAll" => "10px",
+                "cornerRadius" => "8px",
+                "backgroundColor" => "#F5F7FA",
+                "action" => [
+                    "type" => "postback",
+                    "label" => $c['title'],
+                    "data"  => json_encode(["cmd" => "menu", "action" => $nextAction, "cat" => $c['id']], JSON_UNESCAPED_UNICODE),
+                    "displayText" => $c['title']
+                ],
+                "contents" => [[
+                    "type" => "text",
+                    "text" => mb_strimwidth($c['title'], 0, 20, '…', 'UTF-8'),
+                    "size" => "sm",
+                    "align" => "center",
+                    "wrap" => true,
+                    "color" => "#1F2937"
+                ]]
+            ];
+        }, $cats);
+
+        // 兩兩一行
+        $rows2col = [];
+        for ($i = 0; $i < count($tiles); $i += 2) {
+            $rowContents = [$tiles[$i]];
+            if (isset($tiles[$i + 1])) $rowContents[] = $tiles[$i + 1];
+            $rows2col[] = [
+                "type" => "box",
+                "layout" => "horizontal",
+                "spacing" => "md",
+                "contents" => $rowContents
+            ];
+        }
+
+        // 每頁 5 行（= 10 類）
+        $pages = array_chunk($rows2col, 5);
+        $bubbles = [];
+        foreach ($pages as $pageIdx => $pageRows) {
+            $bubbles[] = [
+                "type" => "bubble",
+                "body" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "spacing" => "md",
+                    "contents" => array_merge(
+                        [[
+                            "type" => "text",
+                            "text" => "請選擇體育類型",
+                            "weight" => "bold",
+                            "size" => "md"
+                        ]],
+                        $pageRows
+                    )
+                ],
+                "footer" => [
+                    "type" => "box",
+                    "layout" => "vertical",
+                    "contents" => [[
+                        "type" => "text",
+                        "text" => "第 " . ($pageIdx + 1) . " 頁 / 共 " . count($pages) . " 頁",
+                        "size" => "xxs",
+                        "color" => "#888888",
+                        "align" => "center"
+                    ]]
+                ]
+            ];
+        }
+
+        return [[
+            "type" => "flex",
+            "altText" => "請選擇體育類型",
+            "contents" => ["type" => "carousel", "contents" => $bubbles]
         ]];
     }
 
