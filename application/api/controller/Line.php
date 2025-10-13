@@ -374,7 +374,7 @@ class Line extends Api
                 [$paramsRefund, $paramsBigs] = $this->buildPredParamsFromState($eventId, $state);
 
                 $res = $this->createPred($userId, $paramsRefund, $paramsBigs);
-                $replyMessage = $res ? "✅ 已送出你的預測！(event:{$eventId})" : "預測失敗, 請聯絡客服";
+                $replyMessage = $res ? "✅ 已送出你的預測！" : "預測失敗, 請聯絡客服";
 
                 $this->clearPredState($userId, $eventId);
                 $this->sendReplyMessage($replyMessage);
@@ -605,7 +605,7 @@ class Line extends Api
         $table_data_list = [];
 
         // 從今天 00:00 開始
-        $currentTs  = strtotime(date('Y-m-d 00:00:00'));
+        $currentTs  = time();
         $dayIndex   = 0;
 
         do {

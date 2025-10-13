@@ -117,7 +117,7 @@ class LineBot
 
     private function chResponse($response){
         $response_decode = false;
-        Log::notice($response);
+        // Log::notice($response);
         if($response != ''){
             $response_decode = json_decode($response, true);
         }
