@@ -49,6 +49,7 @@ class Line extends Api
 
     public function createRichmenu()
     {
+        $imagePath = ROOT_PATH . "public_html/assets/img/linebot/menu.jpg";
         $lineMenuMoreLink = Config::get("site.line_menu_more_link");
         $richmenu = [
             "size" => ["width" => 2500, "height" => 1686],
@@ -120,8 +121,8 @@ class Line extends Api
         if($responseCreateRichMenu AND isset($responseCreateRichMenu['richMenuId'])){
             $richMenuId = $responseCreateRichMenu['richMenuId'];
             Log::notice('richMenuId: '.$richMenuId);
-            Log::notice('img:'.$this->site_url['furl'].'/assets/img/linebot/menu.jpg');
-            $responseUploadRichMenuImage = $this->LineBot->uploadRichMenuImage($richMenuId, $this->site_url['furl'].'/assets/img/linebot/menu.jpg');
+            Log::notice('img:'.$imagePath);
+            $responseUploadRichMenuImage = $this->LineBot->uploadRichMenuImage($richMenuId, $imagePath);
             Log::notice('responseUploadRichMenuImage:');
             Log::notice($responseUploadRichMenuImage);
             Log::notice('-------------------------------------------');
