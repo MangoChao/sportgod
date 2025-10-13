@@ -1700,7 +1700,7 @@ class Line extends Api
         // 3) 勝率（用上面新函式，與 pending/settled 同期間）
         $stat = $this->computeWinrateForAnalyst($analystId, $categoryId, $fourteenDaysAgo, $tomorrowStart);
 
-        $rateTitle = "📈 勝率（近 30 天至未來 5 天內賽事區間）";
+        $rateTitle = "📈 勝率（近 30 天內賽事區間）";
         $lines = [
             "總計：{$stat['win']} 勝 / {$stat['lose']} 負（{$stat['rate_str']}）",
             "讓分：{$stat['spread']['win']} 勝 / {$stat['spread']['lose']} 負（{$stat['spread']['rate_str']}）",
