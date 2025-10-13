@@ -226,7 +226,7 @@ class Line extends Api
                 default:
                     // $this->sendReplyMessage($message_lower);
                     break;
-                case "1":
+                case "menu":
                     $messages_obj = $this->buildMainMenuFlex();
                     $this->sendReplyMessageCus($messages_obj);
                     break;
