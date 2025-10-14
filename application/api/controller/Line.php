@@ -1318,8 +1318,8 @@ class Line extends Api
             ->order('winrate DESC, total_count DESC, a.id ASC')
             ->limit($limit);
 
-        $sql = (clone $final)->fetchSql(true)->select();
-        Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
+        // $sql = (clone $final)->fetchSql(true)->select();
+        // Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
 
         // 執行查詢
         $rows = $final->select();
