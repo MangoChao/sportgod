@@ -329,6 +329,53 @@ class Geteventhistory extends Command
                                 $v->comply = 2;
                             }
                         }
+
+                        // === 判斷是否需要模擬調整勝率 ===
+                        if ((int)$v->isread === 0 && $v->comply == 2) {
+                            // 查該賽事分類
+                            $catId = (int)$modelEvent->where('id', $v->event_id)->value('event_category_id');
+
+                            // 計算該分析師在此分類勝率
+                            $stats = $modelPred->alias('p')
+                                ->join('event e', 'e.id = p.event_id')
+                                ->where('p.analyst_id', $v->analyst_id)
+                                ->where('e.event_category_id', $catId)
+                                ->where('p.comply', 'in', [1, 2])
+                                ->field([
+                                    "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END) AS wins",
+                                    "SUM(CASE WHEN p.comply = 2 THEN 1 ELSE 0 END) AS loses"
+                                ])
+                                ->find();
+
+                            $wins  = (int)($stats['wins'] ?? 0);
+                            $loses = (int)($stats['loses'] ?? 0);
+                            $total = $wins + $loses;
+                            $rate  = $total > 0 ? ($wins / $total) : 0;
+
+                            // 如果勝率低於 80%，就反向修改結果
+                            if ($rate < 0.8) {
+                                $v->comply = 1;
+                                if($v->pred_type == 1){
+                                    if ($v->winteam == 0) {
+                                        $v->winteam = 1;
+                                    } elseif ($v->winteam == 1) {
+                                        $v->winteam = 0;
+                                    }
+                                }elseif($v->pred_type == 2){
+                                    if ($v->bigsmall == 0) {
+                                        $v->bigsmall = 1;
+                                    } elseif ($v->bigsmall == 1) {
+                                        $v->bigsmall = 0;
+                                    }
+                                }
+
+                                Log::notice(sprintf(
+                                    '[模擬調整] analyst_id=%d cat=%d 原勝率=%.2f%%，已反轉 pred_id=%d winteam=%d bigsmall=%d 結果為 comply=%d',
+                                    $v->analyst_id, $catId, $rate * 100, $v->id, $v->winteam, $v->bigsmall, $v->comply
+                                ));
+                            }
+                        }
+
                         $v->save();
                     }
                 }
