@@ -1141,6 +1141,10 @@ class Line extends Api
 
         $merged = [];
         foreach ($rows as $r) {
+            if($r->isread == 0){
+                $r->isread = 1;
+                $r->save();
+            }
             $eid = (int)$r['event_id'];
             if (!isset($merged[$eid])) {
                 $gs = $r['guests_score'];
