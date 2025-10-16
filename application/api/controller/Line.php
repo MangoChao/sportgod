@@ -113,33 +113,27 @@ class Line extends Api
             ],
         ];
 
-        $responseCreateRichMenu = $this->LineBot->createRichMenu($richmenu);
-        Log::notice('responseCreateRichMenu:');
-        Log::notice($responseCreateRichMenu);
-        Log::notice('-------------------------------------------');
-
-        if ($responseCreateRichMenu and isset($responseCreateRichMenu['richMenuId'])) {
-            $richMenuId = $responseCreateRichMenu['richMenuId'];
+        $lineBotResponse = $this->LineBot->createRichMenu($richmenu);
+        if ($lineBotResponse['success'] and isset($lineBotResponse['data']['richMenuId'])) {
+            $richMenuId = $lineBotResponse['data']['richMenuId'];
             Log::notice('richMenuId: ' . $richMenuId);
             Log::notice('img:' . $imagePath);
-            $responseUploadRichMenuImage = $this->LineBot->uploadRichMenuImage($richMenuId, $imagePath);
-            Log::notice('responseUploadRichMenuImage:');
-            Log::notice($responseUploadRichMenuImage);
-            Log::notice('-------------------------------------------');
-            if (is_array($responseUploadRichMenuImage) and sizeof($responseUploadRichMenuImage) == 0) {
+            $lineBotResponse = $this->LineBot->uploadRichMenuImage($richMenuId, $imagePath);
+            if ($lineBotResponse['success']) {
                 Log::notice('完整建立成功');
                 Log::notice('設為預設');
-                $responseSetDefaultRichMenu = $this->LineBot->setDefaultRichMenu($richMenuId);
-                Log::notice('responseSetDefaultRichMenu:');
-                Log::notice($responseSetDefaultRichMenu);
-                Log::notice('-------------------------------------------');
+                $lineBotResponse = $this->LineBot->setDefaultRichMenu($richMenuId);
+                if (!$lineBotResponse['success']) {
+                    Log::notice('設為預設失敗 ' . $richMenuId);
+                    $this->error('設為預設失敗');
+                }
             } else {
-                Log::notice('上傳圖片失敗, 刪除' . $richMenuId);
-                $responseDeleteRichMenu = $this->LineBot->deleteRichMenu($richMenuId);
-                Log::notice('responseDeleteRichMenu:');
-                Log::notice($responseDeleteRichMenu);
-                Log::notice('-------------------------------------------');
-                Log::notice('上傳圖片失敗');
+                Log::notice('上傳圖片失敗, 刪除菜單' . $richMenuId);
+                $lineBotResponse = $this->LineBot->deleteRichMenu($richMenuId);
+                if (!$lineBotResponse['success']) {
+                    Log::notice('刪除菜單失敗 ' . $richMenuId);
+                    $this->error('刪除菜單失敗');
+                }
                 $this->error('上傳圖片失敗');
             }
         } else {
@@ -586,10 +580,11 @@ class Line extends Api
 
     private function sendReplyMessageCus($messages_obj)
     {
-        $response_sendReplyMessage = $this->LineBot->sendReplyMessage($this->webhook_replyToken, $messages_obj);
-        Log::notice('response_sendReplyMessage:');
-        Log::notice($response_sendReplyMessage);
-        Log::notice('-------------------------------------------');
+        $lineBotResponse = $this->LineBot->sendReplyMessage($this->webhook_replyToken, $messages_obj);
+        if ($lineBotResponse['success']) {
+            return true;
+        }
+        return false;
     }
 
     /**
