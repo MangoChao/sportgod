@@ -210,19 +210,17 @@ class Line extends Api
     private function webhook_message_event()
     {
         $message = $this->webhook_events_message_text;
-        $message_lower = trim(strtolower($message));
-
-        // Log::notice("收到指令:" . $message . "");
-        // Log::notice("編譯指令:" . $message_lower . "");
+        $messageLower = trim(strtolower($message));
+        Log::notice("message:[" . $message . "]");
         $isSys = true;
         if ($isSys) {
-            switch ($message_lower) {
+            switch ($messageLower) {
                 default:
-                    // $this->sendReplyMessage($message_lower);
+                    // $this->sendReplyMessage($messageLower);
                     break;
                 case "menu":
-                    $messages_obj = $this->buildMainMenuFlex();
-                    $this->sendReplyMessageCus($messages_obj);
+                    $messagesObj = $this->buildMainMenuFlex();
+                    $this->sendReplyMessageCus($messagesObj);
                     break;
                 case "#uid":
                     break;
@@ -234,6 +232,7 @@ class Line extends Api
     public function webhook_postback_event()
     {
         $data = $this->webhook_postback_data ?? '';
+        Log::notice("postback:[" . $data . "]");
         $p = json_decode($data, true);
         if (!is_array($p)) {
             $this->sendReplyMessage("參數錯誤，請重試。");
@@ -541,12 +540,12 @@ class Line extends Api
     private function replyWithQuickReply(string $text, int $eventId): void
     {
         // 你已經有 sendReplyMessageCus()，可以直接用它送含 quickReply 的訊息
-        $messages_obj = [[
+        $messagesObj = [[
             "type" => "text",
             "text" => $text,
             "quickReply" => $this->quickReplyForPrediction($eventId)
         ]];
-        $this->sendReplyMessageCus($messages_obj);
+        $this->sendReplyMessageCus($messagesObj);
     }
 
     public function checkUser($line_user_id)
@@ -569,18 +568,19 @@ class Line extends Api
 
     private function sendReplyMessage($reText)
     {
-        $messages_obj = [
+        $messagesObj = [
             [
                 'type' => 'text',
                 'text' => $reText,
             ]
         ];
-        $this->sendReplyMessageCus($messages_obj);
+        $this->sendReplyMessageCus($messagesObj);
     }
 
-    private function sendReplyMessageCus($messages_obj)
+    private function sendReplyMessageCus($messagesObj)
     {
-        $lineBotResponse = $this->LineBot->sendReplyMessage($this->webhook_replyToken, $messages_obj);
+        Log::notice("回覆訊息:".json_encode($messagesObj, JSON_UNESCAPED_UNICODE));
+        $lineBotResponse = $this->LineBot->sendReplyMessage($this->webhook_replyToken, $messagesObj);
         if ($lineBotResponse['success']) {
             return true;
         }
