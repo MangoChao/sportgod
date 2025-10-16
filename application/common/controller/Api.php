@@ -447,12 +447,17 @@ class Api
                 $mAnalyst = model('Analyst')::create($params);
             }
         }
+        $this->predByAnalystId($mAnalyst->id, $paramsRefund, $paramsBigs);
+    }
+    
+    public function predByAnalystId($analystId = null, $paramsRefund = [], $paramsBigs = []){
+        Log::notice("analystId:".$analystId." pred:".json_encode($paramsRefund)."/".json_encode($paramsBigs));
 
         if(sizeof($paramsRefund) > 0){
             foreach($paramsRefund as $k=>$v){
                 $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
                 if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 1")->find();
+                    $mPred = model('Pred')->where("analyst_id = ".$analystId." AND event_id = ".$mEvent->id." AND pred_type = 1")->find();
                     if($mPred){
                         $mPred->master_refund = $mEvent->master_refund;
                         $mPred->guests_refund = $mEvent->guests_refund;
@@ -462,7 +467,7 @@ class Api
                     }else{
                         $params = [
                             'event_id' => $mEvent->id,
-                            'analyst_id' => $mAnalyst->id,
+                            'analyst_id' => $analystId,
                             'winteam' => $v,
                             'master_refund' => $mEvent->master_refund,
                             'guests_refund' => $mEvent->guests_refund,
@@ -484,7 +489,7 @@ class Api
             foreach($paramsBigs as $k=>$v){
                 $mEvent = model('Event')->where("id = ".$k." AND starttime > ".time())->find();
                 if($mEvent){
-                    $mPred = model('Pred')->where("analyst_id = ".$mAnalyst->id." AND event_id = ".$mEvent->id." AND pred_type = 2")->find();
+                    $mPred = model('Pred')->where("analyst_id = ".$analystId." AND event_id = ".$mEvent->id." AND pred_type = 2")->find();
                     if($mPred){
                         $mPred->master_refund = $mEvent->master_refund;
                         $mPred->guests_refund = $mEvent->guests_refund;
@@ -494,7 +499,7 @@ class Api
                     }else{
                         $params = [
                             'event_id' => $mEvent->id,
-                            'analyst_id' => $mAnalyst->id,
+                            'analyst_id' => $analystId,
                             'bigsmall' => $v,
                             'master_refund' => $mEvent->master_refund,
                             'guests_refund' => $mEvent->guests_refund,

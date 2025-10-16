@@ -33,6 +33,10 @@ class Line extends Api
     protected $webhook_events_message_type = null;
     protected $webhook_events_message_text = "";
 
+    protected $mAnalyst = null;
+    
+    protected $sendTag = false; //預防送兩次訊息, 提前終止用
+
     public function _initialize()
     {
         parent::_initialize();
@@ -176,7 +180,16 @@ class Line extends Api
                     $this->webhook_userId = $source['userId'] ?? null;
                     $this->webhook_type = $source['type'] ?? null;
                     $this->webhook_groupId = $source['groupId'] ?? null;
-                    if ($this->webhook_userId) $this->checkUser($this->webhook_userId);
+                    if (!$this->webhook_userId) {
+                        //不處裡非用戶發的webhook
+                        return $this->error('Forbidden', null, 403);
+                    }
+                        
+                    $this->mAnalyst = $this->getAnalyst($this->webhook_userId);
+                    if(!$this->mAnalyst){
+                        //異常
+                        return $this->error('Forbidden', null, 403);
+                    }
 
                     if ($this->webhook_events_type) {
                         switch ($this->webhook_events_type) {
@@ -216,6 +229,10 @@ class Line extends Api
         if ($isSys) {
             switch ($messageLower) {
                 default:
+                    //開通代碼
+                    if (preg_match('/^###/', $messageLower)) {
+                        // echo "是以 ### 開頭";
+                    }
                     // $this->sendReplyMessage($messageLower);
                     break;
                 case "menu":
@@ -366,7 +383,7 @@ class Line extends Api
                 // 轉成 pred() 需要的兩個陣列
                 [$paramsRefund, $paramsBigs] = $this->buildPredParamsFromState($eventId, $state);
 
-                $res = $this->createPred($userId, $paramsRefund, $paramsBigs);
+                $res = $this->createPred($this->mAnalyst->id, $paramsRefund, $paramsBigs);
                 $replyMessage = $res ? "✅ 已送出你的預測！" : "預測失敗, 請聯絡客服";
 
                 $this->clearPredState($userId, $eventId);
@@ -548,22 +565,54 @@ class Line extends Api
         $this->sendReplyMessageCus($messagesObj);
     }
 
-    public function checkUser($line_user_id)
+    public function getAnalyst($line_user_id)
     {
+        Log::notice("line_user_id:".$line_user_id);
         $mUser = model('User')->get(['line_user_id' => $line_user_id, 'status' => 1]);
         if ($mUser) {
+            Log::notice("is user.");
+            $mAnalyst = model('Analyst')->where('user_id = '.$mUser->id)->find();
+            if(!$mAnalyst){
+                Log::notice("new Analyst. create.");
+                $params = [
+                    'user_id' => $mUser->id,
+                    'analyst_name' => $mUser->nickname,
+                    'avatar' => $mUser->avatar,
+                    'status' => 1,
+                    'admin_id' => 0,
+                    'autopred' => 0,
+                    'free' => 1,
+                ];
+                $mAnalyst = model('Analyst')::create($params);
+            }
         } else {
             $mUser = model('Userfree')->get(['line_user_id' => $line_user_id]);
             if (!$mUser) {
+                Log::notice("new free user. create.");
                 $params = [
                     'line_user_id' => $line_user_id,
                 ];
-                model('Userfree')::create($params);
-                return 0;
+                $mUser = model('Userfree')::create($params);
             } else {
-                return 1;
+                Log::notice("is free user.");
+            }
+            $mAnalyst = model('Analyst')->where('user_free = '.$mUser->id)->find();
+            if(!$mAnalyst){
+                Log::notice("new Analyst. create.");
+                $params = [
+                    'user_free' => $mUser->id,
+                    'analyst_name' => "Line用戶[".$mUser->id."]",
+                    'avatar' => '',
+                    'status' => 1,
+                    'admin_id' => 0,
+                    'autopred' => 0,
+                    'free' => 1,
+                ];
+                $mAnalyst = model('Analyst')::create($params);
             }
         }
+        Log::notice("get Analyst. [".$mAnalyst->analyst_name."][".$mAnalyst->analyst_name."]");
+        return $mAnalyst;
     }
 
     private function sendReplyMessage($reText)
@@ -579,6 +628,12 @@ class Line extends Api
 
     private function sendReplyMessageCus($messagesObj)
     {
+        //若送過訊息, 則忽略
+        if($this->sendTag){
+            Log::notice("重複發送, 忽略");
+            return false;
+        }
+        $this->sendTag = true;
         if(Config::get("app_debug")){
             Log::notice("回覆訊息:".json_encode($messagesObj, JSON_UNESCAPED_UNICODE));
         }
@@ -921,15 +976,10 @@ class Line extends Api
         return [$paramsRefund, $paramsBigs];
     }
 
-    private function createPred($userId, $paramsRefund, $paramsBigs)
+    private function createPred($analystId, $paramsRefund, $paramsBigs)
     {
         try {
-            $m = model('UserFree')->where('line_user_id', $userId)->find();
-            if (!$m) {
-                Log::notice("UserFree 查無");
-                return false;
-            }
-            $this->pred($m->id, $paramsRefund, $paramsBigs, true);
+            $this->predByAnalystId($analystId, $paramsRefund, $paramsBigs);
         } catch (ValidateException $e) {
             Log::notice("ValidateException :" . $e->getMessage());
             return false;
@@ -1170,6 +1220,25 @@ class Line extends Api
                 $merged[$eid]['bigsmall']   = $r['bigsmall'];
                 $merged[$eid]['comply_big'] = (int)$r['comply'];
             }
+        }
+
+        //只要不是看已結算, 或是自己, 都要判斷次數
+        if ($status !== 'settled' && $analystId != $this->mAnalyst->id) {
+            //未開通
+            if($this->mAnalyst->seepred == 0 && $this->mAnalyst->seepred_today > 0){
+                //沒有額度
+                $this->sendReplyMessage("請向客服索取代碼，並輸入代碼");
+                return [];
+            }elseif($this->mAnalyst->seepred == 1){
+                $lastCount = $this->mAnalyst->seepred_count - $this->mAnalyst->seepred_today; //今日剩餘次數
+                if($lastCount <= 0){
+                    //沒有額度
+                    $this->sendReplyMessage("請向客服索取代碼，並輸入代碼");
+                    return [];
+                }
+            }
+            $this->mAnalyst->seepred_today += sizeof($merged);
+            $this->mAnalyst->save();
         }
 
         return array_values($merged);
