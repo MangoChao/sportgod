@@ -435,6 +435,7 @@ class Dayreport extends Command
             $funcName = 'resetAutopredToday';
             $modelAnalyst = new Analyst;
             $modelAnalyst->where("autopred_today > 0")->update(['autopred_today' => 0]);
+            $modelAnalyst->where("seepred_today > 0")->update(['seepred_today' => 0]);
         } catch (ValidateException $e) {
             Log::notice("[command][Cron][".$funcName."] ValidateException :" . $e->getMessage());
         } catch (PDOException $e) {

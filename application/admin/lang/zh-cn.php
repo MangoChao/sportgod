@@ -76,7 +76,7 @@ return [
     'Recommend' => '推薦', 
     'Upload' => '上傳', 
     'Uploading' => '上傳中', 
-    'Code' => '編號', 
+    'Code' => '開通代碼', 
     'Message' => '內容', 
     'Line'=> '行號', 
     'File' => '文件',
@@ -222,4 +222,6 @@ return [
     'Avatar' => '頭像', 
     'showhome1' => '開始時間',
     'showhome2' => '結束時間',
+    'line_pred_code status 0' => '未使用',
+    'line_pred_code status 1' => '已使用'
 ];
