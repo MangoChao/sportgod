@@ -579,7 +579,9 @@ class Line extends Api
 
     private function sendReplyMessageCus($messagesObj)
     {
-        Log::notice("回覆訊息:".json_encode($messagesObj, JSON_UNESCAPED_UNICODE));
+        if(Config::get("app_debug")){
+            Log::notice("回覆訊息:".json_encode($messagesObj, JSON_UNESCAPED_UNICODE));
+        }
         $lineBotResponse = $this->LineBot->sendReplyMessage($this->webhook_replyToken, $messagesObj);
         if ($lineBotResponse['success']) {
             return true;

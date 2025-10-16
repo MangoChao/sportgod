@@ -413,9 +413,7 @@ class Api
     }
 
     public function pred($id = null, $paramsRefund = [], $paramsBigs = [], $line = false){
-        Log::notice("---------進行預測-------------------");
-        Log::notice($paramsRefund);
-        Log::notice($paramsBigs);
+        Log::notice("pred:".json_encode($paramsRefund)."/".json_encode($paramsBigs));
 
         //關聯分析師
         if($line){
