@@ -1855,10 +1855,10 @@ class Line extends Api
             return [["type" => "text", "text" => "目前沒有可選的體育類型"]];
         }
         $cats = [];
+        $cats[] = ["id" => 0, "title" => "全部"];
         foreach ($rows as $c) {
             $cats[] = ["id" => (int)$c->id, "title" => (string)$c->title];
         }
-        $cats[] = ["id" => 0, "title" => "全部"];
 
         // 2 欄卡片
         $tiles = array_map(function ($c) use ($nextAction) {
