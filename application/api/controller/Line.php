@@ -252,13 +252,13 @@ class Line extends Api
         switch ($cmd) {
             case 'menu':
                 $action = $p['action'] ?? '';
-                $catId  = isset($p['cat']) ? (int)$p['cat'] : 0;
+                $catId  = isset($p['cat']) ? (int)$p['cat'] : -1;
                 $periodParam = strtolower($p['period'] ?? '');
                 $period = in_array($periodParam, ['week', 'month'], true) ? $periodParam : '';
 
                 switch ($action) {
                     case 'winrate':
-                        if ($catId <= 0) { // 先挑類型
+                        if ($catId < 0) { // 先挑類型
                             $this->sendReplyMessageCus($this->buildCategoryPickerGrid($action));
                             break;
                         }
@@ -270,7 +270,7 @@ class Line extends Api
                         break;
 
                     case 'profit':
-                        if ($catId <= 0) {
+                        if ($catId < 0) {
                             $this->sendReplyMessageCus($this->buildCategoryPickerGrid($action));
                             break;
                         }
@@ -282,7 +282,7 @@ class Line extends Api
                         break;
 
                     case 'mine':
-                        if ($catId <= 0) {
+                        if ($catId < 0) {
                             $this->sendReplyMessageCus($this->buildCategoryPickerGrid('mine'));
                             break;
                         }
@@ -290,7 +290,7 @@ class Line extends Api
                         break;
 
                     case 'results':
-                        if ($catId <= 0) {
+                        if ($catId < 0) {
                             $this->sendReplyMessageCus($this->buildCategoryPickerGrid('results'));
                             break;
                         }
@@ -601,7 +601,7 @@ class Line extends Api
      * @param int $days 天數（預設 5）
      * @return array 形如：['YYYY-mm-dd' => [ [event...], ... ], ...]
      */
-    public function eventlist(?int $categoryId = null, $days = 5)
+    public function eventlist(?int $categoryId = 0, $days = 5)
     {
         $table_data_list = [];
 
@@ -619,7 +619,7 @@ class Line extends Api
                 ->where('starttime', '>=', $dayStart)
                 ->where('starttime', '<',  $dayEnd);
 
-            if ($categoryId !== null) {
+            if ($categoryId > 0) {
                 $query->where('event_category_id', '=', $categoryId);
             }
 
@@ -1114,7 +1114,7 @@ class Line extends Api
      *   - settled: p.comply > 0
      *   - all: 不限制
      */
-    private function fetchPredsCombined(int $analystId, ?int $categoryId = null, ?int $start, ?int $end, string $status = 'all'): array
+    private function fetchPredsCombined(int $analystId, ?int $categoryId = 0, ?int $start, ?int $end, string $status = 'all'): array
     {
         $query = model('Pred')
             ->alias('p')
@@ -1131,7 +1131,7 @@ class Line extends Api
             $query->where('p.comply', '>', 0);
         }
 
-        if ($categoryId !== null) {
+        if ($categoryId > 0) {
             $query->where('e.event_category_id', '=', $categoryId);
         }
 
@@ -1306,7 +1306,7 @@ class Line extends Api
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<', $endTs);
 
-        if ($categoryId !== null) {
+        if ($categoryId > 0) {
             $base->where('e.event_category_id', '=', $categoryId);
         }
 
@@ -1378,7 +1378,7 @@ class Line extends Api
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<=', $endTs);
 
-        if ($categoryId) {
+        if ($categoryId > 0) {
             $q->where('e.event_category_id', '=', $categoryId);
         }
 
@@ -1615,7 +1615,7 @@ class Line extends Api
         ];
     }
 
-    private function sendAnalystRanking(string $mode, ?int $categoryId = null, string $period = 'week')
+    private function sendAnalystRanking(string $mode, ?int $categoryId = 0, string $period = 'week')
     {
         if ($mode === 'profit') {
             $periodLabel = ($period === 'month') ? '（上月）' : '（上週）';
@@ -1765,7 +1765,7 @@ class Line extends Api
 
         if ($start !== null) $q->where('e.starttime', '>=', $start);
         if ($end   !== null) $q->where('e.starttime',  '<',  $end);
-        if ($categoryId !== null) $q->where('e.event_category_id', '=', $categoryId);
+        if ($categoryId > 0) $q->where('e.event_category_id', '=', $categoryId);
 
         // 聚合表達式
         $winExpr      = "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END)";
@@ -1858,6 +1858,7 @@ class Line extends Api
         foreach ($rows as $c) {
             $cats[] = ["id" => (int)$c->id, "title" => (string)$c->title];
         }
+        $cats[] = ["id" => 0, "title" => "全部"];
 
         // 2 欄卡片
         $tiles = array_map(function ($c) use ($nextAction) {
