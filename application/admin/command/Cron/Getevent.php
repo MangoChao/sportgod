@@ -210,13 +210,16 @@ class Getevent extends Command
     }
 
     private function upEvent($data) {
+        //如果盤口都是0 則會忽略, 無論是首次新增或是之後更新
         // Log::notice($data);
         if(isset($data['starttime']) AND !empty($data['starttime'])){
             $data['starttime'] = strtotime($data['starttime']);
         }else{
             $data['starttime'] = null;
         }
-        if($data['starttime'] !== null){
+        if($data['starttime'] !== null && 
+            ($data['master_refund'] != '0' || $data['guests_refund'] != '0' || $data['bigscore'] != '0')
+            ){
             $modelEvent = new Event;
             $modelEventparam = new Eventparam;
             $mEvent = $modelEvent->where("event_category_id = '".$data['event_category_id']."' AND master = '".$data['master']."' AND guests = '".$data['guests']."' AND starttime = '".$data['starttime']."' ")->find();
@@ -224,13 +227,6 @@ class Getevent extends Command
                 if(($mEvent->master_refund != $data['master_refund'] AND $data['master_refund'] != '0') OR 
                 ($mEvent->guests_refund != $data['guests_refund'] AND $data['guests_refund'] != '0') OR 
                 ($mEvent->bigscore != $data['bigscore'] AND $data['bigscore'] != '0')){
-                    // Log::notice($mEvent->id);
-                    // Log::notice($data['master_refund']);
-                    // Log::notice($data['guests_refund']);
-                    // Log::notice($data['bigscore']);
-                    // Log::notice($mEvent->master_refund);
-                    // Log::notice($mEvent->guests_refund);
-                    // Log::notice($mEvent->bigscore);
 
                     $master_refund = $mEvent->master_refund;
                     $guests_refund = $mEvent->guests_refund;

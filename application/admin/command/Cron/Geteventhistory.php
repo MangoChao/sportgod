@@ -331,7 +331,7 @@ class Geteventhistory extends Command
                         }
 
                         // === 判斷是否需要模擬調整勝率 ===
-                        if ((int)$v->isread === 0 && $v->comply == 2) {
+                        if ($v->isauto == 1 && $v->isread == 0 && $v->comply == 2) {
                             // 查該賽事分類
                             $catId = (int)$modelEvent->where('id', $v->event_id)->value('event_category_id');
 
