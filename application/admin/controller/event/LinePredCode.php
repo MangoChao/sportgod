@@ -10,6 +10,7 @@ use think\exception\PDOException;
 use think\exception\ValidateException;
 use Exception;
 use fast\Random;
+use think\Config;
 
 class LinePredCode extends Backend
 {
@@ -32,6 +33,37 @@ class LinePredCode extends Backend
      */
     public function index()
     {
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $result = false;
+                try {
+                    if (isset($params['seepred_count'])) {
+                        $mConfig = model('Config')->get(['name' => 'seepred_count']);
+                        if($mConfig){
+                            $mConfig->value = $params['seepred_count'];
+                        }
+                    }
+                    $result = model('Config')->allowField(true)->save($mConfig->toArray());
+                } catch (ValidateException $e) {
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    try {
+                        $this->refreshFile();
+                    } catch (Exception $e) {
+                        $this->error($e->getMessage());
+                    }
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+        }
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if ($this->request->isAjax()) {
@@ -54,6 +86,8 @@ class LinePredCode extends Backend
             $result = array("total" => $total, "rows" => $list);
             return json($result);
         }
+        $seepredCount = Config::get("site.seepred_count");
+        $this->view->assign("seepred_count", $seepredCount);
         return $this->view->fetch();
     }
 
@@ -111,4 +145,25 @@ class LinePredCode extends Backend
         return $this->view->fetch();
     }
 
+    /**
+     * 刷新配置文件
+     */
+    protected function refreshFile()
+    {
+        $config = [];
+        foreach ($this->model->all() as $k => $v) {
+            $value = $v->toArray();
+            if (in_array($value['type'], ['selects', 'checkbox', 'images', 'files'])) {
+                $value['value'] = explode(',', $value['value']);
+            }
+            if ($value['type'] == 'array') {
+                $value['value'] = (array)json_decode($value['value'], true);
+            }
+            $config[$value['name']] = $value['value'];
+        }
+        file_put_contents(
+            CONF_PATH . 'extra' . DS . 'site.php',
+            '<?php' . "\n\nreturn " . var_export_short($config) . ";\n"
+        );
+    }
 }

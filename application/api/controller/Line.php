@@ -308,7 +308,7 @@ class Line extends Api
                         break;
 
                     case 'heatmap':
-                        $this->sendReplyMessage("活動圖功能開發中");
+                        $this->sendHeatmap();
                         break;
 
                     default:
@@ -404,6 +404,79 @@ class Line extends Api
                 $this->sendReplyMessage("尚未支援的操作。");
                 break;
         }
+    }
+
+    private function sendHeatmap(): void
+    {
+        $flex = [
+            'type' => 'carousel',
+            'contents' => [
+                [
+                    'type' => 'bubble',
+                    'hero' => [
+                        'type' => 'image',
+                        'url' => $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap1.jpg',
+                        'size' => 'full',
+                        'aspectRatio' => '1:1',
+                        'aspectMode' => 'cover',
+                    ],
+                    'body' => [
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'contents' => [
+                            [
+                                'type' => 'text',
+                                'text' => '跟著分析師推薦下注相同盤口
+每日總帳連輸七天，補回輸的金額！
+體育單場單日最高補助 $1,000，每週最高可補 $7,000。
+需每日截圖「分析師推薦場次」與「BC博球娛樂城注單」作為申請依據。
+
+※ 活動最終解釋權歸 賽事俱樂部 所有。',
+                                'weight' => 'bold',
+                                'size' => 'md',
+                                'color' => '#ffffff'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'bubble',
+                    'hero' => [
+                        'type' => 'image',
+                        'url' => $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap2.jpg',
+                        'size' => 'full',
+                        'aspectRatio' => '1:1',
+                        'aspectMode' => 'cover',
+                    ],
+                    'body' => [
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'contents' => [
+                            [
+                                'type' => 'text',
+                                'text' => '每日參加賽事預測，展現你的眼光與實力！
+每週勝率達80%並且獲利最高者即獲【預測王3萬獎金】💰
+越準越強，榮耀與獎金等你拿！
+👉 每天都能預測、每週都有贏家！
+
+※ 活動最終解釋權歸 賽事俱樂部 所有。',
+                                'weight' => 'bold',
+                                'size' => 'md',
+                                'color' => '#ffffff'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $message = [
+            'type' => 'flex',
+            'altText' => '分析師活動熱力圖',
+            'contents' => $flex
+        ];
+
+        $this->sendReplyMessageCus([$message]);
     }
 
     private function sendTodayEventsList(?int $categoryId = null): void
@@ -1224,16 +1297,18 @@ class Line extends Api
 
         //只要不是看已結算, 或是自己, 都要判斷次數
         if ($status !== 'settled' && $analystId != $this->mAnalyst->id) {
+            // $seepredCount = $this->mAnalyst->seepred_count;
+            $seepredCount = Config::get("site.seepred_count");
             //未開通
             if($this->mAnalyst->seepred == 0 && $this->mAnalyst->seepred_today > 0){
                 //沒有額度
                 $this->sendReplyMessage("請向客服索取代碼，並輸入代碼");
                 return [];
-            }elseif($this->mAnalyst->seepred == 1){
-                $lastCount = $this->mAnalyst->seepred_count - $this->mAnalyst->seepred_today; //今日剩餘次數
+            }elseif($this->mAnalyst->seepred == 1){ //有開通
+                $lastCount = $seepredCount - $this->mAnalyst->seepred_today; //今日剩餘次數
                 if($lastCount <= 0){
                     //沒有額度
-                    $this->sendReplyMessage("請向客服索取代碼，並輸入代碼");
+                    $this->sendReplyMessage("今日觀看場數已上限");
                     return [];
                 }
             }

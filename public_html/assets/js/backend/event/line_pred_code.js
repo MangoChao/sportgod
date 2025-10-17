@@ -2,6 +2,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+            Controller.api.bindevent();
+            
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
