@@ -222,8 +222,22 @@ class Getevent extends Command
             ){
             $modelEvent = new Event;
             $modelEventparam = new Eventparam;
+            
+            // 🔹 查找相同 event_category_id + master + guests，且時間 ±30分鐘內
+            $startMin = $data['starttime'] - 1800; // 30 分鐘前
+            $startMax = $data['starttime'] + 1800; // 30 分鐘後
+            
             $mEvent = $modelEvent->where("event_category_id = '".$data['event_category_id']."' AND master = '".$data['master']."' AND guests = '".$data['guests']."' AND starttime = '".$data['starttime']."' ")->find();
+                
+            $mEvent = $modelEvent
+                ->where('event_category_id', $data['event_category_id'])
+                ->where('master', $data['master'])
+                ->where('guests', $data['guests'])
+                ->where('starttime', 'between', [$startMin, $startMax])
+                ->find();
+
             if($mEvent){
+
                 if(($mEvent->master_refund != $data['master_refund'] AND $data['master_refund'] != '0') OR 
                 ($mEvent->guests_refund != $data['guests_refund'] AND $data['guests_refund'] != '0') OR 
                 ($mEvent->bigscore != $data['bigscore'] AND $data['bigscore'] != '0')){
@@ -240,7 +254,7 @@ class Getevent extends Command
                     if($data['bigscore'] != '0'){
                         $mEvent->bigscore = $data['bigscore'];
                     }
-
+                    $mEvent->starttime = $data['starttime'];
                     $mEvent->save();
 
                     $params = [

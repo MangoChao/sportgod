@@ -211,13 +211,29 @@ class Geteventhistory extends Command
         if ($data['starttime'] !== null) {
             $modelEvent = new Event;
             $modelPred = new Pred;
-            $mEvent = $modelEvent->where("status = 0 AND event_category_id = '" . $data['event_category_id'] . "' AND master = '" . $data['master'] . "' AND guests = '" . $data['guests'] . "' AND starttime = '" . $data['starttime'] . "' ")->find();
+            
+            // 🔹 改為 ±30 分鐘範圍內都視為同一場
+            $startMin = $data['starttime'] - 1800; // 30 分鐘前
+            $startMax = $data['starttime'] + 1800; // 30 分鐘後
+
+            $mEvent = $modelEvent
+                ->where('status', 0)
+                ->where('event_category_id', $data['event_category_id'])
+                ->where('master', $data['master'])
+                ->where('guests', $data['guests'])
+                ->where('starttime', 'between', [$startMin, $startMax])
+                ->find();
+
             if ($mEvent) {
+                $mEvent->starttime = $data['starttime'];
                 $mEvent->master_score = $data['mscore'];
                 $mEvent->guests_score = $data['gscore'];
                 $mEvent->status = 1;
                 $mEvent->save();
-                $mPred = $modelPred->where("event_id = '" . $mEvent->id . "' AND comply = 0 ")->select();
+                $mPred = $modelPred
+                    ->where('event_id', $mEvent->id)
+                    ->where('comply', 0)
+                    ->select();
                 if ($mPred) {
                     foreach ($mPred as $v) {
                         $v->master_score = $data['mscore'];
