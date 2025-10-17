@@ -230,7 +230,7 @@ class Line extends Api
             switch ($messageLower) {
                 default:
                     //開通代碼
-                    if (preg_match('/^###/', $messageLower)) {
+                    if (preg_match('/^##/', $messageLower)) {
                         $this->sendReplyMessage($messageLower);
                     }
                     // $this->sendReplyMessage($messageLower);
