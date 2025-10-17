@@ -408,75 +408,64 @@ class Line extends Api
 
     private function sendHeatmap(): void
     {
-        $flex = [
-            'type' => 'carousel',
-            'contents' => [
-                [
-                    'type' => 'bubble',
-                    'hero' => [
-                        'type' => 'image',
-                        'url' => $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap1.jpg',
-                        'size' => 'full',
-                        'aspectRatio' => '1:1',
-                        'aspectMode' => 'cover',
-                    ],
-                    'body' => [
-                        'type' => 'box',
-                        'layout' => 'vertical',
-                        'contents' => [
-                            [
-                                'type' => 'text',
-                                'text' => '跟著分析師推薦下注相同盤口
+        $img1 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap1.jpg';
+        $text1 = "跟著分析師推薦下注相同盤口
 每日總帳連輸七天，補回輸的金額！
 體育單場單日最高補助 $1,000，每週最高可補 $7,000。
 需每日截圖「分析師推薦場次」與「BC博球娛樂城注單」作為申請依據。
 
-※ 活動最終解釋權歸 賽事俱樂部 所有。',
-                                'weight' => 'bold',
-                                'size' => 'md',
-                                'color' => '#000000'
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'type' => 'bubble',
-                    'hero' => [
-                        'type' => 'image',
-                        'url' => $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap2.jpg',
-                        'size' => 'full',
-                        'aspectRatio' => '1:1',
-                        'aspectMode' => 'cover',
-                    ],
-                    'body' => [
-                        'type' => 'box',
-                        'layout' => 'vertical',
-                        'contents' => [
-                            [
-                                'type' => 'text',
-                                'text' => '每日參加賽事預測，展現你的眼光與實力！
+※ 活動最終解釋權歸 賽事俱樂部 所有。";
+        $img2 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap2.jpg';
+        $text2 = "每日參加賽事預測，展現你的眼光與實力！
 每週勝率達80%並且獲利最高者即獲【預測王3萬獎金】💰
 越準越強，榮耀與獎金等你拿！
 👉 每天都能預測、每週都有贏家！
 
-※ 活動最終解釋權歸 賽事俱樂部 所有。',
-                                'weight' => 'bold',
-                                'size' => 'md',
-                                'color' => '#000000'
-                            ]
-                        ]
-                    ]
-                ]
+※ 活動最終解釋權歸 賽事俱樂部 所有。";
+        $flex = [
+            'type' => 'carousel',
+            'contents' => [
+                $this->sendHeatmapBubble($img1, $text1),
+                $this->sendHeatmapBubble($img2, $text2)
             ]
         ];
 
         $message = [
             'type' => 'flex',
-            'altText' => '分析師活動熱力圖',
+            'altText' => '活動圖',
             'contents' => $flex
         ];
 
         $this->sendReplyMessageCus([$message]);
+    }
+
+    private function sendHeatmapBubble($img, $text)
+    {
+        return [
+            'type' => 'bubble',
+            'hero' => [
+                'type' => 'image',
+                'url' => $img,
+                'size' => 'full',
+                'aspectRatio' => '1:1',
+                'aspectMode' => 'cover',
+            ],
+            'body' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => $text,
+                        'size' => 'sm',
+                        'color' => '#000000',
+                        'wrap' => true,
+                        'weight' => 'regular',
+                        'margin' => 'none'
+                    ]
+                ]
+            ]
+        ];
     }
 
     private function sendTodayEventsList(?int $categoryId = null): void
