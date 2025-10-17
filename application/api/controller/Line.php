@@ -231,7 +231,7 @@ class Line extends Api
                 default:
                     //開通代碼
                     if (preg_match('/^###/', $messageLower)) {
-                        // echo "是以 ### 開頭";
+                        $this->sendReplyMessage($messageLower);
                     }
                     // $this->sendReplyMessage($messageLower);
                     break;
