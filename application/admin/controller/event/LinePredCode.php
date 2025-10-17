@@ -42,9 +42,10 @@ class LinePredCode extends Backend
                         $mConfig = model('Config')->get(['name' => 'seepred_count']);
                         if($mConfig){
                             $mConfig->value = $params['seepred_count'];
+                            $mConfig->save();
+                            $result = true;
                         }
                     }
-                    $result = model('Config')->allowField(true)->save($mConfig->toArray());
                 } catch (ValidateException $e) {
                     $this->error($e->getMessage());
                 } catch (PDOException $e) {
