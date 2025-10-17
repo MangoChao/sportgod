@@ -434,7 +434,7 @@ class Line extends Api
 ※ 活動最終解釋權歸 賽事俱樂部 所有。',
                                 'weight' => 'bold',
                                 'size' => 'md',
-                                'color' => '#ffffff'
+                                'color' => '#000000'
                             ]
                         ]
                     ]
@@ -462,7 +462,7 @@ class Line extends Api
 ※ 活動最終解釋權歸 賽事俱樂部 所有。',
                                 'weight' => 'bold',
                                 'size' => 'md',
-                                'color' => '#ffffff'
+                                'color' => '#000000'
                             ]
                         ]
                     ]
