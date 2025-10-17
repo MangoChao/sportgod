@@ -139,7 +139,7 @@ class Linepredcode extends Backend
         }
         $max = 5;
         do{
-            $code = "##".strtolower(Random::alnum());
+            $code = "##".strtolower(Random::alnum(10));
             $max--;
         }while($this->model->get(['code' => $code]) && $max >= 0);
         $this->view->assign("code", $code);
