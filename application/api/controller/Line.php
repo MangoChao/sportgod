@@ -230,10 +230,9 @@ class Line extends Api
             switch ($messageLower) {
                 default:
                     //開通代碼
-                    if (preg_match('/^##/', $messageLower)) {
-                        $this->sendReplyMessage($messageLower);
+                    if ($this->mAnalyst->seepred == 0 && preg_match('/^##/', $messageLower)) {
+                        $this->activateAnalyst($messageLower);
                     }
-                    // $this->sendReplyMessage($messageLower);
                     break;
                 case "menu":
                     $messagesObj = $this->buildMainMenuFlex();
@@ -403,6 +402,19 @@ class Line extends Api
             default:
                 $this->sendReplyMessage("尚未支援的操作。");
                 break;
+        }
+    }
+    
+    private function activateAnalyst($code): void
+    {
+        $mCode = model("LinePredCode")->get(['code' => $code, 'status' => 0]);
+        if($mCode){
+            $mCode->analyst_id = $this->mAnalyst->id;
+            $mCode->status = 1;
+            $mCode->save();
+            $this->mAnalyst->seepred = 1;
+            $this->mAnalyst->save();
+            $this->sendReplyMessage("開通成功");
         }
     }
 
