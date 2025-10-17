@@ -12,7 +12,7 @@ use Exception;
 use fast\Random;
 use think\Config;
 
-class LinePredCode extends Backend
+class Linepredcode extends Backend
 {
 
     protected $relationSearch = true;

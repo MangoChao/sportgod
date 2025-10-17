@@ -3,13 +3,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
     var Controller = {
         index: function () {
             Controller.api.bindevent();
-            
+
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'event/line_pred_code/index',
-                    add_url: 'event/line_pred_code/add',
-                    del_url: 'event/line_pred_code/del',
+                    index_url: 'event/linepredcode/index',
+                    add_url: 'event/linepredcode/add',
+                    del_url: 'event/linepredcode/del',
                     table: 'line_pred_code',
                 }
             });
