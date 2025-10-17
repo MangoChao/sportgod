@@ -152,7 +152,7 @@ class LinePredCode extends Backend
     protected function refreshFile()
     {
         $config = [];
-        foreach ($this->model->all() as $k => $v) {
+        foreach (model("Config")->all() as $k => $v) {
             $value = $v->toArray();
             if (in_array($value['type'], ['selects', 'checkbox', 'images', 'files'])) {
                 $value['value'] = explode(',', $value['value']);
