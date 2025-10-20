@@ -461,11 +461,14 @@ class Line extends Api
 👉 每天都能預測、每週都有贏家！
 
 ※ 活動最終解釋權歸 賽事俱樂部 所有。";
+        $img3 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap3.jpg';
+        $text3 = "";
         $flex = [
             'type' => 'carousel',
             'contents' => [
                 $this->sendHeatmapBubble($img1, $text1),
-                $this->sendHeatmapBubble($img2, $text2)
+                $this->sendHeatmapBubble($img2, $text2),
+                $this->sendHeatmapBubble($img3, $text3)
             ]
         ];
 
@@ -480,7 +483,7 @@ class Line extends Api
 
     private function sendHeatmapBubble($img, $text)
     {
-        return [
+        $bubble = [
             'type' => 'bubble',
             'hero' => [
                 'type' => 'image',
@@ -488,8 +491,11 @@ class Line extends Api
                 'size' => 'full',
                 'aspectRatio' => '1:1',
                 'aspectMode' => 'cover',
-            ],
-            'body' => [
+            ]
+        ];
+
+        if($text){
+            $bubble['body'] = [
                 'type' => 'box',
                 'layout' => 'vertical',
                 'contents' => [
@@ -503,8 +509,9 @@ class Line extends Api
                         'margin' => 'none'
                     ]
                 ]
-            ]
-        ];
+            ];
+        }
+        return $bubble;
     }
 
     private function sendTodayEventsList(?int $categoryId = null): void
