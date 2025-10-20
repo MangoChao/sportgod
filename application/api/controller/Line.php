@@ -232,29 +232,36 @@ class Line extends Api
                 if ($this->mAnalyst->seepred == 0 && preg_match('/^##/', $messageLower)) {
                     $this->activateAnalyst($messageLower);
                 }
-                if ($this->mAnalyst->name_edit == 1){
-                    if (preg_match('/^改暱稱[:：](.*)$/u', $message, $matches)) {
-                        $nickname = trim($matches[1]); // 去掉前後空白
-                        if (!preg_match('/^[\p{Han}a-zA-Z0-9]+$/u', $nickname)) {
-                            $this->sendReplyMessage("暱稱只能包含中文、英文或數字");
+                if (preg_match('/^改暱稱[:：](.*)$/u', $message, $matches)) {
+                    if ($this->mAnalyst->name_edit == 1){
+                        if (preg_match('/^改暱稱[:：](.*)$/u', $message, $matches)) {
+                            $nickname = trim($matches[1]); // 去掉前後空白
+                            if (!preg_match('/^[\p{Han}a-zA-Z0-9]+$/u', $nickname)) {
+                                $this->sendReplyMessage("暱稱只能包含中文、英文或數字");
+                                break;
+                            }
+
+                            $len = 0;
+                            $chars = preg_split('//u', $nickname, -1, PREG_SPLIT_NO_EMPTY);
+                            foreach ($chars as $ch) {
+                                // 中文算2，其他算1
+                                $len += preg_match('/\p{Han}/u', $ch) ? 2 : 1;
+                            }
+                            
+                            if ($len > 10) {
+                                $this->sendReplyMessage("暱稱長度超過限制");
+                                break;
+                            }
+
+                            $this->mAnalyst->name_edit = 0;
+                            $this->mAnalyst->analyst_name = $nickname;
+                            $this->mAnalyst->save();
+                            $this->sendReplyMessage("暱稱更改成功");
                             break;
                         }
-
-                        $len = 0;
-                        $chars = preg_split('//u', $nickname, -1, PREG_SPLIT_NO_EMPTY);
-                        foreach ($chars as $ch) {
-                            // 中文算2，其他算1
-                            $len += preg_match('/\p{Han}/u', $ch) ? 2 : 1;
-                        }
-                        
-                        if ($len > 10) {
-                            $this->sendReplyMessage("暱稱長度超過限制");
-                            break;
-                        }
-
-                        $this->mAnalyst->name_edit = 0;
-                        $this->mAnalyst->analyst_name = $nickname;
-                        $this->mAnalyst->save();
+                    }else{
+                        $this->sendReplyMessage("已改過暱稱");
+                        break;
                     }
                 }
                 break;
