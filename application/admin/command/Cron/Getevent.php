@@ -224,8 +224,8 @@ class Getevent extends Command
             $modelEventparam = new Eventparam;
             
             // 🔹 查找相同 event_category_id + master + guests，且時間 ±30分鐘內
-            $startMin = $data['starttime'] - 1800; // 30 分鐘前
-            $startMax = $data['starttime'] + 1800; // 30 分鐘後
+            $startMin = $data['starttime'] - 7200; // 2小時
+            $startMax = $data['starttime'] + 7200; // 2小時
             
             $mEvent = $modelEvent->where("event_category_id = '".$data['event_category_id']."' AND master = '".$data['master']."' AND guests = '".$data['guests']."' AND starttime = '".$data['starttime']."' ")->find();
                 

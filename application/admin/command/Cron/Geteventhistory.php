@@ -213,8 +213,8 @@ class Geteventhistory extends Command
             $modelPred = new Pred;
             
             // 🔹 改為 ±30 分鐘範圍內都視為同一場
-            $startMin = $data['starttime'] - 1800; // 30 分鐘前
-            $startMax = $data['starttime'] + 1800; // 30 分鐘後
+            $startMin = $data['starttime'] - 7200; // 2小時
+            $startMax = $data['starttime'] + 7200; // 2小時
 
             $mEvent = $modelEvent
                 ->where('status', 0)
