@@ -248,7 +248,7 @@ class Line extends Api
                                 $len += preg_match('/\p{Han}/u', $ch) ? 2 : 1;
                             }
                             
-                            if ($len > 10) {
+                            if ($len > 20) {
                                 $this->sendReplyMessage("暱稱長度超過限制");
                                 break;
                             }
@@ -462,7 +462,11 @@ class Line extends Api
 
 ※ 活動最終解釋權歸 賽事俱樂部 所有。";
         $img3 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap3.jpg';
-        $text3 = "";
+        $text3 = "改暱稱（僅限中、英、數字，最長 10 個中文字）。
+對話框輸入 
+改暱稱:(你的暱稱)
+送出即更改完成
+為維護預測公平性，暱稱僅能修改一次，送出後無法更改。";
         $flex = [
             'type' => 'carousel',
             'contents' => [
