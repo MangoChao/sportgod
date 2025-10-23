@@ -666,10 +666,8 @@ if (!function_exists('calculateComply')) {
             $diff = $isHomeLine ? ($masterScore - $guestsScore) : ($guestsScore - $masterScore);
 
             // 解析盤口數值與退水百分比
-            $minus = false;
             $hasPercent = false;
             if (strpos($lineStr, '-') !== false) {
-                $minus = true;
                 $hasPercent = true;
                 [$H, $P] = explode('-', $lineStr) + [0, 0];
             } elseif (strpos($lineStr, '+') !== false) {
@@ -681,10 +679,6 @@ if (!function_exists('calculateComply')) {
             }
             $H = (float)$H;
             $P = (float)$P;
-            if ($minus) {
-                // 與你原本規則一致：遇到 '-' 盤口，H 再 +1
-                $H += 1;
-            }
 
             // 玩家是否「押盤口方」
             $bettorPickedLineTeam = ($isHomeLine && $betOnHome) || (!$isHomeLine && !$betOnHome);
@@ -713,11 +707,9 @@ if (!function_exists('calculateComply')) {
         } else {
             // ======== 大小盤 ========
             $bigscore = $mPred->bigscore;
-            $minus = false;
             $hasPercent = false;
 
             if (strpos($bigscore, '-') !== false) {
-                $minus = true;
                 $hasPercent = true;
                 [$T, $P] = explode('-', $bigscore) + [0, 0];
             } elseif (strpos($bigscore, '+') !== false) {
@@ -730,9 +722,6 @@ if (!function_exists('calculateComply')) {
 
             $T = (float)$T;
             $P = (float)$P;
-            if ($minus) {
-                $T += 1;
-            }
 
             $sum = $masterScore + $guestsScore;
             $isOver = ((int)$mPred->bigsmall) === 1; // 1=押大, 0=押小
