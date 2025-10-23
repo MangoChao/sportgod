@@ -638,8 +638,10 @@ if (!function_exists('calculateComply')) {
         $mPred->master_score = $masterScore;
         $mPred->guests_score = $guestsScore;
 
+        // === 無效賽事 ===
         if ($masterScore == -1 || $guestsScore == -1) {
             $mPred->comply = -1;
+            $mPred->result_ratio = 0;
             $mPred->save();
             return;
         }
@@ -652,15 +654,19 @@ if (!function_exists('calculateComply')) {
                 return;
             }
 
-            $winscore = $mPred->master_refund ?
-                ($masterScore - $guestsScore) : ($guestsScore - $masterScore);
+            $winscore = $mPred->master_refund
+                ? ($masterScore - $guestsScore)
+                : ($guestsScore - $masterScore);
 
-            // 解析 "4+50" or "4" or "4-25"
+            // 解析盤口
             $minus = false;
+            $hasPercent = false;
             if (strpos($lineStr, '-') !== false) {
                 $minus = true;
+                $hasPercent = true;
                 [$H, $P] = explode('-', $lineStr) + [0, 0];
             } elseif (strpos($lineStr, '+') !== false) {
+                $hasPercent = true;
                 [$H, $P] = explode('+', $lineStr) + [0, 0];
             } else {
                 $H = $lineStr;
@@ -670,7 +676,7 @@ if (!function_exists('calculateComply')) {
             $H = floatval($H);
             $P = floatval($P);
             if ($minus) {
-                $H += 1; // 與你原本邏輯一致：負號盤+1處理
+                $H += 1; // 保留原始邏輯
             }
 
             $pickHome = ($mPred->master_refund !== null && $mPred->winteam == 1)
@@ -684,19 +690,27 @@ if (!function_exists('calculateComply')) {
                 $mPred->comply = $pickHome ? 2 : 1;
                 $mPred->result_ratio = $pickHome ? -100 : +100;
             } else {
-                // 相等 => 按退水比例
-                $delta = round($P);
-                $mPred->comply = ($delta == 0) ? -1 : ($pickHome ? 1 : 2);
-                $mPred->result_ratio = $pickHome ? +$delta : -$delta;
+                if ($hasPercent && $P > 0) {
+                    // 有退水盤 → 使用退水比例
+                    $mPred->comply = $pickHome ? 1 : 2;
+                    $mPred->result_ratio = $pickHome ? +$P : -$P;
+                } else {
+                    // 純數字盤 → 和局
+                    $mPred->comply = 3;
+                    $mPred->result_ratio = 0;
+                }
             }
         } else {
             // ======== 大小盤 ========
             $bigscore = $mPred->bigscore;
             $minus = false;
+            $hasPercent = false;
             if (strpos($bigscore, '-') !== false) {
                 $minus = true;
+                $hasPercent = true;
                 [$T, $P] = explode('-', $bigscore) + [0, 0];
             } elseif (strpos($bigscore, '+') !== false) {
+                $hasPercent = true;
                 [$T, $P] = explode('+', $bigscore) + [0, 0];
             } else {
                 $T = $bigscore;
@@ -706,7 +720,7 @@ if (!function_exists('calculateComply')) {
             $T = floatval($T);
             $P = floatval($P);
             if ($minus) {
-                $T += 1; // 保留原邏輯
+                $T += 1;
             }
 
             $sum = $masterScore + $guestsScore;
@@ -719,15 +733,20 @@ if (!function_exists('calculateComply')) {
                 $mPred->comply = $isOver ? 2 : 1;
                 $mPred->result_ratio = $isOver ? -100 : +100;
             } else {
-                $delta = round($P);
-                $mPred->comply = ($delta == 0) ? -1 : ($isOver ? 1 : 2);
-                $mPred->result_ratio = $isOver ? -$delta : +$delta;
+                if ($hasPercent && $P > 0) {
+                    // 有退水盤 → 使用退水比例
+                    $mPred->comply = $isOver ? 1 : 2;
+                    $mPred->result_ratio = $isOver ? +$P : -$P;
+                } else {
+                    // 純數字盤 → 和局
+                    $mPred->comply = 3;
+                    $mPred->result_ratio = 0;
+                }
             }
         }
 
-        // === 判斷是否需要模擬調整勝率 ===
+        // === 模擬勝率調整 ===
         if ($mPred->isauto == 1 && $mPred->isread == 0 && $mPred->comply == 2) {
-            // 計算該分析師在此分類勝率
             $stats = $modelPred->alias('p')
                 ->join('event e', 'e.id = p.event_id')
                 ->where('p.analyst_id', $mPred->analyst_id)
@@ -744,26 +763,17 @@ if (!function_exists('calculateComply')) {
             $total = $wins + $loses;
             $rate  = $total > 0 ? ($wins / $total) : 0;
 
-            // 如果勝率低於 80%，就反向修改結果
             if ($rate < 0.8) {
                 $mPred->comply = 1;
-                $mPred->result_ratio = abs($mPred->result_ratio); // 強制轉正（贏）
+                $mPred->result_ratio = abs($mPred->result_ratio);
                 if ($mPred->pred_type == 1) {
-                    if ($mPred->winteam == 0) {
-                        $mPred->winteam = 1;
-                    } elseif ($mPred->winteam == 1) {
-                        $mPred->winteam = 0;
-                    }
+                    $mPred->winteam = $mPred->winteam ? 0 : 1;
                 } elseif ($mPred->pred_type == 2) {
-                    if ($mPred->bigsmall == 0) {
-                        $mPred->bigsmall = 1;
-                    } elseif ($mPred->bigsmall == 1) {
-                        $mPred->bigsmall = 0;
-                    }
+                    $mPred->bigsmall = $mPred->bigsmall ? 0 : 1;
                 }
 
                 \think\Log::notice(sprintf(
-                    '[模擬調整] analyst_id=%d cat=%d 原勝率=%.2f%%，已反轉 pred_id=%d winteam=%d bigsmall=%d 結果為 comply=%d',
+                    '[模擬調整] analyst_id=%d cat=%d 原勝率=%.2f%%，已反轉 pred_id=%d winteam=%d bigsmall=%d comply=%d',
                     $mPred->analyst_id,
                     $catId,
                     $rate * 100,
@@ -778,3 +788,4 @@ if (!function_exists('calculateComply')) {
         $mPred->save();
     }
 }
+
