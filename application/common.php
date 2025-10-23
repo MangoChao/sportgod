@@ -422,7 +422,7 @@ if (!function_exists('curl_post')) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, false);// 0不带头文件，1带头文件（返回值中带有头文件）
+        curl_setopt($ch, CURLOPT_HEADER, false); // 0不带头文件，1带头文件（返回值中带有头文件）
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15); //设置等待时间
@@ -440,7 +440,8 @@ if (!function_exists('curl_post')) {
 }
 
 if (!function_exists('file_get_content')) {
-    function file_get_content($url) {
+    function file_get_content($url)
+    {
         // if (function_exists('file_get_contents')) {
         // $file_contents = @file_get_contents($url);
         // }
@@ -458,22 +459,24 @@ if (!function_exists('file_get_content')) {
 }
 
 if (!function_exists('create_mpg_aes_encrypt')) {
-/**
+    /**
      * AES加密
      */
-    function create_mpg_aes_encrypt($parameter = null , $key = "", $iv = "") {
+    function create_mpg_aes_encrypt($parameter = null, $key = "", $iv = "")
+    {
         $return_str = '';
         if (!empty($parameter)) {
             //將參數經過 URL ENCODED QUERY STRING
             $return_str = http_build_query($parameter);
         }
-        return trim(bin2hex(openssl_encrypt(addpadding($return_str), 'aes-256-cbc', $key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv)));
+        return trim(bin2hex(openssl_encrypt(addpadding($return_str), 'aes-256-cbc', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv)));
     }
 }
 
 
 if (!function_exists('addpadding')) {
-    function addpadding($string, $blocksize = 32) {
+    function addpadding($string, $blocksize = 32)
+    {
         $len = strlen($string);
         $pad = $blocksize - ($len % $blocksize);
         $string .= str_repeat(chr($pad), $pad);
@@ -486,13 +489,15 @@ if (!function_exists('create_aes_decrypt')) {
     /**
      * AES解密
      */
-    function create_aes_decrypt($parameter = "", $key = "", $iv = "") {
-        return strippadding(openssl_decrypt(hex2bin($parameter),'AES-256-CBC',$key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv));
+    function create_aes_decrypt($parameter = "", $key = "", $iv = "")
+    {
+        return strippadding(openssl_decrypt(hex2bin($parameter), 'AES-256-CBC', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv));
     }
 }
 
 if (!function_exists('strippadding')) {
-    function strippadding($string) {
+    function strippadding($string)
+    {
         $slast = ord(substr($string, -1));
         $slastc = chr($slast);
         $pcheck = substr($string, -$slast);
@@ -507,7 +512,8 @@ if (!function_exists('strippadding')) {
 
 
 if (!function_exists('toDotNetUrlEncode')) {
-    function toDotNetUrlEncode($source){
+    function toDotNetUrlEncode($source)
+    {
         $search = [
             '%2d',
             '%5f',
@@ -538,25 +544,25 @@ if (!function_exists('getYoutubeEmbedUrl')) {
         $baseUrlRegex = '/youtu.be\/([a-zA-Z0-9_-]+)\??/i';
         $longUrlRegex = '/youtube.com\/((?:embed)|(?:watch))((?:\?v\=)|(?:\/))([a-zA-Z0-9_-]+)/i';
         $shortsUrlRegex = '/youtube.com\/shorts\/([a-zA-Z0-9_-]+)/i';
-   
-        $youtube_id = "";
-       if (preg_match($longUrlRegex, $url, $matches)) {
-           $youtube_id = $matches[count($matches) - 1];
-       }
-   
-       if (preg_match($baseUrlRegex, $url, $matches)) {
-           $youtube_id = $matches[count($matches) - 1];
-       }
-   
-       if (preg_match($shortsUrlRegex, $url, $matches)) {
-           $youtube_id = $matches[count($matches) - 1];
-       }
 
-       if($youtube_id){
-        return 'https://www.youtube.com/embed/' . $youtube_id ;
-       }else{
-        return "";
-       }
+        $youtube_id = "";
+        if (preg_match($longUrlRegex, $url, $matches)) {
+            $youtube_id = $matches[count($matches) - 1];
+        }
+
+        if (preg_match($baseUrlRegex, $url, $matches)) {
+            $youtube_id = $matches[count($matches) - 1];
+        }
+
+        if (preg_match($shortsUrlRegex, $url, $matches)) {
+            $youtube_id = $matches[count($matches) - 1];
+        }
+
+        if ($youtube_id) {
+            return 'https://www.youtube.com/embed/' . $youtube_id;
+        } else {
+            return "";
+        }
     }
 }
 
@@ -579,7 +585,7 @@ if (!function_exists('getTimeDescribe')) {
     {
         $currentTime = time();
         $timeDifference = $currentTime - $timestamp;
-        
+
         if ($timeDifference < 60) {
             return "剛剛";
         } elseif ($timeDifference < 3600) {
@@ -605,7 +611,6 @@ if (!function_exists('getTimeDescribe')) {
             $years = floor($timeDifference / 31536000);
             return $years . "年前";
         }
-
     }
 }
 
@@ -615,11 +620,11 @@ function redisInit()
     $redis = null;
     if (extension_loaded('redis')) {
         $redisConfig = \think\Config::get("redis");
-        if($redisConfig){
+        if ($redisConfig) {
             $redisClass = new \app\common\library\token\driver\Redis($redisConfig);
             $redis = $redisClass->handler();
         }
-    }else{
+    } else {
         // \think\Log::notice("need redis");
     }
     return $redis;
@@ -647,7 +652,7 @@ if (!function_exists('calculateComply')) {
         }
 
         if ($mPred->pred_type == 1) {
-            // ======== 讓分盤 ========
+            // ======== 讓分盤（修正版） ========
             $hasHomeLine  = !empty($mPred->master_refund);   // 主讓?
             $hasAwayLine  = !empty($mPred->guests_refund);   // 客讓?
             $lineStr      = $hasHomeLine ? $mPred->master_refund : $mPred->guests_refund;
@@ -655,28 +660,33 @@ if (!function_exists('calculateComply')) {
                 \think\Log::notice('讓分有誤, pred_id:' . $mPred->id);
                 return;
             }
-            
+
             // 盤口方：true=主隊是盤口(主讓)、false=客隊是盤口(客讓)
             $isHomeLine = $hasHomeLine;
-            
+
             // 玩家押注方：true=押主、false=押客
             $betOnHome = ((int)$mPred->winteam) === 1;
 
             // 以「盤口方」做分差：盤口方分數 - 對手分數
             $diff = $isHomeLine ? ($masterScore - $guestsScore) : ($guestsScore - $masterScore);
 
-            // 解析盤口數值與退水百分比
+            // 解析：H 與 P，記住是 '+' 還是 '-'
+            $isPlus = false;
+            $isMinus = false;
             $hasPercent = false;
-            if (strpos($lineStr, '-') !== false) {
+            if (strpos($lineStr, '+') !== false) {
                 $hasPercent = true;
-                [$H, $P] = explode('-', $lineStr) + [0, 0];
-            } elseif (strpos($lineStr, '+') !== false) {
-                $hasPercent = true;
+                $isPlus = true;
                 [$H, $P] = explode('+', $lineStr) + [0, 0];
+            } elseif (strpos($lineStr, '-') !== false) {
+                $hasPercent = true;
+                $isMinus = true;
+                [$H, $P] = explode('-', $lineStr) + [0, 0];
             } else {
                 $H = $lineStr;
                 $P = 0;
             }
+
             $H = (float)$H;
             $P = (float)$P;
 
@@ -685,36 +695,46 @@ if (!function_exists('calculateComply')) {
 
             // === 判斷輸贏 ===
             if ($diff > $H) {
-                // 盤口方過盤：押盤口方贏，反之輸
+                // 盤口方過盤：押盤口方贏
                 $mPred->comply       = $bettorPickedLineTeam ? 1 : 2;
                 $mPred->result_ratio = $bettorPickedLineTeam ? +100 : -100;
             } elseif ($diff < $H) {
-                // 盤口方未過盤：押盤口方輸，對面贏
+                // 盤口方未過盤：押盤口方輸
                 $mPred->comply       = $bettorPickedLineTeam ? 2 : 1;
                 $mPred->result_ratio = $bettorPickedLineTeam ? -100 : +100;
             } else {
-                // 打平盤
+                // 平盤
                 if ($hasPercent && $P > 0) {
-                    // 有退水：盤口方在平盤時吃退水（=盤口方輸 P%，對面贏 P%）
-                    $mPred->comply       = $bettorPickedLineTeam ? 2 : 1;
-                    $mPred->result_ratio = $bettorPickedLineTeam ? -$P : +$P;
+                    if ($isPlus) {
+                        // +P：盤口方贏 P%
+                        $mPred->comply       = $bettorPickedLineTeam ? 1 : 2;
+                        $mPred->result_ratio = $bettorPickedLineTeam ? +$P : -$P;
+                    } elseif ($isMinus) {
+                        // -P：盤口方輸 P%
+                        $mPred->comply       = $bettorPickedLineTeam ? 2 : 1;
+                        $mPred->result_ratio = $bettorPickedLineTeam ? -$P : +$P;
+                    }
                 } else {
-                    // 純數字盤：和局
+                    // 無百分比 → 和局
                     $mPred->comply       = 3;
                     $mPred->result_ratio = 0;
                 }
             }
         } else {
-            // ======== 大小盤 ========
+            // ======== 大小盤（修正版） ========
             $bigscore = $mPred->bigscore;
+            $isPlus = false;
+            $isMinus = false;
             $hasPercent = false;
 
-            if (strpos($bigscore, '-') !== false) {
+            if (strpos($bigscore, '+') !== false) {
                 $hasPercent = true;
-                [$T, $P] = explode('-', $bigscore) + [0, 0];
-            } elseif (strpos($bigscore, '+') !== false) {
-                $hasPercent = true;
+                $isPlus = true;
                 [$T, $P] = explode('+', $bigscore) + [0, 0];
+            } elseif (strpos($bigscore, '-') !== false) {
+                $hasPercent = true;
+                $isMinus = true;
+                [$T, $P] = explode('-', $bigscore) + [0, 0];
             } else {
                 $T = $bigscore;
                 $P = 0;
@@ -728,25 +748,30 @@ if (!function_exists('calculateComply')) {
 
             if ($sum > $T) {
                 // 大分贏，小分輸
-                $mPred->comply = $isOver ? 1 : 2;
+                $mPred->comply       = $isOver ? 1 : 2;
                 $mPred->result_ratio = $isOver ? +100 : -100;
             } elseif ($sum < $T) {
                 // 小分贏，大分輸
-                $mPred->comply = $isOver ? 2 : 1;
+                $mPred->comply       = $isOver ? 2 : 1;
                 $mPred->result_ratio = $isOver ? -100 : +100;
             } else {
-                // 打平盤
+                // 平盤
                 if ($hasPercent && $P > 0) {
-                    // 有退水：押大輸 P%，押小贏 P%
-                    $mPred->comply = $isOver ? 2 : 1;
-                    $mPred->result_ratio = $isOver ? -$P : +$P;
+                    if ($isPlus) {
+                        // +P：押大贏 P%、押小輸 P%
+                        $mPred->comply       = $isOver ? 1 : 2;
+                        $mPred->result_ratio = $isOver ? +$P : -$P;
+                    } elseif ($isMinus) {
+                        // -P：押大輸 P%、押小贏 P%
+                        $mPred->comply       = $isOver ? 2 : 1;
+                        $mPred->result_ratio = $isOver ? -$P : +$P;
+                    }
                 } else {
-                    // 無 ± → 真正平手
-                    $mPred->comply = 3;
+                    // 無百分比 → 和局
+                    $mPred->comply       = 3;
                     $mPred->result_ratio = 0;
                 }
             }
-
         }
 
         // === 模擬勝率調整 ===
@@ -792,4 +817,3 @@ if (!function_exists('calculateComply')) {
         $mPred->save();
     }
 }
-
