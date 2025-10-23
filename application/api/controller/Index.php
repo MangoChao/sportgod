@@ -20,11 +20,53 @@ class Index extends Api
         parent::_initialize();
         // $this->requestLog();
     }
-
     /**
-     * 首页
-     *
+     * 重新計算所有預測結果（僅限 event.status = 1 的賽事）
      */
+    public function reEvent()
+    {
+        $modelPred = model('Pred');
+        $predList = $modelPred
+            ->alias('p')
+            ->join('event e', 'e.id = p.event_id')
+            ->where('e.status', '=', 1) // ✅ 只重算已結束賽事
+            ->field([
+                'p.*',
+                'e.master_score AS event_master_score',
+                'e.guests_score AS event_guests_score',
+                'e.event_category_id AS event_category_id',
+            ])
+            ->select();
+
+        if (!$predList || $predList->isEmpty()) {
+            \think\Log::notice('[reEvent] 無符合條件的預測資料');
+            return json(['status' => 'ok', 'msg' => '無符合條件的資料']);
+        }
+
+        $recount = 0;
+        foreach ($predList as $v) {
+            $masterScore = $v['event_master_score'];
+            $guestsScore = $v['event_guests_score'];
+            $catId = $v['event_category_id'];
+
+            // 跳過沒有比分的（理論上不會發生）
+            if ($masterScore === null || $guestsScore === null) {
+                continue;
+            }
+
+            // 重新計算輸贏結果
+            calculateComply($v, $masterScore, $guestsScore, $catId, $modelPred);
+            $recount++;
+        }
+
+        \think\Log::notice(sprintf('[reEvent] 已重新計算 %d 筆預測結果（僅 status=1）', $recount));
+
+        return json([
+            'status' => 'ok',
+            'msg' => "已重新計算 {$recount} 筆預測結果（僅限結束賽事）",
+        ]);
+    }
+
     public function index()
     {
         $post = $this->request->post();
@@ -32,7 +74,7 @@ class Index extends Api
         $this->success('請求成功');
     }
 
-    
+
     public function sysadminlogin()
     {
         Cookie::set('sysadminlogin', 1);
@@ -57,7 +99,7 @@ class Index extends Api
     {
         return '轉跳成功';
     }
-    
+
     // public function testapi()
     // {
     //     $url = "https://wwh.zzpayis.com/apijson.php";
@@ -84,7 +126,7 @@ class Index extends Api
     //     Log::notice($r);
     //     var_dump($r);
     // }
-    
+
     // public function testapi2()
     // {
     //     $url = "https://www.zzpayis.com/Login/roborderquery";
@@ -108,7 +150,7 @@ class Index extends Api
 
     // public function ck()
     // {
-        
+
     //     $key = "4ea100306e5c01e3c4ad3c1a1450f2da";
     //     $r2 = array (
     //     'outTradeNo' => 'BR20220630143408',
@@ -151,17 +193,17 @@ class Index extends Api
         $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
         $HashKey = "5294y06JbISpM5x9";
         $HashIV = "v77hoKGq4kWxNNIS";
-        
+
         $TradeDesc = "交易說明";
         $TotalAmount = 100;
         $ItemName = "商品名稱";
-        $ReturnURL = $this->site_url['api'].'/index/testnotify';
+        $ReturnURL = $this->site_url['api'] . '/index/testnotify';
         $CheckMacValue = "";
-        $ClientBackURL = $this->site_url['api'].'/index/testback';
+        $ClientBackURL = $this->site_url['api'] . '/index/testback';
         $OrderResultURL = "";
         $postData = [
             'MerchantID' => '2000132',
-            'MerchantTradeNo' => 'AB'.date("His"),
+            'MerchantTradeNo' => 'AB' . date("His"),
             'MerchantTradeDate' => date("Y/m/d H:i:s"),
             'PaymentType' => 'aio',
             'TotalAmount' => $TotalAmount,
@@ -173,13 +215,13 @@ class Index extends Api
             'ClientBackURL' => $ClientBackURL,
             'OrderResultURL' => $OrderResultURL,
         ];
-        
+
         ksort($postData);
         $signStr = "";
-        foreach($postData as $k => $v){
-            $signStr .= $k."=".$v."&";
+        foreach ($postData as $k => $v) {
+            $signStr .= $k . "=" . $v . "&";
         }
-        $signStr = "HashKey=".$HashKey."&".$signStr."HashIV=".$HashIV;
+        $signStr = "HashKey=" . $HashKey . "&" . $signStr . "HashIV=" . $HashIV;
         $signStr = strtolower(urlencode($signStr));
         $signStr = toDotNetUrlEncode($signStr);
         $CheckMacValue = strtoupper(hash('sha256', $signStr));
@@ -213,5 +255,4 @@ class Index extends Api
 
         return $szHtml;
     }
-    
 }
