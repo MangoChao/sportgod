@@ -38,7 +38,7 @@ class Index extends Api
             ])
             ->select();
 
-        if (!$predList || $predList->isEmpty()) {
+        if (!$predList) {
             \think\Log::notice('[reEvent] 無符合條件的預測資料');
             return json(['status' => 'ok', 'msg' => '無符合條件的資料']);
         }
