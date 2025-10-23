@@ -153,35 +153,35 @@ if (!function_exists('rmdirs')) {
     }
 }
 
-if (!function_exists('copydirs')) {
+// if (!function_exists('copydirs')) {
 
-    /**
-     * 复制文件夹
-     * @param string $source 源文件夹
-     * @param string $dest   目标文件夹
-     */
-    function copydirs($source, $dest)
-    {
-        if (!is_dir($dest)) {
-            mkdir($dest, 0755, true);
-        }
-        foreach (
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::SELF_FIRST
-            ) as $item
-        ) {
-            if ($item->isDir()) {
-                $sontDir = $dest . DS . $iterator->getSubPathName();
-                if (!is_dir($sontDir)) {
-                    mkdir($sontDir, 0755, true);
-                }
-            } else {
-                copy($item, $dest . DS . $iterator->getSubPathName());
-            }
-        }
-    }
-}
+//     /**
+//      * 复制文件夹
+//      * @param string $source 源文件夹
+//      * @param string $dest   目标文件夹
+//      */
+//     function copydirs($source, $dest)
+//     {
+//         if (!is_dir($dest)) {
+//             mkdir($dest, 0755, true);
+//         }
+//         foreach (
+//             $iterator = new RecursiveIteratorIterator(
+//                 new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+//                 RecursiveIteratorIterator::SELF_FIRST
+//             ) as $item
+//         ) {
+//             if ($item->isDir()) {
+//                 $sontDir = $dest . DS . $iterator->getSubPathName();
+//                 if (!is_dir($sontDir)) {
+//                     mkdir($sontDir, 0755, true);
+//                 }
+//             } else {
+//                 copy($item, $dest . DS . $iterator->getSubPathName());
+//             }
+//         }
+//     }
+// }
 
 if (!function_exists('mb_ucfirst')) {
     function mb_ucfirst($string)
@@ -461,7 +461,7 @@ if (!function_exists('create_mpg_aes_encrypt')) {
 /**
      * AES加密
      */
-    function create_mpg_aes_encrypt($parameter = "" , $key = "", $iv = "") {
+    function create_mpg_aes_encrypt($parameter = null , $key = "", $iv = "") {
         $return_str = '';
         if (!empty($parameter)) {
             //將參數經過 URL ENCODED QUERY STRING
@@ -629,5 +629,152 @@ if (!function_exists('getRedis')) {
     function getRedis()
     {
         return $GLOBALS['redis'];
+    }
+}
+
+if (!function_exists('calculateComply')) {
+    function calculateComply(&$mPred, $masterScore, $guestsScore, $catId, $modelPred)
+    {
+        $mPred->master_score = $masterScore;
+        $mPred->guests_score = $guestsScore;
+
+        if ($masterScore == -1 || $guestsScore == -1) {
+            $mPred->comply = -1;
+            $mPred->save();
+            return;
+        }
+
+        if ($mPred->pred_type == 1) {
+            // ======== 讓分盤 ========
+            $lineStr = $mPred->master_refund ?: $mPred->guests_refund;
+            if (!$lineStr) {
+                \think\Log::notice('讓分有誤, pred_id:' . $mPred->id);
+                return;
+            }
+
+            $winscore = $mPred->master_refund ?
+                ($masterScore - $guestsScore) : ($guestsScore - $masterScore);
+
+            // 解析 "4+50" or "4" or "4-25"
+            $minus = false;
+            if (strpos($lineStr, '-') !== false) {
+                $minus = true;
+                [$H, $P] = explode('-', $lineStr) + [0, 0];
+            } elseif (strpos($lineStr, '+') !== false) {
+                [$H, $P] = explode('+', $lineStr) + [0, 0];
+            } else {
+                $H = $lineStr;
+                $P = 0;
+            }
+
+            $H = floatval($H);
+            $P = floatval($P);
+            if ($minus) {
+                $H += 1; // 與你原本邏輯一致：負號盤+1處理
+            }
+
+            $pickHome = ($mPred->master_refund !== null && $mPred->winteam == 1)
+                || ($mPred->guests_refund !== null && $mPred->winteam == 0);
+
+            // === 判斷輸贏 ===
+            if ($winscore > $H) {
+                $mPred->comply = $pickHome ? 1 : 2;
+                $mPred->result_ratio = $pickHome ? +100 : -100;
+            } elseif ($winscore < $H) {
+                $mPred->comply = $pickHome ? 2 : 1;
+                $mPred->result_ratio = $pickHome ? -100 : +100;
+            } else {
+                // 相等 => 按退水比例
+                $delta = round($P);
+                $mPred->comply = ($delta == 0) ? -1 : ($pickHome ? 1 : 2);
+                $mPred->result_ratio = $pickHome ? +$delta : -$delta;
+            }
+        } else {
+            // ======== 大小盤 ========
+            $bigscore = $mPred->bigscore;
+            $minus = false;
+            if (strpos($bigscore, '-') !== false) {
+                $minus = true;
+                [$T, $P] = explode('-', $bigscore) + [0, 0];
+            } elseif (strpos($bigscore, '+') !== false) {
+                [$T, $P] = explode('+', $bigscore) + [0, 0];
+            } else {
+                $T = $bigscore;
+                $P = 0;
+            }
+
+            $T = floatval($T);
+            $P = floatval($P);
+            if ($minus) {
+                $T += 1; // 保留原邏輯
+            }
+
+            $sum = $masterScore + $guestsScore;
+            $isOver = ($mPred->bigsmall == 1);
+
+            if ($sum > $T) {
+                $mPred->comply = $isOver ? 1 : 2;
+                $mPred->result_ratio = $isOver ? +100 : -100;
+            } elseif ($sum < $T) {
+                $mPred->comply = $isOver ? 2 : 1;
+                $mPred->result_ratio = $isOver ? -100 : +100;
+            } else {
+                $delta = round($P);
+                $mPred->comply = ($delta == 0) ? -1 : ($isOver ? 1 : 2);
+                $mPred->result_ratio = $isOver ? -$delta : +$delta;
+            }
+        }
+
+        // === 判斷是否需要模擬調整勝率 ===
+        if ($mPred->isauto == 1 && $mPred->isread == 0 && $mPred->comply == 2) {
+            // 計算該分析師在此分類勝率
+            $stats = $modelPred->alias('p')
+                ->join('event e', 'e.id = p.event_id')
+                ->where('p.analyst_id', $mPred->analyst_id)
+                ->where('e.event_category_id', $catId)
+                ->where('p.comply', 'in', [1, 2])
+                ->field([
+                    "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END) AS wins",
+                    "SUM(CASE WHEN p.comply = 2 THEN 1 ELSE 0 END) AS loses"
+                ])
+                ->find();
+
+            $wins  = (int)($stats['wins'] ?? 0);
+            $loses = (int)($stats['loses'] ?? 0);
+            $total = $wins + $loses;
+            $rate  = $total > 0 ? ($wins / $total) : 0;
+
+            // 如果勝率低於 80%，就反向修改結果
+            if ($rate < 0.8) {
+                $mPred->comply = 1;
+                $mPred->result_ratio = abs($mPred->result_ratio); // 強制轉正（贏）
+                if ($mPred->pred_type == 1) {
+                    if ($mPred->winteam == 0) {
+                        $mPred->winteam = 1;
+                    } elseif ($mPred->winteam == 1) {
+                        $mPred->winteam = 0;
+                    }
+                } elseif ($mPred->pred_type == 2) {
+                    if ($mPred->bigsmall == 0) {
+                        $mPred->bigsmall = 1;
+                    } elseif ($mPred->bigsmall == 1) {
+                        $mPred->bigsmall = 0;
+                    }
+                }
+
+                \think\Log::notice(sprintf(
+                    '[模擬調整] analyst_id=%d cat=%d 原勝率=%.2f%%，已反轉 pred_id=%d winteam=%d bigsmall=%d 結果為 comply=%d',
+                    $mPred->analyst_id,
+                    $catId,
+                    $rate * 100,
+                    $mPred->id,
+                    $mPred->winteam,
+                    $mPred->bigsmall,
+                    $mPred->comply
+                ));
+            }
+        }
+
+        $mPred->save();
     }
 }

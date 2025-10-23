@@ -111,125 +111,29 @@ class Event extends Backend
                 $result = false;
                 Db::startTrans();
                 try {
-                    $mPred = model('Pred')->where("event_id = '".$ids."'")->select();
-                    if($mPred){
-                        if($newscore){
-                            //寫入預測結果
-                            foreach($mPred as $v){
-                                $v->master_score = $params['master_score'];
-                                $v->guests_score = $params['guests_score'];
-                                if($v->pred_type == 1){
-                                    if($v->master_refund != null){
-                                        // Log::notice($v->master_refund);
-                                        $winscore = $v->master_score - $v->guests_score;
-                                        $refund = $v->master_refund;
-                                        $minus = false;
-                                        $l = strpos($refund, '-');
-                                        if($l === false){
-                                            //+
-                                            $l = strpos($refund, '+');
-                                            if($l === false){
-                                                $l = mb_strlen($refund);
-                                            }
-                                        }else{
-                                            //-
-                                            $minus = true;
-                                        }
-                                        $refund = substr($refund, 0, $l);
-                                        if(!is_numeric($refund)){
-                                            Log::notice('refund非數字');
-                                            Log::notice($refund);
-                                            continue;
-                                        }
-                                        if($minus){
-                                            $refund = $refund+1;
-                                        }
-                                        if($winscore < $refund AND $v->winteam == 0){
-                                            $v->comply = 1;
-                                        }elseif($winscore >= $refund AND $v->winteam == 1){
-                                            $v->comply = 1;
-                                        }else{
-                                            $v->comply = 2;
-                                        }
-        
-                                    }elseif($v->guests_refund != null){
-                                        // Log::notice($v->guests_refund);
-                                        $winscore = $v->guests_score - $v->master_score;
-                                        $refund = $v->guests_refund;
-                                        $minus = false;
-                                        $l = strpos($refund, '-');
-                                        if($l === false){
-                                            //+
-                                            $l = strpos($refund, '+');
-                                            if($l === false){
-                                                $l = mb_strlen($refund);
-                                            }
-                                        }else{
-                                            //-
-                                            $minus = true;
-                                        }
-                                        $refund = substr($refund, 0, $l);
-                                        if(!is_numeric($refund)){
-                                            Log::notice('refund非數字');
-                                            Log::notice($refund);
-                                            continue;
-                                        }
-                                        if($minus){
-                                            $refund = $refund+1;
-                                        }
-                                        if($winscore < $refund AND $v->winteam == 1){
-                                            $v->comply = 1;
-                                        }elseif($winscore >= $refund AND $v->winteam == 0){
-                                            $v->comply = 1;
-                                        }else{
-                                            $v->comply = 2;
-                                        }
-                                    }else{
-                                        Log::notice('讓分有誤, pred_id:'.$v->id);
-                                        continue;
-                                    }
-                                }else{
-                                    $totalscore = $v->master_score + $v->guests_score;
-                                    $bigscore = $v->bigscore;
-                                    $minus = false;
-                                    $l = strpos($bigscore, '-');
-                                    if($l === false){
-                                        //+
-                                        $l = strpos($bigscore, '+');
-                                        if($l === false){
-                                            $l = mb_strlen($bigscore);
-                                        }
-                                    }else{
-                                        //-
-                                        $minus = true;
-                                    }
-                                    $bigscore = substr($bigscore, 0, $l);
-                                    if($minus){
-                                        $bigscore = $bigscore+1;
-                                    }
-        
-                                    if($totalscore < $bigscore AND $v->bigsmall == 0){
-                                        $v->comply = 1;
-                                    }elseif($totalscore >= $bigscore AND $v->bigsmall == 1){
-                                        $v->comply = 1;
-                                    }else{
-                                        $v->comply = 2;
-                                    }
+                    $result = $row->allowField(true)->save($params);
+                    
+                    if ($result !== false) {
+                        //就算結算過的也改
+                        $mPred = model('Pred')->where("event_id = '".$ids."'")->select();
+                        if($mPred){
+                            if($newscore){
+                                //寫入預測結果
+                                foreach($mPred as $v){
+                                    calculateComply($v, $row->master_score, $row->guests_score, $row->event_category_id, model("Pred"));
                                 }
-                                $v->save();
-                            }
-                        }else{
-                            //重置預測結果
-                            foreach($mPred as $v){
-                                $v->master_score = null;
-                                $v->guests_score = null;
-                                $v->comply = 0;
-                                $v->save();
+                            }else{
+                                //重置預測結果
+                                foreach($mPred as $v){
+                                    $v->master_score = null;
+                                    $v->guests_score = null;
+                                    $v->comply = 0;
+                                    $v->result_ratio = 0;
+                                    $v->save();
+                                }
                             }
                         }
                     }
-
-                    $result = $row->allowField(true)->save($params);
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();

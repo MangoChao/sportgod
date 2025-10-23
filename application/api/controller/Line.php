@@ -448,12 +448,14 @@ class Line extends Api
     private function sendHeatmap(): void
     {
         $img1 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap1.jpg';
-        $text1 = "跟著分析師推薦下注相同盤口
-每日總帳連輸七天，補回輸的金額！
-體育單場單日最高補助 $1,000，每週最高可補 $7,000。
-需每日截圖「分析師推薦場次」與「BC博球娛樂城注單」作為申請依據。
+        $text1 = "1️⃣ 連輸七天
+ 當周歷史總帳結果，連續七天皆負。
+2️⃣ 每日單場下注金額需達 $1,000 以上
+ 僅限體育賽事盤口。
+3️⃣ 需提供截圖
+ 提交「分析師推薦場次截圖」＋「BC博球娛樂城注單截圖」。
 
-※ 活動最終解釋權歸 賽事俱樂部 所有。";
+📌 全部條件達成後即可申請活動獎金，隔周二可申請 $7,000！";
         $img2 = $this->site_url['furl'].'/assets/img/linebot/heatmap/heatmap2.jpg';
         $text2 = "每日參加賽事預測，展現你的眼光與實力！
 每週勝率達80%並且獲利最高者即獲【預測王3萬獎金】💰
@@ -1438,6 +1440,7 @@ class Line extends Api
         $c = (int)$comply;
         if ($c === 1) return "✅";
         if ($c === 2) return "❌";
+        if ($c === 3) return "⚪"; // 平手
         return "⏳";
     }
 
@@ -1465,30 +1468,14 @@ class Line extends Api
      */
     private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
-        // 期間界線
-        if ($period === 'week') {
-            [$startTs, $endTs] = $this->getLastWeekRange();
-        } else { // 'month'
-            [$startTs, $endTs] = $this->getLastMonthRange();
-        }
+        // 共用查詢基底
+        $base = $this->buildAnalystRankingBase($categoryId, $period);
 
         // 統計欄位
         $winExpr   = "SUM(CASE WHEN p.comply = 1 THEN 1 ELSE 0 END)";
         $loseExpr  = "SUM(CASE WHEN p.comply = 2 THEN 1 ELSE 0 END)";
         $totalExpr = "({$winExpr} + {$loseExpr})";
         $rateExpr  = "CASE WHEN {$totalExpr} = 0 THEN 0 ELSE {$winExpr} / {$totalExpr} END";
-
-        // 基底查詢
-        $base = model('Analyst')->alias('a')
-            ->join('pred p',  'p.analyst_id = a.id')
-            ->join('event e', 'e.id = p.event_id')
-            ->where('p.comply', 'in', [1, 2])            // 只計 1=贏、2=輸
-            ->where('e.starttime', '>=', $startTs)
-            ->where('e.starttime', '<', $endTs);
-
-        if ($categoryId > 0) {
-            $base->where('e.event_category_id', '=', $categoryId);
-        }
 
         // 最終查詢（含欄位/群組/排序/限制）
         $final = clone $base;
@@ -1507,249 +1494,79 @@ class Line extends Api
     }
 
     /**
-     * 依期間統計分析師盈虧（每筆 pred 固定下注 10,000；讓分看 winteam、大小看 bigsmall）
+     * 依「盈虧」排行（上週／上月 + 類型過濾）
+     * 盈虧 = SUM(result_ratio) * stake / 100
+     * 僅計入 result_ratio != 0 的預測
      *
-     * @param int         $limit
-     * @param int|null    $categoryId
-     * @param 'week'|'month' $period
+     * @param int        $limit
+     * @param int|null   $categoryId
+     * @param string     $period       'week' | 'month'
+     * @param int        $stake        每筆下注金額
+     * @param bool       $printSql     是否輸出 SQL
      * @return array
      */
-    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period): array
+    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period, int $stake = 10000, bool $printSql = false): array
     {
-        // 期間（台北時區的上週 / 上月）
-        if ($period === 'week') {
-            [$startTs, $endTs] = $this->getLastWeekRange();
-        } else { // 'month'
-            [$startTs, $endTs] = $this->getLastMonthRange();
+        // 共用查詢基底
+        $base = $this->buildAnalystRankingBase($categoryId, $period);
+
+        // 聚合欄位
+        $profitExpr     = "SUM(p.result_ratio) * {$stake} / 100";
+        $winExpr        = "SUM(CASE WHEN p.result_ratio > 0 THEN 1 ELSE 0 END)";
+        $loseExpr       = "SUM(CASE WHEN p.result_ratio < 0 THEN 1 ELSE 0 END)";
+        $totalExpr      = "COUNT(*)";
+
+        // 組合最終查詢
+        $final = clone $base;
+        $final->field("
+            a.*,
+            {$profitExpr} AS profit,
+            {$winExpr} AS win_count,
+            {$loseExpr} AS lose_count,
+            {$totalExpr} AS total_count
+        ")
+        ->group('a.id')
+        ->having('total_count > 0')
+        ->order('profit DESC, total_count DESC, a.id ASC')
+        ->limit($limit);
+
+        if ($printSql) {
+            $sql = (clone $final)->fetchSql(true)->select();
+            Log::notice("[SQL][fetchTopAnalystsByProfit] {$sql}");
         }
 
-        // 每筆固定下注金額
-        $stake = 10000;
+        return $final->select() ?: [];
+    }
 
-        // 開關／輸出管道
-        $enableLog = true;
-        $log = function (string $msg) use ($enableLog) {
-            if (!$enableLog) return;
-            Log::info($msg);
-        };
 
-        // 解析「大小分」字串，例如 "159-75" => [thresholdT, percentP]
-        $parseBigscoreLine = function (?string $s) {
-            if ($s === null || $s === '') return null;
-            if (preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*$/', $s, $m)) {
-                return [floatval($m[1]), floatval($m[2])];
-            }
-            return null;
-        };
+    /**
+     * 取得期間範圍（週或月）
+     *
+     * @param string $period 'week' | 'month'
+     * @return array [startTs, endTs]
+     */
+    private function getPeriodRange(string $period): array
+    {
+        return $period === 'week'
+            ? $this->getLastWeekRange()
+            : $this->getLastMonthRange();
+    }
 
-        // 解析「讓分」字串，例如 "4+50" => [handicapH, percentP]
-        $parseRefundLine = function (?string $s) {
-            if ($s === null || $s === '') return null;
-            if (preg_match('/^\s*([+-]?\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)\s*$/', $s, $m)) {
-                return [floatval($m[1]), floatval($m[2])];
-            }
-            return null;
-        };
+    private function buildAnalystRankingBase(?int $categoryId, string $period)
+    {
+        [$startTs, $endTs] = $this->getPeriodRange($period);
 
-        // === 取資料（不再拿 e_* 分數，但保留 event join 做時間/分類篩選） ===
-        $q = model('Pred')->alias('p')
-            ->join('analyst a', 'a.id = p.analyst_id')
-            ->join('event e',   'e.id = p.event_id')
+        $base = model('Analyst')->alias('a')
+            ->join('pred p', 'p.analyst_id = a.id')
+            ->join('event e', 'e.id = p.event_id')
             ->where('e.starttime', '>=', $startTs)
-            ->where('e.starttime', '<=', $endTs);
+            ->where('e.starttime', '<', $endTs);
 
         if ($categoryId > 0) {
-            $q->where('e.event_category_id', '=', $categoryId);
+            $base->where('e.event_category_id', '=', $categoryId);
         }
 
-        $rows = $q->field([
-            'a.id'             => 'id',
-            'a.analyst_name'   => 'analyst_name',
-            'p.id'             => 'pred_id',
-            'p.event_id'       => 'event_id',
-            'p.pred_type'      => 'pred_type',     // 1=讓分, 2=大小
-            'p.winteam'        => 'winteam',       // 讓分押注方向：1主/0客
-            'p.master_refund'  => 'master_refund', // 讓分盤口(主)
-            'p.guests_refund'  => 'guests_refund', // 讓分盤口(客) —— 兩者僅一個有值
-            'p.bigsmall'       => 'bigsmall',      // 大小押注：1大/0小
-            'p.bigscore'       => 'bigscore',      // 大小盤口 "T-P"
-            // 只用 pred 內比分
-            'p.master_score'   => 'p_home_score',
-            'p.guests_score'   => 'p_away_score',
-        ])->select();
-
-        $log(sprintf(
-            '[fetchTopAnalystsByProfit] period=%s start=%s end=%s rows=%d',
-            $period,
-            date('c', $startTs),
-            date('c', $endTs),
-            count($rows)
-        ));
-
-        // === 彙總器 ===
-        $agg = []; // analyst_id => [analyst_id, analyst_name, profit, win, lose, total]
-
-        foreach ($rows as $idx => $r) {
-            $aid     = (int)$r['id'];
-            $predId  = (int)$r['pred_id'];
-            $eventId = (int)$r['event_id'];
-            $pType   = (int)$r['pred_type'];
-
-            $home = ($r['p_home_score'] === null || $r['p_home_score'] === '') ? null : floatval($r['p_home_score']);
-            $away = ($r['p_away_score'] === null || $r['p_away_score'] === '') ? null : floatval($r['p_away_score']);
-
-            if ($home === null || $away === null) {
-                $log(sprintf(
-                    '  - skip row#%d pred=%d evt=%d: missing score home=%s away=%s',
-                    $idx,
-                    $predId,
-                    $eventId,
-                    var_export($r['p_home_score'], true),
-                    var_export($r['p_away_score'], true)
-                ));
-                continue;
-            }
-
-            if (!isset($agg[$aid])) {
-                $agg[$aid] = [
-                    'id'   => $aid,
-                    'analyst_name' => (string)$r['analyst_name'],
-                    'profit'       => 0,
-                    'win_count'          => 0,
-                    'lose_count'         => 0,
-                    'total_count'        => 0,
-                ];
-            }
-
-            $resultMoney = 0;
-            $explain = '';
-
-            if ($pType === 1) {
-                // ===== 讓分：用 winteam 決定押主/客；盤口取 master_refund/guests_refund 任一有值的 H+P =====
-                $lineStr = !empty($r['master_refund']) ? $r['master_refund'] : (!empty($r['guests_refund']) ? $r['guests_refund'] : null);
-                $rf = $parseRefundLine($lineStr);
-                if ($rf === null) {
-                    $log(sprintf(
-                        '  - skip row#%d pred=%d evt=%d: invalid refund line "%s"',
-                        $idx,
-                        $predId,
-                        $eventId,
-                        var_export($lineStr, true)
-                    ));
-                    continue;
-                }
-                [$H, $P] = $rf;                // 讓分值與和局百分比
-                $pick = ((int)$r['winteam'] === 1) ? 'home' : 'away'; // 1=主, 0=客
-                $diff = $home - $away;
-
-                if ($diff > $H) {
-                    // 主過盤：押主贏、押客輸
-                    $resultMoney = ($pick === 'home') ? $stake : -$stake;
-                    $explain = sprintf('ATS diff=%.0f > H=%.0f pick=%s => %s%d', $diff, $H, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                } elseif ($diff < $H) {
-                    // 主未過盤：押主輸、押客贏
-                    $resultMoney = ($pick === 'home') ? -$stake : $stake;
-                    $explain = sprintf('ATS diff=%.0f < H=%.0f pick=%s => %s%d', $diff, $H, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                } else {
-                    // 相等：押主 +P% 、押客 -P%
-                    $delta = (int)round($stake * ($P / 100.0));
-                    $resultMoney = ($pick === 'home') ? +$delta : -$delta;
-                    $explain = sprintf('ATS diff=%.0f == H=%.0f P=%.0f%% pick=%s => %s%d', $diff, $H, $P, $pick, ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                }
-
-                $log(sprintf(
-                    '  * row#%d pred=%d evt=%d [ATS] score=%.0f:%.0f winteam=%s line=%s => %s',
-                    $idx,
-                    $predId,
-                    $eventId,
-                    $home,
-                    $away,
-                    (string)$r['winteam'],
-                    $lineStr,
-                    $explain
-                ));
-            } elseif ($pType === 2) {
-                // ===== 大小：bigsmall 1=大/0=小；盤口 "T-P" =====
-                $bs = $parseBigscoreLine($r['bigscore'] ?? '');
-                $flag = ($r['bigsmall'] === null || $r['bigsmall'] === '') ? null : intval($r['bigsmall']); // 1=大,0=小
-                if ($bs === null || $flag === null) {
-                    $log(sprintf(
-                        '  - skip row#%d pred=%d evt=%d: invalid bigscore/bigsmall bigscore=%s bigsmall=%s',
-                        $idx,
-                        $predId,
-                        $eventId,
-                        var_export($r['bigscore'], true),
-                        var_export($r['bigsmall'], true)
-                    ));
-                    continue;
-                }
-
-                [$T, $P] = $bs;             // 門檻與和局百分比
-                $sum = $home + $away;
-
-                if ($sum > $T) {
-                    // 大贏、小輸
-                    $resultMoney = ($flag === 1) ? $stake : -$stake;
-                    $explain = sprintf('OU sum=%.0f > T=%.0f pick=%s => %s%d', $sum, $T, ($flag === 1 ? 'Over' : 'Under'), ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                } elseif ($sum < $T) {
-                    // 小贏、大輸
-                    $resultMoney = ($flag === 0) ? $stake : -$stake;
-                    $explain = sprintf('OU sum=%.0f < T=%.0f pick=%s => %s%d', $sum, $T, ($flag === 1 ? 'Over' : 'Under'), ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                } else {
-                    // 相等：小 +P% 、大 -P%
-                    $delta = (int)round($stake * ($P / 100.0));
-                    $resultMoney = ($flag === 0) ? +$delta : -$delta;
-                    $explain = sprintf('OU sum=%.0f == T=%.0f P=%.0f%% pick=%s => %s%d', $sum, $T, $P, ($flag === 1 ? 'Over' : 'Under'), ($resultMoney >= 0 ? '+' : ''), $resultMoney);
-                }
-
-                $log(sprintf(
-                    '  * row#%d pred=%d evt=%d [OU] score=%.0f:%.0f bigscore=%s bigsmall=%s => %s',
-                    $idx,
-                    $predId,
-                    $eventId,
-                    $home,
-                    $away,
-                    (string)$r['bigscore'],
-                    (string)$r['bigsmall'],
-                    $explain
-                ));
-            } else {
-                // 未知玩法
-                $log(sprintf('  - skip row#%d pred=%d evt=%d: unknown pred_type=%s', $idx, $predId, $eventId, var_export($pType, true)));
-                continue;
-            }
-
-            // === 寫入彙總 ===
-            $agg[$aid]['profit'] += $resultMoney;
-            if ($resultMoney > 0) $agg[$aid]['win_count']++;
-            if ($resultMoney < 0) $agg[$aid]['lose_count']++;
-            $agg[$aid]['total_count']++;
-        }
-
-        // 排序：profit desc → total desc → analyst_id asc
-        usort($agg, function ($x, $y) {
-            if ($x['profit'] !== $y['profit']) return ($y['profit'] <=> $x['profit']);
-            if ($x['total_count']  !== $y['total_count'])  return ($y['total_count']  <=> $x['total_count']);
-            return ($x['id'] <=> $y['id']);
-        });
-
-        $top = array_slice($agg, 0, $limit);
-
-        // 最後列個總結
-        foreach ($top as $i => $row) {
-            $log(sprintf(
-                '[#%d] id=%d name=%s profit=%d win=%d lose=%d total=%d',
-                $i + 1,
-                $row['id'],
-                $row['analyst_name'],
-                $row['profit'],
-                $row['win_count'],
-                $row['lose_count'],
-                $row['total_count']
-            ));
-        }
-
-        return $top;
+        return $base;
     }
 
     private function buildAnalystRow($a): array

@@ -223,5 +223,11 @@ return [
     'showhome1' => '開始時間',
     'showhome2' => '結束時間',
     'line_pred_code status 0' => '未使用',
-    'line_pred_code status 1' => '已使用'
+    'line_pred_code status 1' => '已使用',
+    'comply status' => '預測結果',
+    'comply status 0' => '未確認',
+    'comply status 1' => '贏',
+    'comply status 2' => '輸',
+    'comply status 3' => '和',
+    'comply status -1' => '無效賽事',
 ];

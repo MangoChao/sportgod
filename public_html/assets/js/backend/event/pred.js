@@ -36,7 +36,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'bigscore', title: __('大小分')},
                         {field: 'master_score', title: __('主場得分')},
                         {field: 'guests_score', title: __('客場得分')},
-                        {field: 'comply', title: __('預測結果'), operate: 'LIKE', sortable: true, formatter: Controller.api.formatter.comply, searchList: {0: __('未確認'), 1: __('贏'), 2: __('輸')}},
+                        {field: 'comply', title: __('comply status'), operate: 'LIKE', sortable: true, formatter: Controller.api.formatter.comply, searchList: {0: __('comply status 0'), 1: __('comply status 1'), 2: __('comply status 2'), 3: __('comply status 3'), '-1': __('comply status -1')}},
+                        {field: 'result_ratio', title: __('輸贏比例(%)')},
                         {field: 'winteam', title: __('讓分'), operate: 'LIKE', sortable: true, formatter: Controller.api.formatter.winteam, searchList: {0: __('客場'), 1: __('主場')}},
                         {field: 'bigsmall', title: __('大小'), operate: 'LIKE', sortable: true, formatter: Controller.api.formatter.bigsmall, searchList: {0: __('小'), 1: __('大')}},
                         {field: 'pred_type', title: __('預測類型'), operate: 'LIKE', sortable: true, formatter: Controller.api.formatter.pred_type, searchList: {1: __('讓分'), 2: __('大小')}},
@@ -67,8 +68,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             },
             formatter:{
                 comply: function (value, row, index, custom) {
-                    var colorArr = {'0':'black','1':'success','2':'danger'};
-                    var valueArr = {'0': __('未確認'), '1': __('贏'), '2': __('輸')};
+                    var colorArr = {'0':'black','1':'success','2':'danger','3':'orange','-1':'gary'};
+                    var valueArr =  {0: __('comply status 0'), 1: __('comply status 1'), 2: __('comply status 2'), 3: __('comply status 3'), '-1': __('comply status -1')};
                     if (typeof custom !== 'undefined') {
                         colorArr = $.extend(colorArr, custom);
                     }
