@@ -1469,6 +1469,7 @@ class Line extends Api
      */
     private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
+        $printSql = true;
         //最小預測數
         $minTotalCount = $period === 'week' ? 10 : 40;
 
@@ -1489,8 +1490,10 @@ class Line extends Api
             ->order('winrate DESC, total_count DESC, a.id ASC')
             ->limit($limit);
 
-        // $sql = (clone $final)->fetchSql(true)->select();
-        // Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
+        if ($printSql) {
+            $sql = (clone $final)->fetchSql(true)->select();
+            Log::notice("[SQL][fetchTopAnalystsByWinrate] {$sql}");
+        }
 
         // 執行查詢
         $rows = $final->select();
@@ -1511,6 +1514,7 @@ class Line extends Api
      */
     private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period, int $stake = 10000, bool $printSql = false): array
     {
+        $printSql = true;
         //最小預測數
         $minTotalCount = $period === 'week' ? 10 : 40;
         
