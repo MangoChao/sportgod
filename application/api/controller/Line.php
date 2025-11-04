@@ -1469,9 +1469,9 @@ class Line extends Api
      */
     private function fetchTopAnalystsByWinrate(int $limit, ?int $categoryId, string $period): array
     {
-        $printSql = true;
+        $printSql = false;
         //最小預測數
-        $minTotalCount = $period === 'week' ? 10 : 40;
+        $minTotalCount = $period === 'week' ? 10 : 10;
 
         // 共用查詢基底
         $base = $this->buildAnalystRankingBase($categoryId, $period);
@@ -1512,9 +1512,9 @@ class Line extends Api
      * @param bool       $printSql     是否輸出 SQL
      * @return array
      */
-    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period, int $stake = 10000, bool $printSql = false): array
+    private function fetchTopAnalystsByProfit(int $limit, ?int $categoryId, string $period, int $stake = 10000): array
     {
-        $printSql = true;
+        $printSql = false;
         //最小預測數
         $minTotalCount = $period === 'week' ? 10 : 40;
         
@@ -1537,7 +1537,7 @@ class Line extends Api
             {$totalExpr} AS total_count
         ")
         ->group('a.id')
-        ->having('total_count >= '.$minTotalCount)
+        // ->having('total_count >= '.$minTotalCount)
         ->order('profit DESC, total_count DESC, a.id ASC')
         ->limit($limit);
 
