@@ -820,13 +820,16 @@ if (!function_exists('calculateComply')) {
 
 function getCookiePath($cookieFileName = 'cookie.txt')
 {
-    return __DIR__.'/../cookie/'.$cookieFileName;
+    $dir = __DIR__ . '/../cookie/';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+    return $dir . $cookieFileName;
 }
 
 function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
 {
-    $cookie = __DIR__.'/../cookie/'.$cookieFileName;
-
+    $cookie = getCookiePath($cookieFileName);
     \think\Log::notice("登錄取得cookie : ".$cookie);
     
     $curl = curl_init(); //初始化curl模塊
@@ -839,5 +842,7 @@ function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
     curl_exec($curl); //執行cURL
     curl_close($curl); //關閉cURL資源，並且釋放系統資源
+
+    return $cookie;
 }
 
