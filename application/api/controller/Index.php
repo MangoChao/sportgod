@@ -272,7 +272,70 @@ class Index extends Api
         Log::notice("----------content------------");
         Log::notice($content);
         Log::notice("----------content-end------------");
-        echo $content;
+
+
+        $billingDate = date('Y-m-d');      // 你也可改成指定日
+        $gameType    = 1;                  // 依需求可調（全場）
+        $betAmtType  = 1;                  // 依你的頁面預設
+        $page        = 1;
+        $res = $this->fetchHistoryPage($gameurl, $cookie, [
+            'billing_date'        => $billingDate,
+            'game_category'       => 1,
+            'game_type'           => $gameType,
+            'hd_type'             => 'undefined',
+            'bet_amount_type'     => $betAmtType,
+            'change_element_name' => 'page_num',
+            'page_num'            => $page,
+        ]);
+        Log::notice("----------res------------");
+        Log::notice($res);
+        Log::notice("----------res-end------------");
+        // echo $content;
+    }
+
+    
+    /**
+     * 依你提供的新請求格式打 OP 端點
+     * 回傳 json_decode 後的陣列（含 ajaxdata），失敗回 null
+     */
+    private function fetchHistoryPage($gameurl, string $cookie, array $fields): ?array
+    {
+        $url = $gameurl . '/op/history_events_show_op.php?pdisplay=select_change_reload';
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query($fields),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER         => false,
+            CURLOPT_COOKIEFILE     => $cookie,
+            CURLOPT_HTTPHEADER     => [
+                'accept: application/json, text/javascript, */*; q=0.01',
+                'content-type: application/x-www-form-urlencoded; charset=UTF-8',
+                'origin: ' . $gameurl,
+                'referer: ' . $gameurl . '/history_events_show_list.php?game_category=' . $fields['game_category'],
+                'x-requested-with: XMLHttpRequest',
+                'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+                'sec-ch-ua-mobile: ?0',
+                'sec-ch-ua-platform: "Windows"',
+                'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+            ],
+            CURLOPT_TIMEOUT        => 20,
+        ]);
+        $raw = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($raw === false || $raw === '' || $err) {
+            Log::notice("[fetchHistoryPage] cURL error: {$err}");
+            return null;
+        }
+        $json = json_decode($raw, true);
+        if (!is_array($json) || !isset($json['root']['ajaxdata'])) {
+            Log::notice("[fetchHistoryPage] JSON 格式不符");
+            return null;
+        }
+        return $json['root'];
     }
     
     private function get_content($url, $cookie) {
