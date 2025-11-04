@@ -830,7 +830,7 @@ function getCookiePath($cookieFileName = 'cookie.txt')
 function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
 {
     $cookie = getCookiePath($cookieFileName);
-    \think\Log::notice("登錄取得cookie : ".$cookie);
+    // \think\Log::notice("登錄取得cookie : ".$cookie);
     
     $curl = curl_init(); //初始化curl模塊
     curl_setopt($curl, CURLOPT_URL, $loginUrl); //登錄提交的地址
