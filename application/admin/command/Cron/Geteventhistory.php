@@ -46,19 +46,6 @@ class Geteventhistory extends Command
             Log::notice("[command][Cron][" . $func_name . "] 開始執行 " . date('Y-m-d H:i:s', time()));
             $modelEventcategory = new Eventcategory;
 
-            $url = $this->gameurl . "/login.php";
-            $post = [
-                'luserid' => $this->site['luserid'],
-                'lpassword' => $this->site['lpassword'],
-                'paction' => 'login-processing',
-                'remember' => 1
-            ];
-
-            Log::notice("[command][Cron][" . $func_name . "] 模擬登錄");
-            //模擬登錄
-            // $this->login_post($url, $cookie, $post);
-            $cookie = loginSetCookie($url, $post, 'hau888_cookie.txt');
-
             $co = 0;
             $comax = $modelEventcategory->where("status = 1")->count();
             $next = false;
@@ -69,8 +56,7 @@ class Geteventhistory extends Command
                     $mEventcategory->lastcron = time();
                     $mEventcategory->save();
                     Log::notice("[command][Cron][" . $func_name . "] 開始取得比分 - 類別:" . $mEventcategory->title);
-                    $content = $this->get_content($this->gameurl . '/history_events_show_list.php?game_category=' . $mEventcategory->game_category, $cookie);
-                    // $content = $this->get_content($this->gameurl.'/history_events_show_list.php?game_category=7', $cookie);
+                    $content = getSportSiteContent('history_events_show_list.php?game_category=' . $mEventcategory->game_category);
                     // Log::notice($content);
                     if (strpos($content, '目前無任何賽事') === false) {
                         $content_arr = explode(PHP_EOL, $content);
@@ -255,33 +241,6 @@ class Geteventhistory extends Command
         }
     }
 
-    private function login_post($url, $cookie, $post)
-    {
-        $curl = curl_init(); //初始化curl模塊
-        curl_setopt($curl, CURLOPT_URL, $url); //登錄提交的地址
-        curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
-        curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
-        curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
-        curl_exec($curl); //執行cURL
-        curl_close($curl); //關閉cURL資源，並且釋放系統資源
-    }
-
-    private function get_content($url, $cookie)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0); //是否显示头信息
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie); //讀取cookie
-
-        $rs = curl_exec($ch); //執行cURL抓取頁面內容
-        curl_close($ch);
-        return $rs;
-    }
-
     // 取代原本的 Geteventhistory()，改成呼叫新 OP API + 逐頁解析
     public function GeteventhistoryV2()
     {
@@ -289,18 +248,6 @@ class Geteventhistory extends Command
             $func_name = 'Geteventhistory';
             Log::notice("[command][Cron][{$func_name}] 開始執行 " . date('Y-m-d H:i:s'));
             $modelEventcategory = new Eventcategory;
-
-            // 1) 先登入（延用你現有 login_post/cookie 機制）
-            $urlLogin = $this->gameurl . "/login.php";
-            $postLogin = [
-                'luserid'   => $this->site['luserid'],
-                'lpassword' => $this->site['lpassword'],
-                'paction'   => 'login-processing',
-                'remember'  => 1,
-            ];
-            $cookie = './cookie.txt';
-            Log::notice("[command][Cron][{$func_name}] 模擬登錄");
-            $this->login_post($urlLogin, $cookie, $postLogin);
 
             // 2) 逐一跑啟用中的類別
             $comax = $modelEventcategory->where("status = 1")->count();
@@ -327,7 +274,7 @@ class Geteventhistory extends Command
                 $page        = 1;
 
                 // 第一次請求
-                $first = $this->fetchHistoryPage($cookie, [
+                $first = fetchSportSiteHistoryPage([
                     'billing_date'        => $billingDate,
                     'game_category'       => $cat->game_category,
                     'game_type'           => $gameType,
@@ -353,7 +300,7 @@ class Geteventhistory extends Command
                 if ($totalPages === 1) {
                     $page = 2;
                     while (true) {
-                        $resp = $this->fetchHistoryPage($cookie, [
+                        $resp = fetchSportSiteHistoryPage([
                             'billing_date'        => $billingDate,
                             'game_category'       => $cat->game_category,
                             'game_type'           => $gameType,
@@ -370,7 +317,7 @@ class Geteventhistory extends Command
                 } else {
                     // 有明確總頁數就照頁數依序抓完整
                     for ($p = 2; $p <= $totalPages; $p++) {
-                        $resp = $this->fetchHistoryPage($cookie, [
+                        $resp = fetchSportSiteHistoryPage([
                             'billing_date'        => $billingDate,
                             'game_category'       => $cat->game_category,
                             'game_type'           => $gameType,
@@ -396,50 +343,6 @@ class Geteventhistory extends Command
         } catch (Exception $e) {
             Log::notice("[command][Cron][Geteventhistory] Exception :" . $e->getMessage());
         }
-    }
-
-    /**
-     * 依你提供的新請求格式打 OP 端點
-     * 回傳 json_decode 後的陣列（含 ajaxdata），失敗回 null
-     */
-    private function fetchHistoryPage(string $cookie, array $fields): ?array
-    {
-        $url = $this->gameurl . '/op/history_events_show_op.php?pdisplay=select_change_reload';
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => $url,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query($fields),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER         => false,
-            CURLOPT_COOKIEFILE     => $cookie,
-            CURLOPT_HTTPHEADER     => [
-                'accept: application/json, text/javascript, */*; q=0.01',
-                'content-type: application/x-www-form-urlencoded; charset=UTF-8',
-                'origin: ' . $this->gameurl,
-                'referer: ' . $this->gameurl . '/history_events_show_list.php?game_category=' . $fields['game_category'],
-                'x-requested-with: XMLHttpRequest',
-                'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
-                'sec-ch-ua-mobile: ?0',
-                'sec-ch-ua-platform: "Windows"',
-                'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-            ],
-            CURLOPT_TIMEOUT        => 20,
-        ]);
-        $raw = curl_exec($ch);
-        $err = curl_error($ch);
-        curl_close($ch);
-
-        if ($raw === false || $raw === '' || $err) {
-            Log::notice("[fetchHistoryPage] cURL error: {$err}");
-            return null;
-        }
-        $json = json_decode($raw, true);
-        if (!is_array($json) || !isset($json['root']['ajaxdata'])) {
-            Log::notice("[fetchHistoryPage] JSON 格式不符");
-            return null;
-        }
-        return $json['root'];
     }
 
     /**

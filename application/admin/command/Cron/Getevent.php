@@ -40,18 +40,6 @@ class Getevent extends Command
             Log::notice("[command][Cron][".$func_name."] 開始執行 ".date('Y-m-d H:i:s',time()));
             $modelEventcategory = new Eventcategory;
 
-            $url = $this->gameurl."/login.php";
-            $post = [
-                'luserid' => $this->site['luserid'],
-                'lpassword' => $this->site['lpassword'],
-                'paction' => 'login-processing',
-                'remember' => 1
-            ];
-            Log::notice("[command][Cron][".$func_name."] 模擬登錄");
-            //模擬登錄
-            // $this->login_post($url, $cookie, $post);
-            $cookie = loginSetCookie($url, $post, 'hau888_cookie.txt');
-
             $co = 0;
             $comax = $modelEventcategory->where("status = 1")->count();
             $next = false;
@@ -62,7 +50,7 @@ class Getevent extends Command
                     $mEventcategory->lastcron = time();
                     $mEventcategory->save();
                     Log::notice("[command][Cron][".$func_name."] 開始取得賽事 - 類別:".$mEventcategory->title);
-                    $content = $this->get_content($this->gameurl.'/'.$mEventcategory->url, $cookie);
+                    $content = getSportSiteContent($mEventcategory->url);
                     if(strpos($content, '目前無任何賽事') === false){
                         $content_arr = explode(PHP_EOL,$content);
                         $trstart = false; //行開始
@@ -291,31 +279,4 @@ class Getevent extends Command
             return '';
         }
     }
-
-    private function login_post($url, $cookie, $post) {
-        $curl = curl_init();//初始化curl模塊
-        curl_setopt($curl, CURLOPT_URL, $url);//登錄提交的地址
-        curl_setopt($curl, CURLOPT_HEADER, 0);//是否显示头信息
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0);//是否自動顯示返回的信息
-        curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
-        curl_setopt($curl, CURLOPT_POST, 1);//post方式提交
-        
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post));//要提交的信息
-        curl_exec($curl);//執行cURL
-        curl_close($curl);//關閉cURL資源，並且釋放系統資源
-    }
-        
-    private function get_content($url, $cookie) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);//是否显示头信息
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie); //讀取cookie
-        
-        $rs = curl_exec($ch); //執行cURL抓取頁面內容
-        curl_close($ch);
-        return $rs;
-    }
-
-
 }

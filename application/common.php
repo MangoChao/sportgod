@@ -818,31 +818,151 @@ if (!function_exists('calculateComply')) {
     }
 }
 
-function getCookiePath($cookieFileName = 'cookie.txt')
-{
-    $dir = __DIR__ . '/../cookie/';
-    if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
+const SPORT_SITE_COOKIE = "sport_site_cookie.txt";
+
+//取快取路徑
+if (!function_exists('getCookiePath')) {
+    function getCookiePath($cookieFileName = 'cookie.txt')
+    {
+        $dir = __DIR__ . '/../cookie/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        return $dir . $cookieFileName;
     }
-    return $dir . $cookieFileName;
 }
 
-function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
-{
-    $cookie = getCookiePath($cookieFileName);
-    // \think\Log::notice("登錄取得cookie : ".$cookie);
-    
-    $curl = curl_init(); //初始化curl模塊
-    curl_setopt($curl, CURLOPT_URL, $loginUrl); //登錄提交的地址
-    curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
-    curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
-    curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
+//登入存快取
+if (!function_exists('loginSetCookie')) {
+    function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
+    {
+        $cookie = getCookiePath($cookieFileName);
+        // \think\Log::notice("登錄取得cookie : ".$cookie);
+        
+        $curl = curl_init(); //初始化curl模塊
+        curl_setopt($curl, CURLOPT_URL, $loginUrl); //登錄提交的地址
+        curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
+        curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
+        curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
 
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
-    curl_exec($curl); //執行cURL
-    curl_close($curl); //關閉cURL資源，並且釋放系統資源
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
+        curl_exec($curl); //執行cURL
+        curl_close($curl); //關閉cURL資源，並且釋放系統資源
 
-    return $cookie;
+        return $cookie;
+    }
+}
+
+//組合運動版網址
+if (!function_exists('getSportSiteUrl')) {
+    function getSportSiteUrl($uri = "") {
+        $sportSite = \think\Config::get("site.sport_site");
+        if($uri){
+            return $sportSite.'/'.$uri;
+        }
+        return $sportSite;
+    }
+}
+
+//登入運動版
+if (!function_exists('loginSportSite')) {
+    function loginSportSite() {
+        $url = getSportSiteUrl("login.php");
+        $post = [
+            'luserid' => \think\Config::get("site.luserid"),
+            'lpassword' => \think\Config::get("site.lpassword"),
+            'paction' => 'login-processing',
+            'remember' => 1
+        ];
+        loginSetCookie($url, $post, SPORT_SITE_COOKIE);
+    }
+}
+
+//取運動版內容
+if (!function_exists('getSportSiteContent')) {
+    function getSportSiteContent($uri, $reLogin = true) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, getSportSiteUrl($uri));
+        curl_setopt($ch, CURLOPT_HEADER, 0);//是否显示头信息
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, getCookiePath(SPORT_SITE_COOKIE)); //讀取cookie
+        
+        $rs = curl_exec($ch); //執行cURL抓取頁面內容
+        curl_close($ch);
+
+        if (empty($rs) || stripos($rs, 'login.php') !== false) {
+            \think\Log::notice("[getSportSiteContent] cookie 已失效");
+            // cookie 已失效
+            if ($reLogin){
+                \think\Log::notice("[getSportSiteContent] 嘗試重新登入...");
+                loginSportSite();
+                return getSportSiteContent($uri, false);
+            }else{
+                \think\Log::notice("[getSportSiteContent] 放棄登入");
+            }
+        }
+        return $rs;
+    }
+}
+
+//取運動版歷史, json方法
+if (!function_exists('fetchSportSiteHistoryPage')) {
+    function fetchSportSiteHistoryPage(array $fields, $reLogin = true): ?array
+    {
+        $url = getSportSiteUrl('op/history_events_show_op.php?pdisplay=select_change_reload');
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query($fields),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER         => false,
+            CURLOPT_COOKIEFILE     => getCookiePath(SPORT_SITE_COOKIE),
+            CURLOPT_HTTPHEADER     => [
+                'accept: application/json, text/javascript, */*; q=0.01',
+                'content-type: application/x-www-form-urlencoded; charset=UTF-8',
+                'origin: ' . getSportSiteUrl(),
+                'referer: ' . getSportSiteUrl('/history_events_show_list.php?game_category=' . $fields['game_category'] ?? ''),
+                'x-requested-with: XMLHttpRequest',
+                'sec-ch-ua: "Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+                'sec-ch-ua-mobile: ?0',
+                'sec-ch-ua-platform: "Windows"',
+                'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+            ],
+            CURLOPT_TIMEOUT        => 20,
+        ]);
+        $raw = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($raw === false || $raw === '' || $err) {
+            \think\Log::notice("[fetchSportSiteHistoryPage] cURL error: {$err}");
+            return null;
+        }
+        $json = json_decode($raw, true);
+        if (!is_array($json) || !isset($json['root']['ajaxdata'])) {
+            \think\Log::notice("[fetchSportSiteHistoryPage] JSON 格式不符");
+            return null;
+        }
+
+        $res = $json['root'];
+        if (
+            !$res ||
+            !empty($res['ajaxdata'][0]['rtntext']) &&
+            stripos($res['ajaxdata'][0]['rtntext'], 'login.php') !== false
+        ) {
+            \think\Log::notice("[fetchSportSiteHistoryPage] cookie 已失效");
+            // cookie 已失效
+            if ($reLogin){
+                \think\Log::notice("[fetchSportSiteHistoryPage] 嘗試重新登入...");
+                loginSportSite();
+                return fetchSportSiteHistoryPage($fields, false);
+            }else{
+                \think\Log::notice("[fetchSportSiteHistoryPage] 放棄登入");
+            }
+        }
+        return $res;
+    }
 }
 
