@@ -266,9 +266,7 @@ class Index extends Api
             'paction' => 'login-processing',
             'remember' => 1
         ];
-        $cookie = 'hau888_cookie.txt';
-        loginSetCookie($url, $post, $cookie);
-
+        $cookie = loginSetCookie($url, $post, 'hau888_cookie.txt');
         $content = $this->get_content($gameurl.'/today_events_show_list.php?is_start=0&game_category=1', $cookie);
         Log::notice("----------content------------");
         Log::notice($content);
