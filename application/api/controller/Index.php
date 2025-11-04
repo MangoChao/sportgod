@@ -258,38 +258,28 @@ class Index extends Api
     
     public function b88()
     {
-        // $gameurl = "https://agiv-2.hau888.net";
-        // $url = $gameurl . "/login.php";
-        // $post = [
-        //     'luserid' => '35817',
-        //     'lpassword' => 'a123456',
-        //     'paction' => 'login-processing',
-        //     'remember' => 1
-        // ];
-        // // $cookie = loginSetCookie($url, $post, 'hau888_cookie_test.txt');
-        // // $cookie = getCookiePath('hau888_cookie_test.txt');
-        $content = getSportSiteContent('today_events_show_list.php?is_start=0&game_category=1');
-        Log::notice("----------content------------");
-        Log::notice($content);
-        Log::notice("----------content-end------------");
+        // $content = getSportSiteContent('today_events_show_list.php?is_start=0&game_category=1');
+        // Log::notice("----------content------------");
+        // Log::notice($content);
+        // Log::notice("----------content-end------------");
 
 
-        $billingDate = date('Y-m-d');      // 你也可改成指定日
-        $gameType    = 1;                  // 依需求可調（全場）
-        $betAmtType  = 1;                  // 依你的頁面預設
-        $page        = 1;
-        $res = fetchSportSiteHistoryPage([
-            'billing_date'        => $billingDate,
-            'game_category'       => 1,
-            'game_type'           => $gameType,
-            'hd_type'             => 'undefined',
-            'bet_amount_type'     => $betAmtType,
-            'change_element_name' => 'page_num',
-            'page_num'            => $page,
-        ]);
-        Log::notice("----------res------------");
-        Log::notice($res);
-        Log::notice("----------res-end------------");
+        // $billingDate = date('Y-m-d');      // 你也可改成指定日
+        // $gameType    = 1;                  // 依需求可調（全場）
+        // $betAmtType  = 1;                  // 依你的頁面預設
+        // $page        = 1;
+        // $res = fetchSportSiteHistoryPage([
+        //     'billing_date'        => $billingDate,
+        //     'game_category'       => 1,
+        //     'game_type'           => $gameType,
+        //     'hd_type'             => 'undefined',
+        //     'bet_amount_type'     => $betAmtType,
+        //     'change_element_name' => 'page_num',
+        //     'page_num'            => $page,
+        // ]);
+        // Log::notice("----------res------------");
+        // Log::notice($res);
+        // Log::notice("----------res-end------------");
         // echo $content;
     }
 
