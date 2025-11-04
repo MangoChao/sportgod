@@ -25,5 +25,5 @@ return [
     'app\admin\command\Cron\Geteventhistory',
     'app\admin\command\Cron\Predevent',
     'app\admin\command\Cron\Dayreport',
-    'app\admin\command\Cron\Weekreport',
+    // 'app\admin\command\Cron\Weekreport',
 ];
