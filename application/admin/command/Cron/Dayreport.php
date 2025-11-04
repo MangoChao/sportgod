@@ -301,7 +301,6 @@ class Dayreport extends Command
                 'paction' => 'login-processing',
                 'remember' => 1
             ];
-            $cookie = './cookie.txt';
 
             // $game_category = [
             //     '1' => '美棒',
@@ -354,7 +353,8 @@ class Dayreport extends Command
 
             Log::notice("[command][Cron][".$func_name."] 模擬登錄");
             //模擬登錄
-            $this->login_post($url, $cookie, $post);
+            // $this->login_post($url, $cookie, $post);
+            $cookie = loginSetCookie($url, $post, 'hau888_cookie.txt');
 
             Log::notice("[command][Cron][".$func_name."] 抓取類別");
             //爬菜單

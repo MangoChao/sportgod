@@ -47,11 +47,10 @@ class Getevent extends Command
                 'paction' => 'login-processing',
                 'remember' => 1
             ];
-            $cookie = './cookie.txt';
-
             Log::notice("[command][Cron][".$func_name."] 模擬登錄");
             //模擬登錄
-            $this->login_post($url, $cookie, $post);
+            // $this->login_post($url, $cookie, $post);
+            $cookie = loginSetCookie($url, $post, 'hau888_cookie.txt');
 
             $co = 0;
             $comax = $modelEventcategory->where("status = 1")->count();
