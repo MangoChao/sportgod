@@ -818,27 +818,22 @@ if (!function_exists('calculateComply')) {
     }
 }
 
-const cookie = __DIR__.'/cookie.txt';
-function loginSetCookie()
+function getCookiePath($cookieFileName = 'cookie.txt')
 {
-    $gameurl = "https://agiv-2.hau888.net";
-    $url = $gameurl . "/login.php";
-    $post = [
-        'luserid' => '35817',
-        'lpassword' => 'a123456',
-        'paction' => 'login-processing',
-        'remember' => 1
-    ];
-    // $cookie = './cookie.txt';
-    // $cookie = __DIR__.'/cookie.txt';
+    return __DIR__.'/../cookie/'.$cookieFileName;
+}
 
-    \think\Log::notice("模擬登錄 : ".cookie);
+function loginSetCookie($loginUrl, $post = [], $cookieFileName = 'cookie.txt')
+{
+    $cookie = __DIR__.'/../cookie/'.$cookieFileName;
+
+    \think\Log::notice("登錄取得cookie : ".$cookie);
     
     $curl = curl_init(); //初始化curl模塊
-    curl_setopt($curl, CURLOPT_URL, $url); //登錄提交的地址
+    curl_setopt($curl, CURLOPT_URL, $loginUrl); //登錄提交的地址
     curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
-    curl_setopt($curl, CURLOPT_COOKIEJAR, cookie); //設置Cookie信息保存在指定的文件中
+    curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
     curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
 
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息

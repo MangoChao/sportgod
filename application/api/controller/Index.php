@@ -258,24 +258,17 @@ class Index extends Api
     
     public function b88()
     {
-        loginSetCookie();
         $gameurl = "https://agiv-2.hau888.net";
-        // $url = $gameurl . "/login.php";
-        // $post = [
-        //     'luserid' => '35817',
-        //     'lpassword' => 'a123456',
-        //     'paction' => 'login-processing',
-        //     'remember' => 1
-        // ];
-        // // $cookie = './cookie.txt';
-        // $cookie = __DIR__.'/cookie.txt';
+        $url = $gameurl . "/login.php";
+        $post = [
+            'luserid' => '35817',
+            'lpassword' => 'a123456',
+            'paction' => 'login-processing',
+            'remember' => 1
+        ];
+        $cookie = 'hau888_cookie.txt';
+        loginSetCookie($url, $post, $cookie);
 
-        // Log::notice("模擬登錄 : ".$cookie);
-        // //模擬登錄
-        // $this->login_post($url, $cookie, $post);
-        $cookie = "";
-
-        
         $content = $this->get_content($gameurl.'/today_events_show_list.php?is_start=0&game_category=1', $cookie);
         Log::notice("----------content------------");
         Log::notice($content);
