@@ -47,7 +47,7 @@ class Getevent extends Command
                 'paction' => 'login-processing',
                 'remember' => 1
             ];
-            $cookie = __DIR__.'/cookie.txt';
+            $cookie = './cookie.txt';
 
             Log::notice("[command][Cron][".$func_name."] 模擬登錄");
             //模擬登錄

@@ -817,3 +817,32 @@ if (!function_exists('calculateComply')) {
         $mPred->save();
     }
 }
+
+const cookie = __DIR__.'/cookie.txt';
+function loginSetCookie()
+{
+    $gameurl = "https://agiv-2.hau888.net";
+    $url = $gameurl . "/login.php";
+    $post = [
+        'luserid' => '35817',
+        'lpassword' => 'a123456',
+        'paction' => 'login-processing',
+        'remember' => 1
+    ];
+    // $cookie = './cookie.txt';
+    // $cookie = __DIR__.'/cookie.txt';
+
+    \think\Log::notice("模擬登錄 : ".cookie);
+    
+    $curl = curl_init(); //初始化curl模塊
+    curl_setopt($curl, CURLOPT_URL, $url); //登錄提交的地址
+    curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
+    curl_setopt($curl, CURLOPT_COOKIEJAR, cookie); //設置Cookie信息保存在指定的文件中
+    curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
+
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
+    curl_exec($curl); //執行cURL
+    curl_close($curl); //關閉cURL資源，並且釋放系統資源
+}
+
