@@ -255,4 +255,55 @@ class Index extends Api
 
         return $szHtml;
     }
+    
+    public function b88()
+    {
+        $gameurl = "https://agiv-2.hau888.net";
+        $url = $gameurl . "/login.php";
+        $post = [
+            'luserid' => '35817',
+            'lpassword' => 'a123456',
+            'paction' => 'login-processing',
+            'remember' => 1
+        ];
+        $cookie = './cookie.txt';
+
+        Log::notice("模擬登錄");
+        //模擬登錄
+        $this->login_post($url, $cookie, $post);
+
+        
+        $content = $this->get_content($gameurl.'/today_events_show_list.php?is_start=0&game_category=1', $cookie);
+        Log::notice("----------content------------");
+        Log::notice($content);
+        Log::notice("----------content-end------------");
+    }
+
+    
+    private function login_post($url, $cookie, $post)
+    {
+        $curl = curl_init(); //初始化curl模塊
+        curl_setopt($curl, CURLOPT_URL, $url); //登錄提交的地址
+        curl_setopt($curl, CURLOPT_HEADER, 0); //是否显示头信息
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 0); //是否自動顯示返回的信息
+        curl_setopt($curl, CURLOPT_COOKIEJAR, $cookie); //設置Cookie信息保存在指定的文件中
+        curl_setopt($curl, CURLOPT_POST, 1); //post方式提交
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post)); //要提交的信息
+        curl_exec($curl); //執行cURL
+        curl_close($curl); //關閉cURL資源，並且釋放系統資源
+    }
+    
+    private function get_content($url, $cookie) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);//是否显示头信息
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie); //讀取cookie
+        
+        $rs = curl_exec($ch); //執行cURL抓取頁面內容
+        curl_close($ch);
+        return $rs;
+    }
+
 }
