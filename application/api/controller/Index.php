@@ -266,9 +266,10 @@ class Index extends Api
             'paction' => 'login-processing',
             'remember' => 1
         ];
-        $cookie = './cookie.txt';
+        // $cookie = './cookie.txt';
+        $cookie = __DIR__.'/cookie.txt';
 
-        Log::notice("模擬登錄");
+        Log::notice("模擬登錄 : ".$cookie);
         //模擬登錄
         $this->login_post($url, $cookie, $post);
 
@@ -277,6 +278,7 @@ class Index extends Api
         Log::notice("----------content------------");
         Log::notice($content);
         Log::notice("----------content-end------------");
+        echo $content;
     }
 
     
