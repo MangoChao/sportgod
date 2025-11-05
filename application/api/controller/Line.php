@@ -474,7 +474,7 @@ class Line extends Api
             'type' => 'carousel',
             'contents' => [
                 $this->sendHeatmapBubble($img1, $text1),
-                $this->sendHeatmapBubble($img2, $text2),
+                $this->sendHeatmapBubble($img2, $text2, ['cmd' => 'reward', 'action' => 'first_prize', 'displayText' => '檢查資格..']),
                 $this->sendHeatmapBubble($img3, $text3)
             ]
         ];
@@ -488,7 +488,7 @@ class Line extends Api
         $this->sendReplyMessageCus([$message]);
     }
 
-    private function sendHeatmapBubble($img, $text)
+    private function sendHeatmapBubble($img, $text, $actionData = null)
     {
         $bubble = [
             'type' => 'bubble',
@@ -500,6 +500,15 @@ class Line extends Api
                 'aspectMode' => 'cover',
             ]
         ];
+        
+        // 如果有指定 postback 行為
+        if ($actionData) {
+            $bubble['hero']['action'] = [
+                'type' => 'postback',
+                'data' => json_encode($actionData, JSON_UNESCAPED_UNICODE),
+                'displayText' => $actionData['displayText']
+            ];
+        }
 
         if($text){
             $bubble['body'] = [
