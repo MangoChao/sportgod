@@ -425,11 +425,24 @@ class Line extends Api
                     $this->sendReplyMessage("分析師參數錯誤");
                 }
                 break;
-
+            case 'reward':
+                $action = $p['action'] ?? '';
+                if ($action === 'first_prize') {
+                    $this->getFirstPrize();
+                } else {
+                    $this->sendReplyMessage("尚未支援的操作。");
+                }
+                break;
             default:
                 $this->sendReplyMessage("尚未支援的操作。");
                 break;
         }
+    }
+    
+    private function getFirstPrize()
+    {
+        
+        $this->sendReplyMessage("您不符合活動獎金資格。");
     }
     
     private function activateAnalyst($code): void
