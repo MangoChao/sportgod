@@ -561,7 +561,7 @@ class Line extends Api
             
             $todayAndFuture = $this->fetchPredsCombined($analystId, $categoryId, $todayStart, $futureEnd, 'pending');
             // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
-            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 5, false, true);
+            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
             if (!empty($tmp)) {
                 $myPredMsgOne[] = $tmp[0]; // 只取一則，避免超過 5 則上限
             }
@@ -1178,7 +1178,7 @@ class Line extends Api
         ];
     }
 
-    private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 5, bool $showResult = false, bool $useCarousel = true): array
+    private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 8, bool $showResult = false, bool $useCarousel = true): array
     {
         if (empty($preds)) {
             return [[
@@ -1218,7 +1218,7 @@ class Line extends Api
             $rows = [];
             foreach ($chunk as $it) {
                 $rows[] = $this->buildPredRow($it, $showResult);
-                $rows[] = ["type" => "separator", "margin" => "xs"];
+                // $rows[] = ["type" => "separator", "margin" => "xs"];
             }
             if (!empty($rows)) array_pop($rows);
 
@@ -1725,13 +1725,13 @@ class Line extends Api
         // 1) 未結算（carousel: 同一則裡可左右滑）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "⏳ 未結算預測", 5, false, true)
+            $this->buildPredListBubbles($pending, "⏳ 未結算預測", 8, false, true)
         );
 
         // 2) 已結算（carousel）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測", 5, true, true)
+            $this->buildPredListBubbles($settled, "📊 已結算預測", 8, true, true)
         );
 
         // 3) 勝率（用上面新函式，與 pending/settled 同期間）
