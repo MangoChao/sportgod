@@ -1180,7 +1180,6 @@ class Line extends Api
 
     private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 8, bool $showResult = false, bool $useCarousel = true): array
     {
-        $rowsPerPage = 5;
         if (empty($preds)) {
             return [[
                 "type" => "flex",
@@ -1219,7 +1218,7 @@ class Line extends Api
             $rows = [];
             foreach ($chunk as $it) {
                 $rows[] = $this->buildPredRow($it, $showResult);
-                // $rows[] = ["type" => "separator", "margin" => "xs"];
+                $rows[] = ["type" => "separator", "margin" => "xs"];
             }
             if (!empty($rows)) array_pop($rows);
 
@@ -1231,7 +1230,6 @@ class Line extends Api
                 "header" => [
                     "type" => "box",
                     "layout" => "vertical",
-                    "margin" => "md",
                     "contents" => [[
                         "type" => "text",
                         "text" => $title,
@@ -1242,6 +1240,7 @@ class Line extends Api
                 "body" => [
                     "type" => "box",
                     "layout" => "vertical",
+                    "spacing" => "sm",
                     "contents" => $rows
                 ],
                 "footer" => [
