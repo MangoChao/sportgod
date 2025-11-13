@@ -1170,7 +1170,7 @@ class Line extends Api
             "spacing" => "xs",
             "margin"  => "xs",
             "contents" => array_merge(
-                [["type" => "text", "text" => '', "size" => "sm", "wrap" => true]],
+                [["type" => "text", "text" => '55', "size" => "sm", "wrap" => true]],
                 array_map(function ($t) {
                     return ["type" => "text", "text" => $t, "size" => "xs", "wrap" => true];
                 }, $lines)
