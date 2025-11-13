@@ -1180,6 +1180,7 @@ class Line extends Api
 
     private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 8, bool $showResult = false, bool $useCarousel = true): array
     {
+        $rowsPerPage = 5;
         if (empty($preds)) {
             return [[
                 "type" => "flex",
