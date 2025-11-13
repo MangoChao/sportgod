@@ -441,7 +441,7 @@ class Line extends Api
     
     private function getFirstPrize()
     {
-        
+
         $this->sendReplyMessage("您不符合活動獎金資格。");
     }
     
@@ -558,10 +558,10 @@ class Line extends Api
             $futureEnd  = strtotime(date('Y-m-d 00:00:00', strtotime('+180 days')));
 
             // 仍沿用既有查詢函式，時間範圍：今天起 ~ 未來
+            
             $todayAndFuture = $this->fetchPredsCombined($analystId, $categoryId, $todayStart, $futureEnd, 'pending');
-
             // 用共用清單：標題改為「我的預測」，不顯示結果，並用 carousel（同一則可左右滑）
-            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 8, false, true);
+            $tmp = $this->buildPredListBubbles($todayAndFuture, "📝 我的預測", 5, false, true);
             if (!empty($tmp)) {
                 $myPredMsgOne[] = $tmp[0]; // 只取一則，避免超過 5 則上限
             }
@@ -1178,7 +1178,7 @@ class Line extends Api
         ];
     }
 
-    private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 8, bool $showResult = false, bool $useCarousel = true): array
+    private function buildPredListBubbles(array $preds, string $title, int $rowsPerPage = 5, bool $showResult = false, bool $useCarousel = true): array
     {
         if (empty($preds)) {
             return [[
@@ -1359,8 +1359,9 @@ class Line extends Api
             }
         }
 
+        $findPredCount = sizeof($merged);
         //只要不是看已結算, 或是自己, 都要判斷次數
-        if ($status !== 'settled' && $analystId != $this->mAnalyst->id) {
+        if ($findPredCount > 0 && $status !== 'settled' && $analystId != $this->mAnalyst->id) {
             // $seepredCount = $this->mAnalyst->seepred_count;
             $seepredCount = Config::get("site.seepred_count");
             //未開通
@@ -1376,7 +1377,7 @@ class Line extends Api
                     return [];
                 }
             }
-            $this->mAnalyst->seepred_today += sizeof($merged);
+            $this->mAnalyst->seepred_today += $findPredCount;
             $this->mAnalyst->save();
         }
 
@@ -1724,13 +1725,13 @@ class Line extends Api
         // 1) 未結算（carousel: 同一則裡可左右滑）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($pending, "⏳ 未結算預測", 8, false, true)
+            $this->buildPredListBubbles($pending, "⏳ 未結算預測", 5, false, true)
         );
 
         // 2) 已結算（carousel）
         $messages = array_merge(
             $messages,
-            $this->buildPredListBubbles($settled, "📊 已結算預測", 8, true, true)
+            $this->buildPredListBubbles($settled, "📊 已結算預測", 5, true, true)
         );
 
         // 3) 勝率（用上面新函式，與 pending/settled 同期間）
