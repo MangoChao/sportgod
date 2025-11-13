@@ -1231,6 +1231,7 @@ class Line extends Api
                 "header" => [
                     "type" => "box",
                     "layout" => "vertical",
+                    "margin" => "md",
                     "contents" => [[
                         "type" => "text",
                         "text" => $title,
@@ -1241,7 +1242,6 @@ class Line extends Api
                 "body" => [
                     "type" => "box",
                     "layout" => "vertical",
-                    "spacing" => "sm",
                     "contents" => $rows
                 ],
                 "footer" => [
