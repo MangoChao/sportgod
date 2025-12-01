@@ -236,4 +236,9 @@ class Index extends Frontend
     {
         return $this->view->fetch();
     }
+    public function testPay()
+    {
+        Log::notice($this->request);
+        return "test";
+    }
 }
