@@ -38,6 +38,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'guests_refund', title: __('客場讓分'), operate: 'LIKE', sortable: true, visible: false, align: 'left'},
                         {field: 'bigscore', title: __('大小分'), operate: 'LIKE', sortable: true, visible: false, align: 'left'},
                         {field: 'pred', title: __('預測'), operate: 'LIKE', sortable: true},
+                        {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('event status 0'), 1: __('event status 1')}},
                         {field: 'createtime', title: __('createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true, visible: false},
                         {field: 'updatetime', title: __('updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
@@ -63,6 +64,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 Form.api.bindevent($("form[role=form]"));
             },
             formatter:{
+                status: function (value, row, index, custom) {
+                    var colorArr = {'0':'orange','1':'success'};
+                    var valueArr = {'0':__('event status 0'),'1':__('event status 1')};
+                    if (typeof custom !== 'undefined') {
+                        colorArr = $.extend(colorArr, custom);
+                    }
+                    var color = typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'orange';
+                    return '<span class="text-' + color + '">' + valueArr[value] + '</span>';
+                },
                 score: function (value, row, index, custom) {
                     var guests_score = "-";
                     var master_score = "-";

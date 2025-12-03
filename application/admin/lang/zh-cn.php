@@ -230,4 +230,6 @@ return [
     'comply status 2' => '輸',
     'comply status 3' => '和',
     'comply status -1' => '無效賽事',
+    'event status 0' => '未確認',
+    'event status 1' => '已確認',
 ];
