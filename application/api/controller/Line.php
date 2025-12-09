@@ -1367,13 +1367,16 @@ class Line extends Api
                 $this->sendReplyMessage("請向客服索取代碼，並輸入代碼");
                 return [];
             }elseif($this->mAnalyst->seepred == 1){ //有開通
+                Log::notice("開通用戶:".$this->mAnalyst->analyst_name."[".$this->mAnalyst->id."] 今日已看:".$this->mAnalyst->seepred_today." 每日可看:".$seepredCount);
                 $lastCount = $seepredCount - $this->mAnalyst->seepred_today; //今日剩餘次數
                 if($lastCount <= 0){
+                    Log::notice("".$this->mAnalyst->analyst_name."[".$this->mAnalyst->id."] 今日觀看場數已上限");
                     //沒有額度
                     $this->sendReplyMessage("今日觀看場數已上限");
                     return [];
                 }
             }
+            Log::notice("".$this->mAnalyst->analyst_name."[".$this->mAnalyst->id."] 本次:".$findPredCount);
             $this->mAnalyst->seepred_today += $findPredCount;
             $this->mAnalyst->save();
         }
