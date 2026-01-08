@@ -1300,7 +1300,7 @@ class Line extends Api
         $query = model('Pred')
             ->alias('p')
             ->join('event e', 'e.id = p.event_id')
-            ->field('p.*, e.guests, e.master, e.starttime')
+            ->field('p.*, e.guests, e.master, e.starttime, p.guests_refund, p.master_refund, p.bigscore, p.guests_score, p.master_score')
             ->where('p.analyst_id', $analystId);
 
         if ($start !== null) $query->where('e.starttime', '>=', $start);
