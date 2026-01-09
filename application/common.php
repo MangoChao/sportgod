@@ -777,7 +777,7 @@ if (!function_exists('calculateComply')) {
         // === 模擬勝率調整 ===
         if ($mPred->isauto == 1 && $mPred->isread == 0 && $mPred->comply == 2) {
             $stats = $modelPred->alias('p')
-                ->join('event e', 'e.id = p.event_id')
+                ->join('events e', 'e.id = p.event_id')
                 ->where('p.analyst_id', $mPred->analyst_id)
                 ->where('e.event_category_id', $catId)
                 ->where('p.comply', 'in', [1, 2])

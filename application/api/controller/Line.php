@@ -804,7 +804,7 @@ class Line extends Api
             $dateKey  = date('Y-m-d', $dayStart);
 
             // 組 where 條件（ThinkPHP 5 相容）
-            $query = model('Event')
+            $query = model('Events')
                 ->where('starttime', '>=', $dayStart)
                 ->where('starttime', '<',  $dayEnd);
 
@@ -1299,7 +1299,7 @@ class Line extends Api
     {
         $query = model('Pred')
             ->alias('p')
-            ->join('event e', 'e.id = p.event_id')
+            ->join('events e', 'e.id = p.event_id')
             ->field('p.*, e.guests, e.master, e.starttime')
             ->where('p.analyst_id', $analystId);
 
@@ -1318,8 +1318,6 @@ class Line extends Api
 
         Log::notice('fetchPredsCombined SQL: ' . $query->fetchSql(true)->select());
         $rows = $query->order('e.starttime desc')->select();
-        Log::notice($rows);
-        // $rows = [];
 
         $merged = [];
         foreach ($rows as $r) {
@@ -1593,7 +1591,7 @@ class Line extends Api
 
         $base = model('Analyst')->alias('a')
             ->join('pred p', 'p.analyst_id = a.id')
-            ->join('event e', 'e.id = p.event_id')
+            ->join('events e', 'e.id = p.event_id')
             ->where('e.starttime', '>=', $startTs)
             ->where('e.starttime', '<', $endTs);
 
@@ -1791,7 +1789,7 @@ class Line extends Api
     {
         // 基底查詢
         $q = model('Pred')->alias('p')
-            ->join('event e', 'e.id = p.event_id')
+            ->join('events e', 'e.id = p.event_id')
             ->where('p.analyst_id', '=', $analystId)
             ->where('p.comply', 'in', [1, 2]);
 

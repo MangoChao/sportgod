@@ -246,7 +246,7 @@ class User extends Api
 
         $mAPred = model('Pred')->alias('p')
         ->join("user_to_analyst uta","uta.analyst_id = ".$id."  AND uta.cat_id = ".$cat_id.". AND uta.user_id = ".$this->auth->id." AND uta.buydate = ".$sdate, "LEFT")
-        ->join("event e","e.id = p.event_id AND e.event_category_id = ".$cat_id)
+        ->join("events e","e.id = p.event_id AND e.event_category_id = ".$cat_id)
         ->field("p.*, uta.id as uta_id")
         ->where('p.analyst_id = '.$id.' AND e.starttime > '.time().' AND e.starttime < '.$starttime_end.' AND e.starttime > '.$starttime_start)->find();
         if($mAPred){
@@ -429,7 +429,7 @@ class User extends Api
                 
                 $mPred = model('Pred')->alias('p')
                 ->join("analyst a","a.id = p.analyst_id")
-                ->join("event e","e.id = p.event_id")
+                ->join("events e","e.id = p.event_id")
                 ->join("event_category ec","ec.id = e.event_category_id")
                 ->field('p.*, a.analyst_name, e.guests, e.master, e.starttime, ec.title')
                 ->where("a.status = 1 AND p.analyst_id = ".$mAnalyst->id." AND p.event_id = ".$mEvent->id." AND p.pred_type = ".$pred_type)->find();
@@ -556,7 +556,7 @@ class User extends Api
             $mUsertopred = model('Usertopred')->alias('utp')
             ->join("pred p","p.id = utp.pred_id")
             ->join("analyst a","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->join("event_category ec","ec.id = e.event_category_id")
             ->field('p.*, a.analyst_name, e.guests, e.master, e.starttime, ec.title')
             ->where("utp.user_id = ".$mUser->id." AND p.event_id = ".$id." AND p.pred_type = ".$type." ")->find();
@@ -604,7 +604,7 @@ class User extends Api
                 $mUsertopred = model('Usertopred')->alias('utp')
                 ->join("pred p","p.id = utp.pred_id")
                 ->join("analyst a","a.id = p.analyst_id")
-                ->join("event e","e.id = p.event_id")
+                ->join("events e","e.id = p.event_id")
                 ->join("event_category ec","ec.id = e.event_category_id")
                 ->field('p.*, a.analyst_name, e.guests, e.master, e.starttime, ec.title')
                 ->where("utp.userfree_id = ".$mUserfree->id." AND p.event_id = ".$id." AND p.pred_type = ".$type." ")->find();
@@ -710,7 +710,7 @@ class User extends Api
         }
         $mEvent = model('Analyst')->alias('a')
         ->join("analyst_to_event_category atc","atc.analyst_id = a.id")
-        ->join("event e","atc.event_category_id = e.event_category_id AND e.id = ".$id)
+        ->join("events e","atc.event_category_id = e.event_category_id AND e.id = ".$id)
         ->join("event_category ec","ec.id = e.event_category_id AND ec.status = 1")
         ->field("e.*, a.id as analyst_id, a.autopred_today, a.autopred_count")
         ->where("a.autopred = 1 AND a.status = 1 ".$unaid)->orderRaw('RAND()')->find();
@@ -724,7 +724,7 @@ class User extends Api
 
             $mPred = model('Pred')->alias('p')
             ->join("analyst a","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->join("event_category ec","ec.id = e.event_category_id")
             ->field('p.*, a.analyst_name, e.guests, e.master, e.starttime, ec.title')
             ->where("a.status = 1 AND p.analyst_id = ".$mEvent->analyst_id." AND p.event_id = ".$id." AND p.pred_type = ".$pred_type)->find();
@@ -813,7 +813,7 @@ class User extends Api
 
             $mPred = model('Pred')->alias('p')
             ->join("analyst a","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->join("event_category ec","ec.id = e.event_category_id")
             ->field('p.*, a.analyst_name, e.guests, e.master, e.starttime, ec.title')
             ->where("a.status = 1 AND p.analyst_id = ".$mEvent->analyst_id." AND p.event_id = ".$mEvent->id." AND p.pred_type = ".$pred_type)->find();

@@ -55,7 +55,7 @@ class Analyst extends Frontend
         $page = $this->request->request('page', 1);
         $mAnalyst = model('Analyst')->alias('a')
         ->join("pred p","p.analyst_id = a.id")
-        ->join("event e","e.id = p.event_id")
+        ->join("events e","e.id = p.event_id")
         ->field("a.*")
         ->where("a.status = 1 ".$cat_where)->group('a.id')->orderRaw('RAND()')->paginate(20, false, $this->paginate_config);
         $count = $mAnalyst->total();
@@ -118,7 +118,7 @@ class Analyst extends Frontend
         
         $eid = 0;
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id")
+        ->join("events e","e.event_category_id = ec.id")
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
         ->distinct(true)
         ->field("ec.*")
@@ -170,7 +170,7 @@ class Analyst extends Frontend
         $this->view->assign('id', $id);
         $eid = 0;
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id")
+        ->join("events e","e.event_category_id = ec.id")
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
         ->distinct(true)
         ->field("ec.*")
@@ -187,7 +187,7 @@ class Analyst extends Frontend
 
         // $mEventcategory = model('Eventcategory')->where('status = 1')->select();
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id")
+        ->join("events e","e.event_category_id = ec.id")
         ->join("pred p","p.event_id = e.id AND p.analyst_id = ".$id)
         ->distinct(true)
         ->field("ec.*")
@@ -213,7 +213,7 @@ class Analyst extends Frontend
         $page = $this->request->request('page', 1);
         $mPred = model('Pred')->alias('p')
         ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.buydate = ".$starttime_start, "LEFT")
-        ->join("event e","e.id = p.event_id")
+        ->join("events e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
         ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free, a.user_id as auid")
@@ -254,7 +254,7 @@ class Analyst extends Frontend
         $page = $this->request->request('page', 1);
         $mHPred = model('Pred')->alias('p')
         ->join("user_to_analyst uta","uta.analyst_id = ".$id." AND uta.user_id = ".$user_id." AND uta.buydate = ".$starttime_start, "LEFT")
-        ->join("event e","e.id = p.event_id")
+        ->join("events e","e.id = p.event_id")
         ->join("analyst a","a.id = p.analyst_id")
         ->join("event_category ec","e.event_category_id = ec.id AND ec.status = 1 AND ec.id = ".$cat_id)
         ->field("p.*, e.guests, e.master, e.starttime, uta.id as uta_id, a.free, a.user_id as auid")

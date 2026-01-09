@@ -28,7 +28,7 @@ class Index extends Api
         $modelPred = model('Pred');
         $predList = $modelPred
             ->alias('p')
-            ->join('event e', 'e.id = p.event_id')
+            ->join('events e', 'e.id = p.event_id')
             ->where('e.status', '=', 1) // ✅ 只重算已結束賽事
             ->field([
                 'p.*',

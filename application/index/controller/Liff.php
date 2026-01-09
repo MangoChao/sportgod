@@ -124,14 +124,14 @@ class Liff extends Frontend
                 $mUsertopred1 = model('Usertopred')->alias('utp')
                 ->join("pred p","p.id = utp.pred_id")
                 ->join("analyst a","a.id = p.analyst_id")
-                ->join("event e","e.id = p.event_id")
+                ->join("events e","e.id = p.event_id")
                 ->field('p.*, a.analyst_name, e.guests, e.master')
                 ->where("utp.userfree_id = ".$mUser->id." AND p.event_id = ".$id." AND p.pred_type = 1 ")->find();
                 
                 $mUsertopred2 = model('Usertopred')->alias('utp')
                 ->join("pred p","p.id = utp.pred_id")
                 ->join("analyst a","a.id = p.analyst_id")
-                ->join("event e","e.id = p.event_id")
+                ->join("events e","e.id = p.event_id")
                 ->field('p.*, a.analyst_name, e.guests, e.master')
                 ->where("utp.userfree_id = ".$mUser->id." AND p.event_id = ".$id." AND p.pred_type = 2 ")->find();
 
@@ -163,7 +163,7 @@ class Liff extends Frontend
             $mUsertopred1 = model('Usertopred')->alias('utp')
             ->join("pred p","p.id = utp.pred_id")
             ->join("analyst a","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->field('p.*, a.analyst_name, e.guests, e.master')
             ->where("utp.user_id = ".$mUser->id." AND p.event_id = ".$id." AND p.pred_type = 1 ")->find();
             
@@ -171,7 +171,7 @@ class Liff extends Frontend
             $mUsertopred2 = model('Usertopred')->alias('utp')
             ->join("pred p","p.id = utp.pred_id")
             ->join("analyst a","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->field('p.*, a.analyst_name, e.guests, e.master')
             ->where("utp.user_id = ".$mUser->id." AND p.event_id = ".$id." AND p.pred_type = 2 ")->find();
 
@@ -277,7 +277,7 @@ class Liff extends Frontend
             $mAnalyst = model('Analyst')->where("id = ".$id)->find();
             if($mAnalyst AND $mRank){
                 $mPred = model('Pred')->alias('p')
-                ->join("event e","e.id = p.event_id")
+                ->join("events e","e.id = p.event_id")
                 ->field("p.*, e.guests, e.master, e.starttime")
                 ->where('p.comply <> 0 AND p.analyst_id = '.$mAnalyst->id.' AND e.starttime > '.$mRank->rtime1.' AND e.starttime < '.$mRank->rtime2)->order('e.starttime','desc')->select();
                 if($mPred){

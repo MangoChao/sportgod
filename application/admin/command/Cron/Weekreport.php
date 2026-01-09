@@ -49,7 +49,7 @@ class Weekreport extends Command
     //         $modelAnalyst = new Analyst;
     //         $mAnalyst = $modelAnalyst->alias('a')
     //         ->join("pred p","a.id = p.analyst_id")
-    //         ->join("event e","e.id = p.event_id")
+    //         ->join("events e","e.id = p.event_id")
     //         ->field("a.id, count(case when p.comply = 1 then 0 end)/count(p.id)*100 as winrate, count(case when p.comply = 1 then 0 end) as win,count(p.id) - count(case when p.comply = 1 then 0 end) as lose")
     //         ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime)->group("a.id")->order("winrate","desc")->limit(20)->select();
     //         if($mAnalyst){

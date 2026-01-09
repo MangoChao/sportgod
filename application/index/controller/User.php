@@ -414,7 +414,7 @@ class User extends Frontend
         
         // $mEventcategory = model('Eventcategory')->where('status = 1')->find();
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate)
+        ->join("events e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate)
         ->distinct(true)
         ->field("ec.*, e.id as e_id")
         ->where("ec.status = 1")->order('ec.id')->group('ec.id')->find();
@@ -425,7 +425,7 @@ class User extends Frontend
         
         // $mEventcategory = model('Eventcategory')->where('status = 1')->select();
         $mEventcategory = model('Eventcategory')->alias('ec')
-        ->join("event e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate, "LEFT")
+        ->join("events e","e.event_category_id = ec.id AND e.starttime > ".$sdate." AND e.starttime < ".$edate, "LEFT")
         ->distinct(true)
         ->field("ec.*, e.id as e_id")
         ->where("ec.status = 1")->order('ec.id')->group('ec.id')->select();

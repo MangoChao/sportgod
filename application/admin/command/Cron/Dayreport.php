@@ -512,7 +512,7 @@ class Dayreport extends Command
             $lmonth = strtotime(date("Y-m-d")." -1 month");
             $mAnalyst = $modelAnalyst->alias('a')
             ->join("pred p","p.analyst_id = a.id")
-            ->join("event e","p.event_id = e.id")
+            ->join("events e","p.event_id = e.id")
             ->field("a.*,e.event_category_id")
             ->where("a.status = 1 AND p.createtime > ".$lmonth)->group("a.id,e.event_category_id")->select();
             if($mAnalyst){
@@ -548,7 +548,7 @@ class Dayreport extends Command
             $type = 1;
             $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->join("events e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->order(["e.starttime"=>"desc","p.predtime"=>"desc"])->select();
             if($mPred){
@@ -595,7 +595,7 @@ class Dayreport extends Command
             $type = 2;
             $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->join("events e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->group("FROM_UNIXTIME(e.starttime,'%Y%m%d')")->order(["e.starttime"=>"desc"])->select();
             if($mPred){
@@ -642,7 +642,7 @@ class Dayreport extends Command
             $type = 3;
             $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->join("events e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->order(["e.starttime"=>"desc","p.predtime"=>"desc"])->select();
             if($mPred){
@@ -697,7 +697,7 @@ class Dayreport extends Command
             
             $lmonth = strtotime(date("Y-m-d")." -30 day");
             $mPred = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->join("events e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*, count(case when p.comply = 1 then 0 end) as win,count(p.id) as pcount")
             ->where("p.comply <> 0 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->group("FROM_UNIXTIME(e.starttime,'%Y%m%d')")->order(["e.starttime"=>"desc"])->select();
             if($mPred){
@@ -764,7 +764,7 @@ class Dayreport extends Command
             $type = 6;
             $lmonth = strtotime(date("Y-m-d")." -30 day");
             $win = $modelPred->alias('p')
-            ->join("event e","p.event_id = e.id AND e.event_category_id = ".$ecid)
+            ->join("events e","p.event_id = e.id AND e.event_category_id = ".$ecid)
             ->field("p.*")
             ->where("p.comply = 1 AND p.analyst_id = ".$id." AND e.starttime > ".$lmonth)->count();
             if($win > 0){
@@ -831,7 +831,7 @@ class Dayreport extends Command
             $modelAnalyst = new Analyst;
             $mAnalyst = $modelAnalyst->alias('a')
             ->join("pred p","a.id = p.analyst_id")
-            ->join("event e","e.id = p.event_id")
+            ->join("events e","e.id = p.event_id")
             ->join("event_category ec","ec.id = e.event_category_id AND ec.id = ".$id)
             ->field("a.id, ec.rankrule as rankrule, count(case when p.comply = 1 then 0 end)/count(p.id)*100 as winrate, count(case when p.comply = 1 then 0 end) as win,count(p.id) - count(case when p.comply = 1 then 0 end) as lose")
             ->where("p.comply <> 0 AND e.starttime > ".$weekTime." AND e.starttime < ".$todayTime."")->group("a.id")->having('count(p.id) >= rankrule AND win > 1')->order("winrate","desc")->limit(20)->select();
