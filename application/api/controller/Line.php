@@ -1297,29 +1297,29 @@ class Line extends Api
      */
     private function fetchPredsCombined(int $analystId, ?int $categoryId = 0, ?int $start, ?int $end, string $status = 'all'): array
     {
-        // $query = model('Pred')
-        //     ->alias('p')
-        //     ->join('event e', 'e.id = p.event_id')
-        //     ->field('p.*, e.guests, e.master, e.starttime')
-        //     ->where('p.analyst_id', $analystId);
+        $query = model('Pred')
+            ->alias('p')
+            ->join('event e', 'e.id = p.event_id')
+            ->field('p.*, e.guests, e.master, e.starttime')
+            ->where('p.analyst_id', $analystId);
 
-        // if ($start !== null) $query->where('e.starttime', '>=', $start);
-        // if ($end   !== null) $query->where('e.starttime', '<',  $end);
+        if ($start !== null) $query->where('e.starttime', '>=', $start);
+        if ($end   !== null) $query->where('e.starttime', '<',  $end);
 
-        // if ($status === 'pending') {
-        //     $query->where('p.comply', '=', 0);
-        // } elseif ($status === 'settled') {
-        //     $query->where('p.comply', '>', 0);
-        // }
+        if ($status === 'pending') {
+            $query->where('p.comply', '=', 0);
+        } elseif ($status === 'settled') {
+            $query->where('p.comply', '>', 0);
+        }
 
-        // if ($categoryId > 0) {
-        //     $query->where('e.event_category_id', '=', $categoryId);
-        // }
+        if ($categoryId > 0) {
+            $query->where('e.event_category_id', '=', $categoryId);
+        }
 
-        // Log::notice('fetchPredsCombined SQL: ' . $query->fetchSql(true)->select());
-
-        // $rows = $query->order('e.starttime desc')->select();
-        $rows = [];
+        Log::notice('fetchPredsCombined SQL: ' . $query->fetchSql(true)->select());
+        $rows = $query->order('e.starttime desc')->select();
+        Log::notice($rows);
+        // $rows = [];
 
         $merged = [];
         foreach ($rows as $r) {
