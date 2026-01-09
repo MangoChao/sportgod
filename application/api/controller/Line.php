@@ -1316,8 +1316,8 @@ class Line extends Api
             $query->where('e.event_category_id', '=', $categoryId);
         }
 
-        // Log::notice('fetchPredsCombined SQL: ' . $query->fetchSql(true)->select());
         $rows = $query->order('e.starttime desc')->select();
+        Log::notice('SQL: ' . $query->getLastSql());
 
         $merged = [];
         foreach ($rows as $r) {
