@@ -1317,7 +1317,7 @@ class Line extends Api
         }
 
         $rows = $query->order('e.starttime desc')->select();
-        Log::notice('SQL: ' . $query->getLastSql());
+        // Log::notice('SQL: ' . $query->getLastSql());
 
         $merged = [];
         foreach ($rows as $r) {
@@ -1446,8 +1446,6 @@ class Line extends Api
                 ? "主 {$masterName} 讓分 {$mr}"
                 : "客 {$guestName} 受讓 " . $this->reverseSignStr($mr);
         }
-        Log::notice($ev);
-        Log::notice($winteam);
         return "讓分 未開";
     }
 
@@ -1457,8 +1455,6 @@ class Line extends Api
     {
         $bs = trim((string)($ev['bigscore'] ?? ''));
         if (!$this->hasOdds($bs)) {
-            Log::notice($ev);
-            Log::notice($bigsmall);
             return "大小 未開";
         }
         return (int)$bigsmall === 1
