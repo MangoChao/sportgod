@@ -1349,8 +1349,11 @@ class Line extends Api
             if ((int)$r['pred_type'] === 1) {
                 $merged[$eid]['winteam']       = $r['winteam'];
                 $merged[$eid]['comply_refund'] = (int)$r['comply'];
+                $merged[$eid]['guests_refund']   = (string)$r['guests_refund'];
+                $merged[$eid]['master_refund']   = (string)$r['master_refund'];
             } elseif ((int)$r['pred_type'] === 2) {
                 $merged[$eid]['bigsmall']   = $r['bigsmall'];
+                $merged[$eid]['bigscore']   = (string)$r['bigscore'];
                 $merged[$eid]['comply_big'] = (int)$r['comply'];
             }
         }
