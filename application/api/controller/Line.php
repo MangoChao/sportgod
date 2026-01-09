@@ -1443,6 +1443,8 @@ class Line extends Api
                 ? "主 {$masterName} 讓分 {$mr}"
                 : "客 {$guestName} 受讓 " . $this->reverseSignStr($mr);
         }
+        Log::notice($ev);
+        Log::notice($winteam);
         return "讓分 未開";
     }
 
@@ -1451,7 +1453,11 @@ class Line extends Api
     private function formatTotalPickLine(array $ev, $bigsmall): string
     {
         $bs = trim((string)($ev['bigscore'] ?? ''));
-        if (!$this->hasOdds($bs)) return "大小 未開";
+        if (!$this->hasOdds($bs)) {
+            Log::notice($ev);
+            Log::notice($bigsmall);
+            return "大小 未開";
+        }
         return (int)$bigsmall === 1
             ? "大分 {$bs}"
             : "小分 " . $this->reverseSignStr($bs);
