@@ -28,6 +28,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'code', title: __('code'), operate: 'LIKE', formatter: Controller.api.formatter.copytext, sortable: false},
+                        {field: 'remark', title: __('remark'), operate: 'LIKE', align: 'left'},
                         {field: 'analyst.analyst_name', title: __('分析師'), operate: 'LIKE', sortable: false},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('line_pred_code status 0'), 1: __('line_pred_code status 1')}},
                     ]
