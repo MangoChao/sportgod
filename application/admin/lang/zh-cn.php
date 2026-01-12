@@ -232,4 +232,5 @@ return [
     'comply status -1' => '無效賽事',
     'event status 0' => '未確認',
     'event status 1' => '已確認',
+    'remark' => '備註'
 ];
