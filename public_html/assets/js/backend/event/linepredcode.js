@@ -9,6 +9,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'event/linepredcode/index',
                     add_url: 'event/linepredcode/add',
+                    edit_url: 'event/linepredcode/edit',
                     del_url: 'event/linepredcode/del',
                     table: 'line_pred_code',
                 }
@@ -31,6 +32,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'remark', title: __('remark'), operate: 'LIKE', align: 'left'},
                         {field: 'analyst.analyst_name', title: __('分析師'), operate: 'LIKE', sortable: false},
                         {field: 'status', title: __('Status'), formatter: Controller.api.formatter.status, searchList: {0: __('line_pred_code status 0'), 1: __('line_pred_code status 1')}},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
