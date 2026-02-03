@@ -36,43 +36,6 @@ class Event extends Api
         $this->success('success', $list);
     }
 
-    收到，參考了你的文章列表寫法後，這報錯 2031 的主因就很明顯了：在 ThinkPHP 的 paginate() 或 where() 中，如果直接拼接字串（如 $catWhere）有時會與預處理機制產生衝突。
-
-為了符合你的需求（可帶時間參數搜尋、預設 3 天、最多 30 天、分頁輸出），我重新調整了 API 程式碼。
-
-建議的 API 寫法 (External.php)
-這裡使用了 paginate() 來處理分頁，它會自動處理 page 參數，並回傳包含總筆數的結果。
-
-PHP
-
-<?php
-
-namespace app\api\controller;
-
-use app\common\controller\Api;
-use think\Db;
-
-class External extends Api
-{
-    protected $noNeedLogin = ['getCategoryList', 'getEventList'];
-
-    public function _initialize()
-    {
-        parent::_initialize();
-        $this->checkRateLimit();
-    }
-
-    private function checkRateLimit()
-    {
-        $redis = getRedis(); 
-        $ip = $this->request->ip();
-        $key = "api_limit:external:" . $ip;
-        if ($redis->exists($key)) {
-            $this->error('請求過於頻繁，請 5 秒後再試', null, 429);
-        }
-        $redis->setex($key, 5, 'active');
-    }
-
     /**
      * 賽事列表 API
      * @param int $cid 分類ID
