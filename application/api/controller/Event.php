@@ -36,40 +36,101 @@ class Event extends Api
         $this->success('success', $list);
     }
 
+    收到，參考了你的文章列表寫法後，這報錯 2031 的主因就很明顯了：在 ThinkPHP 的 paginate() 或 where() 中，如果直接拼接字串（如 $catWhere）有時會與預處理機制產生衝突。
+
+為了符合你的需求（可帶時間參數搜尋、預設 3 天、最多 30 天、分頁輸出），我重新調整了 API 程式碼。
+
+建議的 API 寫法 (External.php)
+這裡使用了 paginate() 來處理分頁，它會自動處理 page 參數，並回傳包含總筆數的結果。
+
+PHP
+
+<?php
+
+namespace app\api\controller;
+
+use app\common\controller\Api;
+use think\Db;
+
+class External extends Api
+{
+    protected $noNeedLogin = ['getCategoryList', 'getEventList'];
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->checkRateLimit();
+    }
+
+    private function checkRateLimit()
+    {
+        $redis = getRedis(); 
+        $ip = $this->request->ip();
+        $key = "api_limit:external:" . $ip;
+        if ($redis->exists($key)) {
+            $this->error('請求過於頻繁，請 5 秒後再試', null, 429);
+        }
+        $redis->setex($key, 5, 'active');
+    }
+
     /**
-     * 2. 取得賽事列表 (直接輸出原始資料)
+     * 賽事列表 API
+     * @param int $cid 分類ID
+     * @param string $start 開始日期 (YYYY-MM-DD)
+     * @param string $end 結束日期 (YYYY-MM-DD)
      */
     public function getEventList()
     {
-        $catId = $this->request->request('cat_id/d', 0);
-        $page  = $this->request->request('page/d', 1);
-        $limit = $this->request->request('limit/d', 20);
+        $cid = $this->request->get('cid/d', 0);
+        $start_date = $this->request->get('start', '');
+        $end_date = $this->request->get('end', '');
 
-        // 限制區間：現在 ~ 未來 30 天
-        $startTime = time();
-        $endTime   = strtotime('+30 days');
+        // --- 時間判斷邏輯 ---
+        $now = time();
+        $max_limit = strtotime('+30 days'); // 最多查 30 天內
 
-        $query = model('Event')
-            ->where('starttime', '>=', $startTime)
-            ->where('starttime', '<', $endTime);
-
-        if ($catId > 0) {
-            $query->where('event_category_id', $catId);
+        // 設定起始時間：如果有傳參數就用參數，否則預設現在
+        $start_ts = !empty($start_date) ? strtotime($start_date . " 00:00:00") : $now;
+        
+        // 設定結束時間：如果有傳參數就用參數，否則預設 $start_ts + 3 天
+        if (!empty($end_date)) {
+            $end_ts = strtotime($end_date . " 23:59:59");
+        } else {
+            $end_ts = strtotime(date('Y-m-d 23:59:59', $start_ts) . " +2 days");
         }
 
-        // 分頁與排序
-        $total = (clone $query)->count();
-        $list = $query->page($page, $limit)
-            ->order('starttime asc')
-            // 直接輸出原始盤口與比分欄位
-            ->field('id, event_category_id, starttime, guests, master, guests_refund, master_refund, bigscore, guests_score, master_score')
-            ->select();
+        // 強制約束：不能超過未來 30 天
+        if ($end_ts > $max_limit) $end_ts = $max_limit;
+        if ($start_ts < strtotime('-1 day')) $start_ts = strtotime(date('Y-m-d 00:00:00')); // 不給查太舊的
 
-        $this->success('success', [
-            'total' => $total,
-            'page'  => $page,
-            'limit' => $limit,
-            'items' => $list
-        ]);
+        // --- 構建查詢 ---
+        $where = [];
+        $where['starttime'] = ['between', [$start_ts, $end_ts]];
+        
+        if ($cid != 0) {
+            $where['event_category_id'] = $cid;
+        }
+
+        // 使用 paginate，每頁 25 筆 (會自動抓取 url 裡的 page 參數)
+        $mEvents = model('Event')
+            ->where($where)
+            ->field('id, event_category_id, starttime, guests, master, guests_refund, master_refund, bigscore, guests_score, master_score')
+            ->order('starttime', 'asc')
+            ->paginate(25);
+
+        // 整理輸出資料
+        $result = [
+            'total'        => $mEvents->total(),
+            'current_page' => $mEvents->currentPage(),
+            'last_page'    => $mEvents->lastPage(),
+            'per_page'     => $mEvents->listRows(),
+            'search_range' => [
+                'start' => date('Y-m-d H:i:s', $start_ts),
+                'end'   => date('Y-m-d H:i:s', $end_ts)
+            ],
+            'items'        => $mEvents->items() // 這裡就是純資料陣列
+        ];
+
+        $this->success('success', $result);
     }
 }
