@@ -49,7 +49,7 @@ class Event extends Api
         $startTime = time();
         $endTime   = strtotime('+30 days');
 
-        $query = model('Events')
+        $query = model('Event')
             ->where('starttime', '>=', $startTime)
             ->where('starttime', '<', $endTime);
 
