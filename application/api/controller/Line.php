@@ -804,7 +804,7 @@ class Line extends Api
             $dateKey  = date('Y-m-d', $dayStart);
 
             // 組 where 條件（ThinkPHP 5 相容）
-            $query = model('Events')
+            $query = model('Event')
                 ->where('starttime', '>=', $dayStart)
                 ->where('starttime', '<',  $dayEnd);
 
