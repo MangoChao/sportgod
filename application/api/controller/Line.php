@@ -147,6 +147,24 @@ class Line extends Api
 
         $this->success();
     }
+    
+    /**
+     * 檢查並設定 Webhook 鎖定
+     * @param string $userId 用戶 ID
+     * @param string $eventType 事件類型 (e.g. postback, message)
+     * @return bool 是否允許繼續執行
+     */
+    private function checkAndSetWebhookLock($userId, $eventType)
+    {
+        $redis = getRedis();
+        // 鎖定 Key 包含用戶 ID 與事件類型，避免誤傷其他功能
+        $lockKey = "lock:webhook:{$userId}:{$eventType}";
+        
+        // 設定 2 秒過期。nx 代表 Not Exists，只有不存在時才能設定成功
+        $isLock = $redis->set($lockKey, time(), ['nx', 'ex' => 2]);
+        
+        return $isLock ? true : false;
+    }
 
     public function webhook()
     {
@@ -192,6 +210,11 @@ class Line extends Api
                     }
 
                     if ($this->webhook_events_type) {
+                        if (!$this->checkAndSetWebhookLock($this->webhook_userId, $this->webhook_events_type)) {
+                            Log::notice("用戶 [{$this->webhook_userId}] 連續請求 [{$this->webhook_events_type}]，已阻擋");
+                            // 直接跳過此 event，或者回傳成功讓 LINE 不要重發
+                            continue; 
+                        }
                         switch ($this->webhook_events_type) {
                             case 'message':
                                 $this->webhook_events_message_id = $e['message']['id'] ?? null;
