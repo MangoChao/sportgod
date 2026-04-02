@@ -161,7 +161,7 @@ class Line extends Api
         $lockKey = "lock:webhook:{$userId}:{$eventType}";
         
         // 設定 2 秒過期。nx 代表 Not Exists，只有不存在時才能設定成功
-        $isLock = $redis->set($lockKey, time(), ['nx', 'ex' => 2]);
+        $isLock = $redis->set($lockKey, time(), ['nx', 'ex' => 1]);
         
         return $isLock ? true : false;
     }
