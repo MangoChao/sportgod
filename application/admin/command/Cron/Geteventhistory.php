@@ -43,13 +43,14 @@ class Geteventhistory extends Command
 
             // 找出有未結算且已過開賽時間的賽事日期
             $modelEvent = new Event;
-            $unsettledDates = $modelEvent
+            $rows = $modelEvent
                 ->field("FROM_UNIXTIME(starttime, '%Y-%m-%d') as date")
                 ->where('status', 0)
                 ->where('starttime', '<', time())
                 ->group("FROM_UNIXTIME(starttime, '%Y-%m-%d')")
                 ->order('starttime asc')
-                ->column('date');
+                ->select();
+            $unsettledDates = array_column(collection($rows)->toArray(), 'date');
 
             // 加上今天（避免今天剛結束的賽事來不及進清單）
             $today = date('Y-m-d');
