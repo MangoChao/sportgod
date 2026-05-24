@@ -44,13 +44,19 @@ class Geteventhistory extends Command
             // 找出有未結算且已過開賽時間的賽事日期
             $modelEvent = new Event;
             $rows = $modelEvent
-                ->field("FROM_UNIXTIME(starttime, '%Y-%m-%d') as date")
+                ->field('starttime')
                 ->where('status', 0)
                 ->where('starttime', '<', time())
-                ->group("FROM_UNIXTIME(starttime, '%Y-%m-%d')")
                 ->order('starttime asc')
                 ->select();
-            $unsettledDates = array_column(collection($rows)->toArray(), 'date');
+
+            $unsettledDates = [];
+            foreach ($rows as $r) {
+                $d = date('Y-m-d', (int)$r['starttime']); // 跟著 PHP timezone（Asia/Taipei）
+                if (!in_array($d, $unsettledDates)) {
+                    $unsettledDates[] = $d;
+                }
+            }
 
             // 加上今天（避免今天剛結束的賽事來不及進清單）
             $today = date('Y-m-d');
@@ -83,6 +89,8 @@ class Geteventhistory extends Command
                     $this->abandonUnsettledForDate($billingDate, $func_name);
                 }
             }
+
+            $this->resettleOrphanPreds($func_name);
 
             Log::notice("[command][Cron][{$func_name}] 完整結束 " . date('Y-m-d H:i:s'));
         } catch (ValidateException $e) {
@@ -148,6 +156,25 @@ class Geteventhistory extends Command
 
         if ($count > 0) {
             Log::notice("[command][Cron][{$func_name}] {$billingDate} 有 {$count} 筆賽事查無結果，標記放棄(status=2)");
+        }
+    }
+
+    private function resettleOrphanPreds(string $func_name): void
+    {
+        $modelPred = new Pred;
+        $orphans = $modelPred
+            ->alias('p')
+            ->join('events e', 'e.id = p.event_id')
+            ->field('p.*, e.master_score, e.guests_score, e.event_category_id')
+            ->where('p.comply', 0)
+            ->where('e.status', 1)
+            ->select();
+
+        if (!$orphans || count($orphans) === 0) return;
+
+        Log::notice("[command][Cron][{$func_name}] 補結算孤兒 pred：" . count($orphans) . " 筆");
+        foreach ($orphans as $pred) {
+            calculateComply($pred, $pred['master_score'], $pred['guests_score'], $pred['event_category_id'], $modelPred);
         }
     }
 
